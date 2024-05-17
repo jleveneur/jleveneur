@@ -1,6 +1,6 @@
 # Hello, I'm Julien Leveneur! :wave:
 
-I am a 22-year-old full-stack web developer passionate about crafting exceptional digital experiences. Welcome to my GitHub profile!
+I am a 23-year-old full-stack web developer passionate about crafting exceptional digital experiences. Welcome to my GitHub profile!
 
 ## About Me
 
@@ -10,13 +10,13 @@ I am a 22-year-old full-stack web developer passionate about crafting exceptiona
 
 ## Technologies I Love
 
-- Front-end: Typescript, React.js, Redux, Angular
+- Front-end: Typescript, React.js, Redux, Next.js
 - Back-end: Node.js, Express.js, Nest.js
-- Database: MongoDB, Firebase
-- Other Tools: Git, Docker
+- Database: MongoDB, PostgreSQL
+- Other Tools: Git, Docker, VSCode
 
 ## Connect with Me
 
-Let's collaborate and build something awesome together! Feel free to reach out to me on [LinkedIn](https://www.linkedin.com/in/j-leveneur).
+Let's collaborate and build something awesome together! Feel free to reach out to me on [LinkedIn](https://www.linkedin.com/in/jleveneur).
 
 Looking forward to connecting with you and sharing our passion for web development! :smile:
