@@ -1,6 +1,6 @@
 # Hello, I'm Julien Leveneur! :wave:
 
-I am a 23-year-old full-stack web developer passionate about crafting exceptional digital experiences. Welcome to my GitHub profile!
+I am a 24-year-old full-stack web developer passionate about crafting exceptional digital experiences. Welcome to my GitHub profile!
 
 ## About Me
 
