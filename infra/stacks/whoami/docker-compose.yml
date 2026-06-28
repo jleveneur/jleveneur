@@ -1,0 +1,19 @@
+services:
+  whoami:
+    image: traefik/whoami:v1.11
+    container_name: whoami
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.jleveneur.com`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.whoami.middlewares=secure-headers@file,compress@file"
+
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

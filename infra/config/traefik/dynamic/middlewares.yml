@@ -1,0 +1,16 @@
+http:
+  middlewares:
+    secure-headers:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+
+    compress:
+      compress: {}
+
+    dashboard-auth:
+      basicAuth:
+        users:
+          - "julien:$2y$05$KfqFlwY.vaMNCMIgQUzFHOlD49gUkF.M2lFNQC5tc0dSo6LPA5f.e"

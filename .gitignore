@@ -36,3 +36,12 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Docker runtime data
+infra/data/
+infra/backups/
+
+# Secrets / certificates
+*.pem
+*.key
+acme.json
