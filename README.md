@@ -10,7 +10,7 @@ Full-stack developer building web apps with TypeScript and React.
 
 ## Stack
 
-TypeScript · React · Next.js · Node.js · NestJS · PostgreSQL · MongoDB · Docker
+TypeScript · React · Next.js · Node.js · NestJS · PostgreSQL · Docker
 
 ## Connect
 

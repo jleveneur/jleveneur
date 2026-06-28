@@ -22,7 +22,6 @@ export const stack = [
   "Node.js",
   "NestJS",
   "PostgreSQL",
-  "MongoDB",
   "Docker",
 ];
 
