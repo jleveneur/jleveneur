@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 FROM node:24-alpine AS base
 WORKDIR /app
 
@@ -8,7 +10,8 @@ RUN turbo prune portfolio --docker
 
 FROM base AS deps
 COPY --from=pruner /app/out/json/ .
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 
 FROM base AS builder
 ENV NEXT_TELEMETRY_DISABLED=1
