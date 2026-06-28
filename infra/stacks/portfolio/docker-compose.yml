@@ -6,11 +6,18 @@ services:
 
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.portfolio.rule=Host(`jleveneur.com`) || Host(`www.jleveneur.com`)"
+
+      - "traefik.http.routers.portfolio.rule=Host(`jleveneur.com`)"
       - "traefik.http.routers.portfolio.entrypoints=websecure"
       - "traefik.http.routers.portfolio.tls.certresolver=letsencrypt"
       - "traefik.http.routers.portfolio.middlewares=secure-headers@file,compress@file"
       - "traefik.http.services.portfolio.loadbalancer.server.port=3000"
+
+      - "traefik.http.routers.portfolio-www.rule=Host(`www.jleveneur.com`)"
+      - "traefik.http.routers.portfolio-www.entrypoints=websecure"
+      - "traefik.http.routers.portfolio-www.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.portfolio-www.middlewares=redirect-www-to-root@file"
+      - "traefik.http.routers.portfolio-www.service=noop@internal"
 
     networks:
       - proxy

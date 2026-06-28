@@ -6,6 +6,12 @@ http:
         contentTypeNosniff: true
         browserXssFilter: true
         referrerPolicy: "strict-origin-when-cross-origin"
+    
+    redirect-www-to-root:
+      redirectRegex:
+        regex: "^https://www\\.jleveneur\\.com/(.*)"
+        replacement: "https://jleveneur.com/$1"
+        permanent: true
 
     compress:
       compress: {}
