@@ -1,22 +1,20 @@
-# Hello, I'm Julien Leveneur! :wave:
+# Julien Leveneur
 
-I am a 24-year-old full-stack web developer passionate about crafting exceptional digital experiences. Welcome to my GitHub profile!
+Full-stack developer building web apps with TypeScript and React.
 
-## About Me
+## About
 
-- :telescope: I’m currently working on various web projects to expand my skills.
-- :seedling: I'm continuously learning new technologies and frameworks to stay up-to-date in the ever-evolving web development landscape.
-- :speech_balloon: Ask me about web development, Typescript, React, Node.js, or anything tech-related, and I'd be glad to help!
+- Building web projects and sharpening my full-stack skills
+- Interested in modern front-end tooling, APIs, and clean architecture
+- Happy to chat about TypeScript, React, Node.js, or web dev in general
 
-## Technologies I Love
+## Stack
 
-- Front-end: Typescript, React.js, Redux, Next.js
-- Back-end: Node.js, Express.js, Nest.js
-- Database: MongoDB, PostgreSQL
-- Other Tools: Git, Docker, VSCode
+TypeScript · React · Next.js · Node.js · NestJS · PostgreSQL · MongoDB · Docker
 
-## Connect with Me
+## Connect
 
-Let's collaborate and build something awesome together! Feel free to reach out to me on [LinkedIn](https://www.linkedin.com/in/jleveneur).
-
-Looking forward to connecting with you and sharing our passion for web development! :smile:
+- [LinkedIn](https://www.linkedin.com/in/jleveneur)
+- [Website](https://jleveneur.com)
+- [Email](mailto:jleveneur.pro@gmail.com)
+- [X](https://x.com/jleveneur_)
