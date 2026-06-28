@@ -70,7 +70,6 @@ jobs:
         run: |
           rsync -az --delete infra/stacks/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/docker/stacks/
           rsync -az --delete infra/config/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/docker/config/
-          rsync -az --delete infra/scripts/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/docker/scripts/
 
       - name: Deploy portfolio
         run: |
