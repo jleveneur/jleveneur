@@ -26,7 +26,6 @@ RUN addgroup -S nextjs && adduser -S nextjs -G nextjs
 
 COPY --from=builder --chown=nextjs:nextjs /app/apps/portfolio/.next/standalone ./
 COPY --from=builder --chown=nextjs:nextjs /app/apps/portfolio/.next/static ./apps/portfolio/.next/static
-COPY --from=builder --chown=nextjs:nextjs /app/apps/portfolio/public ./apps/portfolio/public
 
 USER nextjs
 EXPOSE 3000
