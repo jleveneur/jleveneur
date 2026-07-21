@@ -64,6 +64,7 @@
   gap: 12px;
   padding-left: 1.25rem;
   line-height: 1.6;
+  list-style: disc;
 }
 
 .stackList {
