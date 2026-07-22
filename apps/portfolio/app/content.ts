@@ -19,6 +19,7 @@ export const stack = [
   "TypeScript",
   "React",
   "Next.js",
+  "Tailwind CSS",
   "Node.js",
   "NestJS",
   "PostgreSQL",
@@ -29,6 +30,11 @@ export const links: Link[] = [
   {
     label: "LinkedIn",
     href: "https://www.linkedin.com/in/jleveneur",
+    external: true,
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/jleveneur",
     external: true,
   },
   {
