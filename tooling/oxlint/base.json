@@ -67,6 +67,8 @@
   "ignorePatterns": [
     "**/dist/**",
     "**/.next/**",
+    "**/.vinext/**",
+    "**/.wrangler/**",
     "**/coverage/**",
     "**/node_modules/**",
     "**/next-env.d.ts"

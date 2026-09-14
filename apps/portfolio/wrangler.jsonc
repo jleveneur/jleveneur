@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Workers Builds (Connect Git) — not GitHub Actions, not Pages.
+  //
+  // Dashboard: Workers & Pages → Create → Import a repository → jleveneur/jleveneur
+  // Worker name must match this `name` or the build fails.
+  // Root directory: apps/portfolio
+  // Build command: pnpm run build:vinext
+  // Deploy command: pnpm run workers:deploy
+  // Non-production: pnpm run workers:preview
+  // Build variable: PNPM_VERSION=12.3.0 (image default is pnpm 10; this repo is pnpm 12)
+  // Watch paths (optional): apps/portfolio/*, tooling/tailwind/*, pnpm-lock.yaml, pnpm-workspace.yaml
+  //
+  // Workers Builds does not read wrangler `build.command`. Those fields live in
+  // Settings → Build. Cloudflare mints the deploy token; no GitHub secrets.
+  "name": "jleveneur",
+  "compatibility_date": "2026-09-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "preview_urls": true,
+  "main": "vinext/server/fetch-handler",
+  "assets": {
+    "directory": "dist/client",
+    "not_found_handling": "none",
+    "binding": "ASSETS",
+  },
+  "observability": {
+    "enabled": true,
+  },
+}

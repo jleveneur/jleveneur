@@ -32,6 +32,11 @@
       ]
     },
 
+    // vinext + Wrangler output for apps/portfolio. Independent of `next build`.
+    "build:vinext": {
+      "outputs": ["dist/**"]
+    },
+
     "dev": {
       "cache": false,
       "persistent": true
