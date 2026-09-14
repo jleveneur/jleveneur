@@ -46,6 +46,10 @@ jobs:
       - run: pnpm react-doctor
       - run: pnpm test
 
+      # Prove the Workers toolchain compiles apps/portfolio. `pnpm build` above
+      # is still `next build`; this is vinext + Vite + wrangler.jsonc.
+      - run: pnpm --filter @repo/portfolio build:vinext
+
       # The PR title becomes the squashed commit message, so it is the thing
       # that has to satisfy commitlint. The commit-msg hook covers local commits.
       - name: Lint PR title

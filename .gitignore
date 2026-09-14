@@ -6,6 +6,8 @@ dist/
 build/
 .next/
 .turbo/
+.vinext/
+.wrangler/
 *.tsbuildinfo
 
 # Test output

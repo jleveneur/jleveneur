@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Worker name on the account. Custom domains (jleveneur.com) are attached
+  // in the dashboard after the first deploy — they are not in this file.
+  "name": "jleveneur",
+  "compatibility_date": "2026-09-14",
+  "compatibility_flags": ["nodejs_compat"],
+  // Account ID is not committed. Local and CI deploys read CLOUDFLARE_ACCOUNT_ID.
+  "main": "vinext/server/fetch-handler",
+  "assets": {
+    "directory": "dist/client",
+    "not_found_handling": "none",
+    "binding": "ASSETS",
+  },
+  "observability": {
+    "enabled": true,
+  },
+}

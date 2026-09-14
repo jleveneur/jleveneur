@@ -8,6 +8,7 @@
   "include": [
     "next-env.d.ts",
     "next.config.ts",
+    "vite.config.ts",
     "playwright.config.ts",
     "e2e/**/*.ts",
     "src/**/*.ts",
