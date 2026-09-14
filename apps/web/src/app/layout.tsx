@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
-      <body className={`${geistSans.className} min-h-dvh`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} min-h-dvh`}>
         <Providers>{children}</Providers>
       </body>
     </html>

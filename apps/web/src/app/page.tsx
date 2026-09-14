@@ -79,7 +79,7 @@ export default function HomePage() {
                   {...(link.external === true
                     ? { target: "_blank", rel: "noopener noreferrer" }
                     : {})}
-                  className="group flex items-center justify-between border-2 border-black bg-white px-4 py-3 font-bold uppercase shadow-[4px_4px_0_0_#000] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#ffe14d] hover:shadow-[6px_6px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[2px_2px_0_0_#000]"
+                  className="group flex items-center justify-between border-2 border-black bg-white px-4 py-3 font-bold uppercase shadow-[4px_4px_0_0_#000] transition-[transform,box-shadow,background-color] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#ffe14d] hover:shadow-[6px_6px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[2px_2px_0_0_#000]"
                 >
                   {link.label}
                   <span aria-hidden="true">↗</span>
