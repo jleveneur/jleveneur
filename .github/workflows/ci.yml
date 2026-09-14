@@ -46,8 +46,8 @@ jobs:
       - run: pnpm react-doctor
       - run: pnpm test
 
-      # Prove the Workers toolchain compiles apps/portfolio. `pnpm build` above
-      # is still `next build`; this is vinext + Vite + wrangler.jsonc.
+      # Prove the Workers toolchain compiles apps/portfolio. Production deploy
+      # is Cloudflare Workers Builds (Connect Git), not this workflow.
       - run: pnpm --filter @repo/portfolio build:vinext
 
       # The PR title becomes the squashed commit message, so it is the thing

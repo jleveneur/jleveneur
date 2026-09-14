@@ -103,23 +103,41 @@ them through `transpilePackages`; Vitest and `tsc` read them directly.
 
 ## Commands
 
-| Command                                       | What it does                                           |
-| --------------------------------------------- | ------------------------------------------------------ |
-| `pnpm dev`                                    | Next dev servers (`web` :3000, `portfolio` :3001)      |
-| `pnpm build`                                  | Production build                                       |
-| `pnpm check`                                  | The full local gate — everything below plus tests      |
-| `pnpm lint` / `pnpm format`                   | Oxlint (type-aware) / Oxfmt                            |
-| `pnpm typecheck`                              | `tsc --noEmit` in every package                        |
-| `pnpm knip`                                   | Unused files, exports, and dependencies                |
-| `pnpm react-doctor`                           | React and accessibility diagnostics                    |
-| `pnpm test`                                   | Vitest — pure logic, no services                       |
-| `pnpm test:integration`                       | Vitest against a real database                         |
-| `pnpm test:e2e`                               | Playwright browser journeys                            |
-| `pnpm db:start` / `db:stop`                   | Postgres in a container, via `compose.yml`             |
-| `pnpm db:generate`                            | Generate a migration from `schema.ts`                  |
-| `pnpm db:migrate`                             | Apply pending migrations                               |
-| `pnpm db:studio`                              | Drizzle Studio                                         |
-| `pnpm --filter @repo/portfolio deploy:vinext` | Build and deploy the public site to Cloudflare Workers |
+| Command                                       | What it does                                                                                |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `pnpm dev`                                    | Next dev servers (`web` :3000, `portfolio` :3001)                                           |
+| `pnpm build`                                  | Production build                                                                            |
+| `pnpm check`                                  | The full local gate — everything below plus tests                                           |
+| `pnpm lint` / `pnpm format`                   | Oxlint (type-aware) / Oxfmt                                                                 |
+| `pnpm typecheck`                              | `tsc --noEmit` in every package                                                             |
+| `pnpm knip`                                   | Unused files, exports, and dependencies                                                     |
+| `pnpm react-doctor`                           | React and accessibility diagnostics                                                         |
+| `pnpm test`                                   | Vitest — pure logic, no services                                                            |
+| `pnpm test:integration`                       | Vitest against a real database                                                              |
+| `pnpm test:e2e`                               | Playwright browser journeys                                                                 |
+| `pnpm db:start` / `db:stop`                   | Postgres in a container, via `compose.yml`                                                  |
+| `pnpm db:generate`                            | Generate a migration from `schema.ts`                                                       |
+| `pnpm db:migrate`                             | Apply pending migrations                                                                    |
+| `pnpm db:studio`                              | Drizzle Studio                                                                              |
+| `pnpm --filter @repo/portfolio deploy:vinext` | Local Wrangler upload (optional). Production is Workers Builds in the Cloudflare dashboard. |
+
+## Cloudflare (public site)
+
+`apps/portfolio` deploys as Worker **`jleveneur`** via **Workers Builds** (Connect Git). Use **Workers**, not Pages. Do not connect `apps/web`. There is no GitHub Actions deploy workflow and no `CLOUDFLARE_API_TOKEN` secret.
+
+In [Workers & Pages](https://dash.cloudflare.com/?to=/:account/workers-and-pages) → **Create application** → **Import a repository** → `jleveneur/jleveneur`:
+
+| Setting | Value |
+| --- | --- |
+| Worker name | `jleveneur` (must match `wrangler.jsonc`) |
+| Production branch | `main` (after this PR merges). Enable non-production branch builds for PR previews. |
+| Root directory | `apps/portfolio` |
+| Build command | `pnpm run build:vinext` — not `pnpm run build` (`next build` is for Playwright) |
+| Deploy command | `pnpm run workers:deploy` |
+| Non-production deploy | `pnpm run workers:preview` |
+| Build variable | `PNPM_VERSION=12.3.0` (Workers Builds defaults to pnpm 10) |
+
+Optional watch paths: `apps/portfolio/*`, `tooling/tailwind/*`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`. Cloudflare mints the Builds API token in the dashboard. After the first successful deploy, attach jleveneur.com to Worker `jleveneur`.
 
 ## Organizations and permissions
 

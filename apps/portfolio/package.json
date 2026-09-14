@@ -13,6 +13,8 @@
     "start": "next start --port 3001",
     "start:vinext": "wrangler dev --config dist/server/wrangler.json",
     "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json",
+    "workers:deploy": "wrangler deploy --config dist/server/wrangler.json",
+    "workers:preview": "wrangler versions upload --config dist/server/wrangler.json",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install --with-deps chromium"
@@ -40,5 +42,6 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "wrangler": "catalog:"
-  }
+  },
+  "packageManager": "pnpm@12.3.0"
 }
