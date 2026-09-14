@@ -36,7 +36,8 @@ the gate — do not treat a green hook as a substitute for `pnpm check`.
 ## 2. Repository shape
 
 ```
-apps/web           Next.js application
+apps/web           Next.js starter example (auth, organizations, oRPC)
+apps/portfolio     Public site (brutalist homepage)
 packages/api       oRPC procedures and router
 packages/auth      Better Auth server and client
 packages/authz     Organization roles and the permissions they grant
@@ -112,9 +113,9 @@ These fail `pnpm check`, so there is no version of "just for now":
   Functions and variables: `camelCase`.
 - Tests sit beside the code as `*.test.ts`. Anything needing a live service is
   `*.integration.test.ts` and runs under its own config. Browser journeys live
-  in `apps/web/e2e/*.spec.ts`.
+  in `apps/web/e2e/*.spec.ts` and `apps/portfolio/e2e/*.spec.ts`.
 - Import internal packages by name (`@repo/db`), never by relative path across
-  a package boundary. Inside `apps/web`, use the `@/` alias.
+  a package boundary. Inside `apps/web` and `apps/portfolio`, use the `@/` alias.
 - Type-only imports use `import type`.
 - Database columns are `snake_case`; TypeScript is `camelCase`. The mapping is
   explicit in the schema.

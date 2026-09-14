@@ -3,9 +3,9 @@
 Personal site at [jleveneur.com](https://jleveneur.com). Full-stack developer
 building web apps with TypeScript and React.
 
-The public homepage is the existing brutalist portfolio. The rest of the
-monorepo is [next-starter](https://github.com/jleveneur/next-starter): Next.js,
-Drizzle, Better Auth, and oRPC.
+The public site lives in `apps/portfolio`. `apps/web` is the
+[next-starter](https://github.com/jleveneur/next-starter) example (auth,
+organizations, oRPC).
 
 A minimal, production-ready foundation. It has the pieces every project needs
 and nothing that only some projects need.
@@ -62,7 +62,8 @@ without telling you.
 
 ```
 apps/
-  web/            Next.js application
+  web/            Next.js starter example             @repo/web
+  portfolio/      Public site                          @repo/portfolio
 packages/
   api/            oRPC procedures and router          @repo/api
   auth/           Better Auth server and client       @repo/auth
@@ -104,7 +105,7 @@ them through `transpilePackages`; Vitest and `tsc` read them directly.
 
 | Command                     | What it does                                      |
 | --------------------------- | ------------------------------------------------- |
-| `pnpm dev`                  | Next dev server                                   |
+| `pnpm dev`                  | Next dev servers (`web` :3000, `portfolio` :3001) |
 | `pnpm build`                | Production build                                  |
 | `pnpm check`                | The full local gate — everything below plus tests |
 | `pnpm lint` / `pnpm format` | Oxlint (type-aware) / Oxfmt                       |

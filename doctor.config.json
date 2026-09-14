@@ -1,6 +1,6 @@
 {
   "$schema": "https://react.doctor/schema/config.json",
-  "projects": ["apps/web", "packages/ui"],
+  "projects": ["apps/web", "apps/portfolio", "packages/ui"],
   "blocking": "error",
   "scope": "full",
   "share": false,

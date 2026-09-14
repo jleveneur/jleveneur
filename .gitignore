@@ -48,4 +48,5 @@ pnpm-debug.log*
 
 # Next.js writes this on `next dev`. Repo instructions live in /AGENTS.md.
 apps/web/AGENTS.md
+apps/portfolio/AGENTS.md
 next-env.d.ts

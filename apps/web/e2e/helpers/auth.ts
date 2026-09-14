@@ -1,6 +1,5 @@
 import type { Page } from "@playwright/test"
 
-import { name as siteName } from "../../src/lib/content.ts"
 import { waitForEmailLink } from "./outbox.ts"
 
 export const PASSWORD = "correct-horse-battery"
@@ -41,5 +40,5 @@ export async function signOut(page: Page): Promise<void> {
   await page.getByRole("button", { name: "Sign out" }).click()
   // Waiting for the home page's own heading rather than a URL glob: `**/`
   // matches almost anything, including the page we are leaving.
-  await page.getByRole("heading", { name: siteName, level: 1 }).waitFor()
+  await page.getByRole("heading", { name: "Next.js starter" }).waitFor()
 }

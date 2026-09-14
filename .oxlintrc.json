@@ -11,9 +11,9 @@
 
   "overrides": [
     {
-      // apps/web declares `@/*` → `./src/*` (no `baseUrl`).
+      // App packages declare `@/*` → `./src/*` (no `baseUrl`).
       // Parent-relative imports are the pattern the alias exists to replace.
-      "files": ["apps/web/src/**"],
+      "files": ["apps/web/src/**", "apps/portfolio/src/**"],
       "rules": {
         "no-restricted-imports": [
           "error",
