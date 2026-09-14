@@ -10,7 +10,7 @@
     "typegen": "next typegen",
     "build": "next build",
     "build:vinext": "vinext build",
-    "start": "next start --port 3001",
+    "start": "node --experimental-strip-types ./scripts/serve-export.ts --port 3001",
     "start:vinext": "wrangler dev --config dist/server/wrangler.json",
     "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json",
     "workers:deploy": "wrangler deploy --config dist/server/wrangler.json",

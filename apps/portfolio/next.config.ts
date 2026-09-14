@@ -19,6 +19,9 @@ if (existsSync(rootEnv)) {
  * page, so they can ship in a starter. A `script-src` worth having requires a
  * per-request nonce threaded through the app, and one written without that
  * either breaks Next's inline bootstrap or is loose enough to be decorative.
+ *
+ * Next.js warns these headers are not applied when serving the `out/` export.
+ * vinext still applies them on the Worker Workers Builds deploys.
  */
 const SECURITY_HEADERS = [
   // Browsers ignore this over plain HTTP, so it costs nothing locally.
@@ -34,6 +37,16 @@ const SECURITY_HEADERS = [
 ]
 
 const nextConfig: NextConfig = {
+  // The public site is static HTML. `output: "export"` is the Next/vinext
+  // switch for that: vinext prerenders routes into `dist/client`, and
+  // `next build` writes `out/`.
+  //
+  // Workers Builds still deploys a Worker (`dist/server/wrangler.json`, name
+  // `jleveneur`). vinext's assets-only example puts wrangler outside the app
+  // root and would change the dashboard deploy command; this keeps Connect Git
+  // as already configured.
+  output: "export",
+
   headers() {
     return Promise.resolve([{ source: "/:path*", headers: SECURITY_HEADERS }])
   },
