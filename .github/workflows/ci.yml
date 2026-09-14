@@ -1,0 +1,168 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A new push makes the previous run's answer irrelevant. `main` is exempt so the
+# post-merge record stays complete.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  DO_NOT_TRACK: 1
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Installs pnpm (from `packageManager`) and Node (from
+      # `devEngines.runtime`) in one step, and caches the store.
+      #
+      # `install: false` because the action's own install does not pass
+      # `--frozen-lockfile`, and an out-of-date lockfile has to fail CI rather
+      # than be silently resolved. Its `require-lockfile` input would cover
+      # this, but that is unreleased — collapse these two steps once it ships.
+      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
+        with:
+          cache: true
+          install: false
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm knip
+      - run: pnpm react-doctor
+      - run: pnpm test
+
+      # The PR title becomes the squashed commit message, so it is the thing
+      # that has to satisfy commitlint. The commit-msg hook covers local commits.
+      - name: Lint PR title
+        if: github.event_name == 'pull_request'
+        run: echo "${{ github.event.pull_request.title }}" | pnpm exec commitlint
+
+      # `next build` evaluates route modules, which validate the environment.
+      # No secret is baked into the output — nothing is NEXT_PUBLIC_ — so
+      # placeholders are enough to prove the app compiles.
+      - run: pnpm build
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app
+          BETTER_AUTH_SECRET: ci-placeholder-secret-at-least-32-characters
+          BETTER_AUTH_URL: http://localhost:3000
+
+  integration:
+    name: Integration
+    runs-on: ubuntu-latest
+
+    # The one suite that needs a real database: Better Auth writing through the
+    # Drizzle adapter, and permissions read back from the rows it wrote.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app
+      BETTER_AUTH_SECRET: ci-placeholder-secret-at-least-32-characters
+      BETTER_AUTH_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
+        with:
+          cache: true
+          install: false
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:migrate
+      - run: pnpm test:integration
+
+  e2e:
+    name: Browser
+    runs-on: ubuntu-latest
+
+    # The journeys that only exist in a browser: verification, password reset,
+    # and invitation links, each followed the way a person would.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app
+      BETTER_AUTH_SECRET: ci-placeholder-secret-at-least-32-characters
+      BETTER_AUTH_URL: http://127.0.0.1:3111
+      # No key on purpose: mail goes to the outbox the tests read.
+      RESEND_API_KEY: ""
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
+        with:
+          cache: true
+          install: false
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:migrate
+      # One install: both apps pin the same Playwright from the catalog, and two
+      # `--with-deps` runs fight over apt's lock.
+      - run: pnpm --filter @repo/web test:e2e:install
+      - run: pnpm test:e2e
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report/
+            apps/portfolio/playwright-report/
+          retention-days: 7
+
+  # The ruleset on `main` requires a check named `CI`. GitHub matches the job
+  # `name`, not the workflow file name, so Check / Integration / Browser being
+  # green is not enough — without this job the required check never reports,
+  # and platform automerge waits forever.
+  #
+  # `always()` is load-bearing: if a needed job fails, a dependent job is
+  # skipped by default, and a skipped required check is the same stuck state
+  # as a missing one. Run anyway, then fail unless every sibling succeeded.
+  ci:
+    name: CI
+    if: always()
+    needs: [check, integration, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every job
+        run: |
+          test "${{ needs.check.result }}" = success
+          test "${{ needs.integration.result }}" = success
+          test "${{ needs.e2e.result }}" = success

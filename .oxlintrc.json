@@ -1,0 +1,49 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "extends": ["./tooling/oxlint/base.json"],
+  "options": {
+    // Type-aware linting via oxlint-tsgolint, which is built on typescript-go.
+    // This is root-only configuration.
+    "typeAware": true
+  },
+  // Extends does not always merge ignorePatterns into the root config.
+  "ignorePatterns": ["**/next-env.d.ts"],
+
+  "overrides": [
+    {
+      // App packages declare `@/*` → `./src/*` (no `baseUrl`).
+      // Parent-relative imports are the pattern the alias exists to replace.
+      "files": ["apps/web/src/**", "apps/portfolio/src/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["../*", "../**"],
+                "message": "Use the @/ path alias for imports across folders."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      // Config files and setup scripts run before anything else exists, and
+      // are not shipped code — stdout is how a CLI reports what it did.
+      "files": ["**/*.config.*", "scripts/**"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      // Tests may assert on promise rejections and construct partial fixtures.
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "typescript/no-non-null-assertion": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-type-assertion": "off"
+      }
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+# AGENTS.md
+
+Instructions for AI coding agents. Humans should read [`README.md`](README.md);
+this is a condensed set of rules, not an explanation of why they exist.
+
+---
+
+## 1. Before you finish
+
+```bash
+pnpm check
+```
+
+Format check, type-aware lint, typecheck, Knip (dead code), React Doctor, and
+unit tests. CI runs the same six plus `pnpm build`. If a failure looks
+pre-existing, confirm that on a clean tree instead of assuming.
+
+Faster individual loops: `pnpm format`, `pnpm lint`, `pnpm typecheck`,
+`pnpm knip`, `pnpm react-doctor`, `pnpm test`.
+
+`pnpm check` deliberately excludes the two suites that need a database. Run
+them when the change warrants it:
+
+- `pnpm test:integration` after touching the schema, Better Auth's
+  configuration, or a procedure's guards. It is the only thing that exercises
+  the adapter and the permission rows together.
+- `pnpm test:e2e` after touching a page, a form, or an email. It is the only
+  thing that follows a link out of an email the way a person would.
+
+Lefthook also runs formatting and syntax-only lint on commit, commitlint on the
+message, and affected typecheck and tests on push. They are a convenience, not
+the gate — do not treat a green hook as a substitute for `pnpm check`.
+
+---
+
+## 2. Repository shape
+
+```
+apps/web           Next.js starter example (auth, organizations, oRPC)
+apps/portfolio     Public site (brutalist homepage)
+packages/api       oRPC procedures and router
+packages/auth      Better Auth server and client
+packages/authz     Organization roles and the permissions they grant
+packages/db        Drizzle schema, migrations, client
+packages/email     Transactional email, and the local outbox without a key
+packages/logger    Structured logging with credential redaction
+packages/env       Zod-validated environment
+packages/ui        shadcn/ui components
+tooling/*          Lint, Tailwind, and tsconfig configuration
+scripts/           Repository setup scripts, run from package.json
+```
+
+Editor agents get more here: `.cursor/rules/` carries per-area conventions that
+attach to the files they govern, and `.agents/skills/verify` documents how to
+run the two suites that need a database.
+
+The dependency direction is `env → db → auth → api → web`, with `authz` and
+`email` feeding `auth`, and `ui` depending on nothing internal. Keep it that
+way: a cycle between packages is a design error, not something to work around
+with a re-export.
+
+`authz` is deliberately free of server dependencies — the browser imports the
+same role definitions to hide controls, so it must not pull in the database.
+
+Internal packages ship TypeScript source with no build step. A package that
+starts emitting declarations breaks the parallel `typecheck` in `turbo.json`.
+
+---
+
+## 3. Where logic goes
+
+- **No database queries in a Route Handler or a Server Action.** They belong in
+  an oRPC procedure, or in a function the procedure calls.
+- **No business rules in a React component.** Components render state and raise
+  events.
+- **Every query is scoped by `organizationId`.** `eq(post.organizationId,
+context.organizationId)` is the tenant boundary; leaving it out is a data
+  leak, not a bug. That includes deletes and updates — a permission check
+  without a scoped `where` still lets one tenant reach another's rows.
+- **Compose the guard, do not re-derive it.** `protectedProcedure` for a
+  session, `orgProcedure` for a tenant, `requirePermission({ … })` for a role
+  check. New permissions go in `packages/authz`, never inline in a handler.
+- **A client-side permission check is cosmetic.** It hides controls. The server
+  checks again.
+
+---
+
+## 4. Non-negotiables
+
+These fail `pnpm check`, so there is no version of "just for now":
+
+- **No `any`.** Use `unknown` and narrow. No non-null assertions (`!`).
+- **No unawaited promises.** A floating promise in a request handler is silent
+  data loss.
+- **No `console`.** Use `logger` from `@repo/logger`; it redacts credentials and
+  emits the structured shape an aggregator can query. `console.warn` and
+  `console.error` remain available for scripts and config, which run before a
+  logger exists.
+- **No secrets in code, tests, or fixtures.**
+- **No ad hoc `process.env` reads.** Add the variable to
+  `packages/env/src/schema.ts` and import `env` from `@repo/env`, which t3-env
+  validates at startup. The one exception is a process edge that runs before
+  that module can load: `drizzle.config.ts` reads `DATABASE_URL` directly
+  because it has to load the `.env` file first.
+- **Validate every external input with Zod** at the boundary — oRPC inputs,
+  webhook payloads, third-party responses.
+
+---
+
+## 5. Conventions
+
+- Files and directories: `kebab-case`. Types and components: `PascalCase`.
+  Functions and variables: `camelCase`.
+- Tests sit beside the code as `*.test.ts`. Anything needing a live service is
+  `*.integration.test.ts` and runs under its own config. Browser journeys live
+  in `apps/web/e2e/*.spec.ts` and `apps/portfolio/e2e/*.spec.ts`.
+- Import internal packages by name (`@repo/db`), never by relative path across
+  a package boundary. Inside `apps/web` and `apps/portfolio`, use the `@/` alias.
+- Type-only imports use `import type`.
+- Database columns are `snake_case`; TypeScript is `camelCase`. The mapping is
+  explicit in the schema.
+- React Server Components by default; `"use client"` only where interactivity
+  requires it.
+
+---
+
+## 6. Adding a dependency
+
+The bar is high and deliberate.
+
+1. Check it is not already solved by something in the workspace.
+2. Add it to the package that uses it — never to the root.
+3. Use `catalog:` and add the version to `pnpm-workspace.yaml`.
+4. Pin exact versions. No ranges — Renovate proposes the bumps.
+5. Run `pnpm knip`. An unused dependency is a failing check, not a warning.
+
+**This repository is a starter, and its scope is a feature.** Redis, object
+storage, email, payments, queues, analytics, error tracking, feature flags, and
+internationalisation were all removed on purpose. Do not add one back because a
+task seems to want it — say so and ask.
+
+`compose.yml` runs Postgres for local development and nothing else. Adding a
+service to it is the same decision as adding a dependency, and there is still
+no Dockerfile — the application is not containerised.
+
+---
+
+## 7. Working style
+
+- **Prefer editing over adding.** A new file that overlaps an existing one is a
+  future inconsistency.
+- **Do not create documentation files** unless asked.
+- **Do not weaken a check to make it pass.** Disabling a lint rule, loosening a
+  type, or skipping a test needs its own justification. Fix the cause.
+- **Verify behaviour by running something.** Reading code is a hypothesis; the
+  test result is evidence.
+- **Say what you are unsure about.**
+
+---
+
+## 8. Commits
+
+[Conventional Commits](https://www.conventionalcommits.org):
+`feat(scope): summary`, `fix(db): ...`, `chore(deps): ...`.

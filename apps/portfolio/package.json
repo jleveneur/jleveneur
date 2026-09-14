@@ -1,32 +1,32 @@
 {
-  "name": "portfolio",
-  "version": "0.1.0",
-  "type": "module",
+  "name": "@repo/portfolio",
+  "version": "0.0.0",
   "private": true,
+  "description": "Julien Leveneur's public site.",
+  "type": "module",
   "scripts": {
-    "dev": "next dev --port 3000",
+    "dev": "next dev --port 3001",
+    "typegen": "next typegen",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint --max-warnings 0",
-    "check-types": "next typegen && tsc --noEmit"
+    "start": "next start --port 3001",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install --with-deps chromium"
   },
   "dependencies": {
-    "@repo/ui": "*",
-    "babel-plugin-react-compiler": "1.0.0",
-    "next": "16.2.9",
-    "react": "19.2.7",
-    "react-dom": "19.2.7"
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
-    "@repo/typescript-config": "*",
-    "@tailwindcss/postcss": "4.3.3",
-    "@types/node": "^22.15.3",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
-    "eslint": "^9.39.1",
-    "postcss": "8.4.31",
-    "tailwindcss": "4.3.3",
-    "typescript": "5.9.2"
+    "@playwright/test": "catalog:",
+    "@repo/tailwind-config": "workspace:*",
+    "@repo/tsconfig": "workspace:*",
+    "@tailwindcss/postcss": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
   }
 }

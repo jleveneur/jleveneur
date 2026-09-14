@@ -1,0 +1,13 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+
+  // Knip infers workspaces from pnpm-workspace.yaml and resolves both entry
+  // points and binaries from package scripts, so nothing here needs declaring
+  // today. Add a `workspaces` entry only when a default proves wrong for a
+  // specific package — config describing things that do not exist is config
+  // nobody validates, and Knip reports redundant patterns as hints.
+
+  // An export used only inside its own file is not dead code in a package that
+  // exists to be imported; it is usually a helper under test.
+  "ignoreExportsUsedInFile": true
+}

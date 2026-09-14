@@ -1,0 +1,41 @@
+# Git hooks.
+#
+# Hooks are fast on purpose. Pre-commit is sub-second; pre-push is seconds.
+# A slow hook gets bypassed with --no-verify, and a bypassed hook protects
+# nothing. CI is the real gate.
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: format
+      glob: "*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc,css,md,yaml,yml}"
+      # Mirrors ignorePatterns in .oxfmtrc.json. oxfmt exits 2 when every file
+      # it was handed is ignored, so without this a lockfile-only commit — every
+      # lockfile-maintenance bump — fails a hook that had nothing to do.
+      exclude:
+        - "pnpm-lock.yaml"
+        - "**/*.generated.*"
+      run: pnpm exec oxfmt {staged_files}
+      stage_fixed: true
+
+    - name: lint
+      glob: "*.{ts,tsx,js,jsx,mjs,cjs}"
+      exclude:
+        - "**/next-env.d.ts"
+      # Syntax-only here. Type-aware lint needs the whole program and belongs
+      # in `pnpm check`, not in a per-file hook.
+      run: pnpm exec oxlint {staged_files}
+
+commit-msg:
+  jobs:
+    - name: commitlint
+      run: pnpm exec commitlint --edit {1}
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: typecheck
+      run: pnpm exec turbo run typecheck --affected
+
+    - name: test
+      run: pnpm exec turbo run test --affected

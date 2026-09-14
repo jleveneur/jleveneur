@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tooling/typescript/node.json",
+  // No `baseUrl` anywhere in this repo: oxlint's type-aware backend (tsgolint,
+  // built on typescript-go) does not support it. Each package owns its own
+  // tsconfig; this one covers the root-level scripts and configs.
+  "compilerOptions": {
+    "tsBuildInfoFile": "node_modules/.cache/tsconfig.root.tsbuildinfo"
+  },
+  "include": ["scripts/**/*.ts", "*.config.ts"],
+  "exclude": ["node_modules", "apps", "packages", "tooling"]
+}
