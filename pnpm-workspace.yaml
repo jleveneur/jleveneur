@@ -1,0 +1,102 @@
+packages:
+  - apps/*
+  - packages/*
+  - tooling/*
+
+# Install scripts execute arbitrary code, so pnpm blocks them by default. Each
+# entry is a deliberate answer — an unanswered package makes `pnpm install`
+# warn, which is the behaviour we want.
+allowBuilds:
+  # lefthook's postinstall runs `lefthook install -f`. The root `prepare` script
+  # does the same job without an install-time code-execution grant, and skips
+  # `-f` so a local hook is not clobbered. Binary linking is unaffected: pnpm
+  # links node_modules/.bin/lefthook from the package's `bin` field, not from
+  # this script.
+  lefthook: false
+  # drizzle-kit bundles its CLI with esbuild. Without the install script the
+  # binary is missing and `drizzle-kit generate|migrate` fails.
+  esbuild: true
+  # Next pulls these in. Both ship platform optionalDependencies with prebuilt
+  # binaries, so the install script is unnecessary.
+  "@parcel/watcher": false
+  "@swc/core": false
+  # Next's optional image-optimisation dependency. Prebuilt binaries ship for
+  # every supported platform; the script only rebuilds libvips from source.
+  sharp: false
+
+# ---------------------------------------------------------------------------
+# Dependency catalog
+#
+# Shared versions are declared once here and referenced as "catalog:" from
+# package manifests. This is what prevents two packages from silently resolving
+# different copies of React or Zod — the classic monorepo failure.
+# ---------------------------------------------------------------------------
+catalog:
+  # --- Language & runtime types --------------------------------------------
+  typescript: 7.0.2
+  "@types/node": 24.13.3
+
+  # --- Validation -----------------------------------------------------------
+  # Used by @repo/env and by every oRPC input schema.
+  zod: 4.4.3
+  # Environment validation. Talks to Zod through Standard Schema, so it does not
+  # pin a Zod major of its own.
+  "@t3-oss/env-nextjs": 0.13.11
+
+  # --- Data -----------------------------------------------------------------
+  drizzle-orm: 0.45.2
+  drizzle-kit: 0.31.10
+  # postgres.js — portable TCP driver, no vendor-specific serverless client.
+  postgres: 3.4.9
+
+  # --- Auth -----------------------------------------------------------------
+  better-auth: 1.6.25
+
+  # --- Email ----------------------------------------------------------------
+  resend: 6.28.0
+
+  # --- Logging --------------------------------------------------------------
+  pino: 10.3.1
+
+  # --- API transport --------------------------------------------------------
+  # 2.x is still the `beta` dist-tag; pin the exact beta and upgrade server and
+  # client together.
+  "@orpc/server": 2.0.0-beta.35
+  "@orpc/client": 2.0.0-beta.35
+  "@orpc/tanstack-query": 2.0.0-beta.35
+  "@tanstack/react-query": 5.102.0
+
+  # --- React & Next ---------------------------------------------------------
+  next: 16.3.4
+  react: 19.2.8
+  "react-dom": 19.2.8
+  "@types/react": 19.2.18
+  "@types/react-dom": 19.2.7
+
+  # --- Design system --------------------------------------------------------
+  tailwindcss: 4.3.3
+  "@tailwindcss/postcss": 4.3.3
+  # Form state, validation timing, and submission. Field markup comes from the
+  # shadcn `field` primitive, which is form-library agnostic.
+  "@tanstack/react-form": 1.33.5
+
+  # Primitive layer behind the shadcn/ui components in @repo/ui.
+  "@base-ui/react": 1.7.0
+  class-variance-authority: 0.7.1
+  # shadcn's own class-merger: one compiled dependency in place of clsx and
+  # tailwind-merge, and what its registry components import by default.
+  cn: 0.2.6
+
+  # --- Testing --------------------------------------------------------------
+  vitest: 4.1.11
+  "@playwright/test": 1.63.0
+
+# Entries still inside pnpm's default release-age cutoff. Delete each one as
+# soon as it ages past the window — this list is a waiver, not a setting.
+minimumReleaseAgeExclude:
+  - "@orpc/client@2.0.0-beta.33"
+  - "@orpc/contract@2.0.0-beta.33"
+  - "@orpc/server@2.0.0-beta.33"
+  - "@orpc/shared@2.0.0-beta.33"
+  - "@orpc/tanstack-query@2.0.0-beta.33"
+  - resend@6.28.0

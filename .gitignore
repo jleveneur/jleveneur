@@ -1,47 +1,51 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # Dependencies
-node_modules
-.pnp
-.pnp.js
+node_modules/
 
-# Local env files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Testing
-coverage
-
-# Turbo
-.turbo
-
-# Vercel
-.vercel
-
-# Build Outputs
+# Build output
+dist/
+build/
 .next/
-out/
-build
-dist
+.turbo/
+*.tsbuildinfo
 
+# Test output
+coverage/
+test-results/
+playwright-report/
+.playwright/
 
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Local mail outbox — everything the app would have sent without a Resend key.
+.mail/
+.mail-e2e/
 
-# Misc
+# Environment — inject secrets at deploy time; never commit real values.
+.env
+.env.*
+!.env.example
+
+# Local tooling caches
+.cache/
+.oxlintcache
+
+# Editors
+.idea/
+*.swp
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# OS
 .DS_Store
-*.pem
+Thumbs.db
 
-# Docker runtime data
-infra/data/
-infra/backups/
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
 
-# Secrets / certificates
-*.pem
-*.key
-acme.json
+# Per-developer Cursor overrides. The shared config is committed.
+.cursor/mcp.local.json
+
+# Next.js writes this on `next dev`. Repo instructions live in /AGENTS.md.
+apps/web/AGENTS.md
+next-env.d.ts

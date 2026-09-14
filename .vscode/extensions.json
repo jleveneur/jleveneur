@@ -1,0 +1,24 @@
+{
+  // Prompted on first open. Deliberately short: every recommendation is either
+  // required for the workspace settings to work, or catches something CI also
+  // catches (so you find it before pushing rather than after).
+  "recommendations": [
+    // Required. Provides the TypeScript 7 native language server; without it the
+    // editor type-checks with a different compiler than CI. See settings.json.
+    "TypeScriptTeam.native-preview",
+
+    // Required. Runs Oxlint and Oxfmt, which the on-save code actions invoke.
+    "oxc.oxc-vscode",
+
+    // Honours .editorconfig, which owns whitespace for files Oxfmt does not.
+    "EditorConfig.EditorConfig",
+
+    // Tailwind class completion and hover previews.
+    "bradlc.vscode-tailwindcss"
+  ],
+
+  // Flagged rather than blocked. These format or lint JavaScript and TypeScript,
+  // so with Oxfmt and Oxlint also active every save produces a fight over the
+  // same lines.
+  "unwantedRecommendations": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint", "biomejs.biome"]
+}

@@ -1,21 +1,100 @@
 {
-  "$schema": "https://turborepo.dev/schema.json",
-  "ui": "tui",
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "stream",
+  "globalDependencies": [
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    ".npmrc",
+    ".oxlintrc.json",
+    "tooling/oxlint/*.json",
+    "tooling/tailwind/*.css",
+    "tooling/typescript/*.json"
+  ],
+  "globalEnv": ["NODE_ENV", "CI"],
+  "globalPassThroughEnv": ["FORCE_COLOR", "TERM"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.test.*"],
+      "outputs": [".next/**", "!.next/cache/**"],
+      // `next build` evaluates route modules, which validate the environment.
+      // The values do not end up in the output — no NEXT_PUBLIC_* variable
+      // exists — but they must be present for the build to run at all.
+      "env": [
+        "DATABASE_URL",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "RESEND_API_KEY",
+        "EMAIL_FROM",
+        "MAIL_OUTBOX_DIR",
+        "AUTH_RATE_LIMIT",
+        "LOG_LEVEL"
+      ]
     },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "check-types": {
-      "dependsOn": ["^check-types"]
-    },
+
     "dev": {
       "cache": false,
       "persistent": true
+    },
+
+    "start": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "persistent": true
+    },
+
+    // typecheck and test declare no dependencies so they fan out across every
+    // package in parallel. That is only correct because internal packages ship
+    // TypeScript source with no build step; the moment a package emits
+    // declarations, typecheck would need "dependsOn": ["^build"].
+    "typecheck": {
+      "dependsOn": [],
+      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json"],
+      "outputs": ["*.tsbuildinfo"]
+    },
+
+    "test": {
+      "dependsOn": [],
+      "outputs": []
+    },
+
+    // Needs a live database, so it is never part of the default local loop and
+    // is never cached — a pass proves the schema and the code agreed at the
+    // moment it ran, which is not a property of the inputs alone.
+    //
+    // Turbo filters the environment it hands a task, so anything the code
+    // reads has to be listed here or it silently falls back to a default.
+    "test:integration": {
+      "dependsOn": [],
+      "cache": false,
+      "env": [
+        "DATABASE_URL",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "RESEND_API_KEY",
+        "EMAIL_FROM",
+        "MAIL_OUTBOX_DIR",
+        "AUTH_RATE_LIMIT",
+        "LOG_LEVEL"
+      ]
+    },
+
+    // Browser journeys against a real build and a real database. Playwright
+    // starts the server itself, so this depends on nothing.
+    "test:e2e": {
+      "dependsOn": [],
+      "cache": false,
+      "env": [
+        "DATABASE_URL",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "RESEND_API_KEY",
+        "EMAIL_FROM",
+        "MAIL_OUTBOX_DIR",
+        "AUTH_RATE_LIMIT",
+        "LOG_LEVEL",
+        "PLAYWRIGHT_*"
+      ]
     }
   }
 }

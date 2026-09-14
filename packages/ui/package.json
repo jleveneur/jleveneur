@@ -2,25 +2,30 @@
   "name": "@repo/ui",
   "version": "0.0.0",
   "private": true,
+  "description": "Design system: shadcn/ui components on Base UI, plus the shared class helper.",
+  "type": "module",
   "exports": {
-    "./*": "./src/*.tsx"
+    "./components/*": "./src/components/*.tsx"
   },
   "scripts": {
-    "lint": "eslint . --max-warnings 0",
-    "generate:component": "turbo gen react-component",
-    "check-types": "tsc --noEmit"
-  },
-  "devDependencies": {
-    "@repo/eslint-config": "*",
-    "@repo/typescript-config": "*",
-    "@types/node": "^22.15.3",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
-    "eslint": "^9.39.1",
-    "typescript": "5.9.2"
+    "typecheck": "tsc --noEmit",
+    "ui:add": "pnpm dlx shadcn@latest add"
   },
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "@base-ui/react": "catalog:",
+    "class-variance-authority": "catalog:",
+    "cn": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/tsconfig": "workspace:*",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
   }
 }
