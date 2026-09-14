@@ -127,15 +127,15 @@ them through `transpilePackages`; Vitest and `tsc` read them directly.
 
 In [Workers & Pages](https://dash.cloudflare.com/?to=/:account/workers-and-pages) → **Create application** → **Import a repository** → `jleveneur/jleveneur`:
 
-| Setting | Value |
-| --- | --- |
-| Worker name | `jleveneur` (must match `wrangler.jsonc`) |
-| Production branch | `main` (after this PR merges). Enable non-production branch builds for PR previews. |
-| Root directory | `apps/portfolio` |
-| Build command | `pnpm run build:vinext` — not `pnpm run build` (`next build` is for Playwright) |
-| Deploy command | `pnpm run workers:deploy` |
-| Non-production deploy | `pnpm run workers:preview` |
-| Build variable | `PNPM_VERSION=12.3.0` (Workers Builds defaults to pnpm 10) |
+| Setting               | Value                                                                               |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| Worker name           | `jleveneur` (must match `wrangler.jsonc`)                                           |
+| Production branch     | `main` (after this PR merges). Enable non-production branch builds for PR previews. |
+| Root directory        | `apps/portfolio`                                                                    |
+| Build command         | `pnpm run build:vinext` — not `pnpm run build` (`next build` is for Playwright)     |
+| Deploy command        | `pnpm run workers:deploy`                                                           |
+| Non-production deploy | `pnpm run workers:preview`                                                          |
+| Build variable        | `PNPM_VERSION=12.3.0` (Workers Builds defaults to pnpm 10)                          |
 
 Optional watch paths: `apps/portfolio/*`, `tooling/tailwind/*`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`. Cloudflare mints the Builds API token in the dashboard. After the first successful deploy, attach jleveneur.com to Worker `jleveneur`.
 
