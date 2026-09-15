@@ -95,7 +95,22 @@ catalog:
   "@playwright/test": 1.63.0
 
   # --- Cloudflare Workers ---------------------------------------------------
-  wrangler: 4.131.2
+  wrangler: 4.132.0
+  "@cloudflare/vite-plugin": 1.54.10
+  "@cloudflare/workers-types": 5.20260915.1
+  vinext: 1.0.0-beta.10
+  "@vinext/cloudflare": 1.0.0-beta.8
+  vite: 8.3.0
+  "@vitejs/plugin-react": 6.1.1
+  "@vitejs/plugin-rsc": 0.5.34
+  "react-server-dom-webpack": 19.2.8
+
+  # --- Kanban UI ------------------------------------------------------------
+  "lucide-react": 1.46.0
+  "@dnd-kit/core": 6.3.1
+  "@dnd-kit/sortable": 10.0.0
+  "@dnd-kit/utilities": 3.2.2
+  sonner: 2.0.8
 
 # Entries still inside pnpm's default release-age cutoff. Delete each one as
 # soon as it ages past the window — this list is a waiver, not a setting.
@@ -106,5 +121,21 @@ minimumReleaseAgeExclude:
   - "@orpc/shared@2.0.0-beta.33"
   - "@orpc/tanstack-query@2.0.0-beta.33"
   - resend@6.28.0
-  - miniflare@5.20260911.1-alpha
-  - wrangler@4.131.2
+  - miniflare@5.20260911.1-alpha || 5.20260915.0-alpha
+  - wrangler@4.132.0
+  - vinext@1.0.0-beta.10
+  - "@vinext/cloudflare@1.0.0-beta.8"
+  - "@cloudflare/vite-plugin@1.54.10"
+  - "@cloudflare/workers-types@5.20260915.1"
+  - vite@8.3.0
+  - "@vitejs/plugin-react@6.1.1"
+  - "@vitejs/plugin-rsc@0.5.34"
+  - lucide-react@1.46.0
+  - sonner@2.0.8
+  - "@cloudflare/workerd-darwin-64@1.20260915.1"
+  - "@cloudflare/workerd-darwin-arm64@1.20260915.1"
+  - "@cloudflare/workerd-linux-64@1.20260915.1"
+  - "@cloudflare/workerd-linux-arm64@1.20260915.1"
+  - "@cloudflare/workerd-windows-64@1.20260915.1"
+  - "@cloudflare/workers-response-store@0.1.0-beta.0"
+  - workerd@1.20260915.1

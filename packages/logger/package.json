@@ -5,7 +5,8 @@
   "description": "Structured JSON logging with redaction, on Pino.",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./create": "./src/create-logger.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

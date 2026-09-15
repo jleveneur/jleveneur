@@ -9,5 +9,11 @@
 
   // An export used only inside its own file is not dead code in a package that
   // exists to be imported; it is usually a helper under test.
-  "ignoreExportsUsedInFile": true
+  "ignoreExportsUsedInFile": true,
+  "workspaces": {
+    "apps/kanban": {
+      // Virtual module provided by workerd, not an npm package.
+      "ignoreDependencies": ["cloudflare"]
+    }
+  }
 }

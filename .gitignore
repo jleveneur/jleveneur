@@ -8,6 +8,7 @@ build/
 .next/
 .turbo/
 .wrangler/
+.vinext/
 *.tsbuildinfo
 
 # Test output
@@ -24,6 +25,7 @@ playwright-report/
 .env
 .env.*
 !.env.example
+.dev.vars
 
 # Local tooling caches
 .cache/

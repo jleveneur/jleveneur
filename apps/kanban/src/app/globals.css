@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "@repo/tailwind-config/theme.css";
+@import "@repo/tailwind-config/animations.css";
+
+@source "../../../../packages/ui/src";
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}

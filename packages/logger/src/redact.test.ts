@@ -1,6 +1,8 @@
 import { pino } from "pino"
 import { describe, expect, it } from "vitest"
 
+import { REDACTED_PATHS } from "./create-logger.ts"
+
 /**
  * Redaction is the part of the logger worth testing.
  *
@@ -14,20 +16,7 @@ function capture(value: unknown): Record<string, unknown> {
   const log = pino(
     {
       redact: {
-        paths: [
-          "password",
-          "token",
-          "secret",
-          "authorization",
-          "cookie",
-          "*.password",
-          "*.token",
-          "*.secret",
-          "*.authorization",
-          "*.cookie",
-          "headers.authorization",
-          "headers.cookie"
-        ],
+        paths: [...REDACTED_PATHS],
         censor: "[redacted]"
       }
     },

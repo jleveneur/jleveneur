@@ -5,7 +5,8 @@
   "description": "Environment variables, validated once at startup with t3-env.",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./kanban": "./src/kanban.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

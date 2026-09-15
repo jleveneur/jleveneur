@@ -15,7 +15,9 @@ import {
  */
 export const statement = {
   ...defaultStatements,
-  post: ["create", "delete"]
+  post: ["create", "delete"],
+  card: ["create", "update", "delete", "comment", "attach"],
+  column: ["create"]
 } as const
 
 export const ac = createAccessControl(statement)
@@ -29,17 +31,23 @@ export const ac = createAccessControl(statement)
  */
 export const member = ac.newRole({
   ...memberAc.statements,
-  post: ["create"]
+  post: ["create"],
+  card: ["create", "update", "comment", "attach"],
+  column: ["create"]
 })
 
 export const admin = ac.newRole({
   ...adminAc.statements,
-  post: ["create", "delete"]
+  post: ["create", "delete"],
+  card: ["create", "update", "delete", "comment", "attach"],
+  column: ["create"]
 })
 
 export const owner = ac.newRole({
   ...ownerAc.statements,
-  post: ["create", "delete"]
+  post: ["create", "delete"],
+  card: ["create", "update", "delete", "comment", "attach"],
+  column: ["create"]
 })
 
 export const roles = { owner, admin, member }
