@@ -32,9 +32,9 @@
       ]
     },
 
-    // vinext + Wrangler output for apps/portfolio. Independent of `next build`.
-    "build:vinext": {
-      "outputs": ["dist/**"]
+    "build:export": {
+      "outputs": ["out/**"],
+      "env": ["PORTFOLIO_EXPORT"]
     },
 
     "dev": {

@@ -46,10 +46,6 @@ jobs:
       - run: pnpm react-doctor
       - run: pnpm test
 
-      # Prove the Workers toolchain compiles apps/portfolio. Production deploy
-      # is Cloudflare Workers Builds (Connect Git), not this workflow.
-      - run: pnpm --filter @repo/portfolio build:vinext
-
       # The PR title becomes the squashed commit message, so it is the thing
       # that has to satisfy commitlint. The commit-msg hook covers local commits.
       - name: Lint PR title
@@ -64,6 +60,9 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app
           BETTER_AUTH_SECRET: ci-placeholder-secret-at-least-32-characters
           BETTER_AUTH_URL: http://localhost:3000
+      # Default `pnpm build` does not write `out/`.
+      - run: pnpm --filter @repo/portfolio build:export
+      - run: pnpm --filter @repo/portfolio exec wrangler deploy --dry-run
 
   integration:
     name: Integration

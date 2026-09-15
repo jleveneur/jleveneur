@@ -7,7 +7,7 @@
     "typeAware": true
   },
   // Extends does not always merge ignorePatterns into the root config.
-  "ignorePatterns": ["**/next-env.d.ts", "**/.vinext/**", "**/.wrangler/**"],
+  "ignorePatterns": ["**/next-env.d.ts", "**/.wrangler/**"],
 
   "overrides": [
     {

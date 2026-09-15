@@ -3,10 +3,10 @@ node_modules/
 
 # Build output
 dist/
+out/
 build/
 .next/
 .turbo/
-.vinext/
 .wrangler/
 *.tsbuildinfo
 

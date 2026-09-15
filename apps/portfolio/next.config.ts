@@ -33,10 +33,22 @@ const SECURITY_HEADERS = [
   }
 ]
 
+// `next start` cannot serve `output: "export"`. `build:export` sets this so
+// `next build` writes `out/` for Wrangler.
+const staticExport = process.env["PORTFOLIO_EXPORT"] === "1"
+
 const nextConfig: NextConfig = {
-  headers() {
-    return Promise.resolve([{ source: "/:path*", headers: SECURITY_HEADERS }])
-  },
+  ...(staticExport ? { output: "export" as const } : {}),
+
+  // A static export ignores `headers()` here; `public/_headers` is copied into
+  // `out/` and applied by the asset host instead.
+  ...(!staticExport
+    ? {
+        headers() {
+          return Promise.resolve([{ source: "/:path*", headers: SECURITY_HEADERS }])
+        }
+      }
+    : {}),
 
   experimental: {
     // TypeScript 7 has no JavaScript compiler API yet, so `next build` shells

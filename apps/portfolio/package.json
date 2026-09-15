@@ -6,29 +6,22 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --port 3001",
-    "dev:vinext": "vinext dev --port 3001",
     "typegen": "next typegen",
     "build": "next build",
-    "build:vinext": "vinext build",
+    "build:export": "PORTFOLIO_EXPORT=1 next build",
     "start": "next start --port 3001",
-    "start:vinext": "wrangler dev --config dist/server/wrangler.json",
-    "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json",
-    "workers:deploy": "wrangler deploy --config dist/server/wrangler.json",
-    "workers:preview": "wrangler versions upload --config dist/server/wrangler.json",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler versions upload",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install --with-deps chromium"
   },
   "dependencies": {
-    "@vinext/cloudflare": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:",
-    "react-server-dom-webpack": "catalog:",
-    "vinext": "catalog:"
+    "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "catalog:",
     "@playwright/test": "catalog:",
     "@repo/tailwind-config": "workspace:*",
     "@repo/tsconfig": "workspace:*",
@@ -36,11 +29,8 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
-    "@vitejs/plugin-rsc": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
     "wrangler": "catalog:"
   },
   "packageManager": "pnpm@12.3.0"
