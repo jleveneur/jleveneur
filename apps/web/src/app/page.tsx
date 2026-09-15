@@ -10,7 +10,7 @@ const stack = [
   "Tailwind CSS + shadcn/ui",
   "Drizzle ORM + PostgreSQL",
   "oRPC",
-  "Better Auth",
+  "Better Auth"
 ]
 
 export default function HomePage() {

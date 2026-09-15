@@ -33,7 +33,7 @@ async function codeOf(promise: Promise<unknown>): Promise<string | undefined> {
 describe("publicProcedure", () => {
   it("runs without a session", async () => {
     await expect(call(ping, undefined, { context: { session: null, headers } })).resolves.toBe(
-      "pong",
+      "pong"
     )
   })
 })

@@ -25,12 +25,12 @@ export const appRouter = {
           id: organization.id,
           name: organization.name,
           slug: organization.slug,
-          role: member.role,
+          role: member.role
         })
         .from(member)
         .innerJoin(organization, eq(organization.id, member.organizationId))
         .where(eq(member.userId, context.user.id))
-        .orderBy(member.createdAt),
+        .orderBy(member.createdAt)
     ),
 
     /**
@@ -48,15 +48,12 @@ export const appRouter = {
           id: organization.id,
           name: organization.name,
           slug: organization.slug,
-          role: member.role,
+          role: member.role
         })
         .from(member)
         .innerJoin(organization, eq(organization.id, member.organizationId))
         .where(
-          and(
-            eq(member.organizationId, context.organizationId),
-            eq(member.userId, context.user.id),
-          ),
+          and(eq(member.organizationId, context.organizationId), eq(member.userId, context.user.id))
         )
         .limit(1)
 
@@ -65,7 +62,7 @@ export const appRouter = {
       }
 
       return row
-    }),
+    })
   },
 
   post: {
@@ -74,7 +71,7 @@ export const appRouter = {
         .select()
         .from(post)
         .where(eq(post.organizationId, context.organizationId))
-        .orderBy(desc(post.createdAt)),
+        .orderBy(desc(post.createdAt))
     ),
 
     create: requirePermission({ post: ["create"] })
@@ -85,7 +82,7 @@ export const appRouter = {
           .values({
             title: input.title,
             organizationId: context.organizationId,
-            userId: context.user.id,
+            userId: context.user.id
           })
           .returning()
 
@@ -107,8 +104,8 @@ export const appRouter = {
           .where(and(eq(post.id, input.id), eq(post.organizationId, context.organizationId)))
 
         return { id: input.id }
-      }),
-  },
+      })
+  }
 }
 
 export type AppRouter = typeof appRouter

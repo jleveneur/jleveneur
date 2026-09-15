@@ -40,7 +40,7 @@ export async function waitForEmailLink(email: string, subject: RegExp): Promise<
         found = readOutbox().findLast((entry) => entry.to === email && subject.test(entry.subject))
         return found !== undefined
       },
-      { timeout: 15_000, message: `No email to ${email} matching ${String(subject)}` },
+      { timeout: 15_000, message: `No email to ${email} matching ${String(subject)}` }
     )
     .toBe(true)
 

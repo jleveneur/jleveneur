@@ -34,7 +34,7 @@ function layout(heading: string, body: string, action: { url: string; label: str
     `<p style="font-size:14px;line-height:1.6;margin:0 0 24px">${body}</p>`,
     `<p style="margin:0 0 24px"><a href="${escapeHtml(action.url)}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:10px 16px;border-radius:8px;font-size:14px">${action.label}</a></p>`,
     `<p style="font-size:12px;line-height:1.6;color:#666;margin:0">If the button does not work, paste this into your browser:<br>${escapeHtml(action.url)}</p>`,
-    `</div>`,
+    `</div>`
   ].join("")
 }
 
@@ -44,8 +44,8 @@ export function verificationEmail(input: { name: string; url: string }): Email {
     html: layout(
       "Confirm your email address",
       `Hi ${escapeHtml(input.name)}, confirm this address to finish setting up your account.`,
-      { url: input.url, label: "Confirm email" },
-    ),
+      { url: input.url, label: "Confirm email" }
+    )
   }
 }
 
@@ -55,8 +55,8 @@ export function resetPasswordEmail(input: { name: string; url: string }): Email 
     html: layout(
       "Reset your password",
       `Hi ${escapeHtml(input.name)}, use the link below to choose a new password. If you did not ask for this, you can ignore this email.`,
-      { url: input.url, label: "Reset password" },
-    ),
+      { url: input.url, label: "Reset password" }
+    )
   }
 }
 
@@ -70,7 +70,7 @@ export function invitationEmail(input: {
     html: layout(
       `Join ${escapeHtml(input.organizationName)}`,
       `${escapeHtml(input.inviterName)} invited you to join ${escapeHtml(input.organizationName)}.`,
-      { url: input.url, label: "Accept invitation" },
-    ),
+      { url: input.url, label: "Accept invitation" }
+    )
   }
 }

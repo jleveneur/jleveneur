@@ -16,7 +16,7 @@ import { ac, roles } from "@repo/authz"
  * checks again on every call.
  */
 export const authClient = createAuthClient({
-  plugins: [organizationClient({ ac, roles })],
+  plugins: [organizationClient({ ac, roles })]
 })
 
 export const { signIn, signOut, signUp, useSession } = authClient

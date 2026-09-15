@@ -9,7 +9,7 @@
  */
 export default function GlobalError({
   error,
-  reset,
+  reset
 }: {
   error: Error & { digest?: string }
   reset: () => void
@@ -22,7 +22,7 @@ export default function GlobalError({
           display: "grid",
           placeItems: "center",
           minHeight: "100dvh",
-          margin: 0,
+          margin: 0
         }}
       >
         <main style={{ textAlign: "center", padding: "24px" }}>
@@ -40,7 +40,7 @@ export default function GlobalError({
               border: "1px solid #ddd",
               background: "#111",
               color: "#fff",
-              cursor: "pointer",
+              cursor: "pointer"
             }}
           >
             Try again

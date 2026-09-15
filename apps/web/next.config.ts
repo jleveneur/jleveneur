@@ -29,8 +29,8 @@ const SECURITY_HEADERS = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
   {
     key: "Content-Security-Policy",
-    value: ["frame-ancestors 'none'", "base-uri 'self'", "object-src 'none'"].join("; "),
-  },
+    value: ["frame-ancestors 'none'", "base-uri 'self'", "object-src 'none'"].join("; ")
+  }
 ]
 
 const nextConfig: NextConfig = {
@@ -46,13 +46,13 @@ const nextConfig: NextConfig = {
     "@repo/authz",
     "@repo/db",
     "@repo/logger",
-    "@repo/ui",
+    "@repo/ui"
   ],
   experimental: {
     // TypeScript 7 has no JavaScript compiler API yet, so `next build` shells
     // out to the local `tsc` instead of loading it in-process.
-    useTypeScriptCli: true,
-  },
+    useTypeScriptCli: true
+  }
 }
 
 export default nextConfig

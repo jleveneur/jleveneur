@@ -6,16 +6,16 @@ import "./globals.css"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
+  variable: "--font-geist-sans"
 })
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
+  variable: "--font-geist-mono"
 })
 
 export const metadata: Metadata = {
   title: "Julien Leveneur",
-  description: "Full-stack developer building web apps with TypeScript and React.",
+  description: "Full-stack developer building web apps with TypeScript and React."
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

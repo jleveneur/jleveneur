@@ -24,7 +24,7 @@ export default async function DashboardPage() {
     api.organization.current(),
     api.organization.list(),
     api.post.list(),
-    auth.api.getFullOrganization({ headers: await headers() }),
+    auth.api.getFullOrganization({ headers: await headers() })
   ])
 
   // Cosmetic only — these decide whether to render controls the user cannot
@@ -56,12 +56,12 @@ export default async function DashboardPage() {
           id: item.id,
           role: item.role,
           name: item.user.name,
-          email: item.user.email,
+          email: item.user.email
         }))}
         invitations={(full?.invitations ?? []).flatMap((item) =>
           item.status === "pending"
             ? [{ id: item.id, email: item.email, role: item.role ?? "member" }]
-            : [],
+            : []
         )}
         canInvite={canInvite}
       />

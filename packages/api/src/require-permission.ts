@@ -21,12 +21,12 @@ export function requirePermission(permissions: Permissions) {
   return orgProcedure.use(async ({ context, next }) => {
     const allowed = await auth.api.hasPermission({
       headers: context.headers,
-      body: { organizationId: context.organizationId, permissions },
+      body: { organizationId: context.organizationId, permissions }
     })
 
     if (!allowed.success) {
       throw new ORPCError("FORBIDDEN", {
-        message: `Your role does not allow ${describe(permissions)}`,
+        message: `Your role does not allow ${describe(permissions)}`
       })
     }
 

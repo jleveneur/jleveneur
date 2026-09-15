@@ -3,7 +3,7 @@ import {
   adminAc,
   defaultStatements,
   memberAc,
-  ownerAc,
+  ownerAc
 } from "better-auth/plugins/organization/access"
 
 /**
@@ -15,7 +15,7 @@ import {
  */
 export const statement = {
   ...defaultStatements,
-  post: ["create", "delete"],
+  post: ["create", "delete"]
 } as const
 
 export const ac = createAccessControl(statement)
@@ -29,17 +29,17 @@ export const ac = createAccessControl(statement)
  */
 export const member = ac.newRole({
   ...memberAc.statements,
-  post: ["create"],
+  post: ["create"]
 })
 
 export const admin = ac.newRole({
   ...adminAc.statements,
-  post: ["create", "delete"],
+  post: ["create", "delete"]
 })
 
 export const owner = ac.newRole({
   ...ownerAc.statements,
-  post: ["create", "delete"],
+  post: ["create", "delete"]
 })
 
 export const roles = { owner, admin, member }

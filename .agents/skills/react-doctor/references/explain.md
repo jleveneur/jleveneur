@@ -64,7 +64,7 @@ Config lives in `doctor.config.ts` (or `.js`/`.mjs`/`.cjs`/`.json`/`.jsonc`), or
 export default {
   rules: { "react-doctor/no-array-index-as-key": "off" },
   categories: { "React Native": "warn" },
-  ignore: { tags: ["design"] },
+  ignore: { tags: ["design"] }
 }
 ```
 

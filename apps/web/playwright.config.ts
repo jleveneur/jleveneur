@@ -29,7 +29,7 @@ export default defineConfig({
 
   use: {
     baseURL,
-    trace: "retain-on-failure",
+    trace: "retain-on-failure"
   },
 
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
@@ -49,7 +49,7 @@ export default defineConfig({
       RESEND_API_KEY: "",
       // Every request in this suite comes from one address, which is exactly
       // what the limiter exists to stop. It stays on everywhere else.
-      AUTH_RATE_LIMIT: "off",
-    },
-  },
+      AUTH_RATE_LIMIT: "off"
+    }
+  }
 })

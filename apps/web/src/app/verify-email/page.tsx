@@ -7,7 +7,7 @@ import { ResendVerificationButton } from "@/components/resend-verification-butto
 import { getSession } from "@/lib/session.ts"
 
 export default async function VerifyEmailPage({
-  searchParams,
+  searchParams
 }: {
   searchParams: Promise<{ email?: string }>
 }) {

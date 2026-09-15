@@ -5,6 +5,6 @@ export default defineConfig({
     name: "@repo/api",
     include: ["src/**/*.test.ts"],
     // Integration tests need a database and run under their own config.
-    exclude: ["src/**/*.integration.test.ts"],
-  },
+    exclude: ["src/**/*.integration.test.ts"]
+  }
 })

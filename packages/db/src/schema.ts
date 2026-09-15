@@ -40,7 +40,7 @@ export const user = pgTable("user", {
    */
   lastActiveOrganizationId: text("last_active_organization_id"),
   createdAt: createdAt(),
-  updatedAt: updatedAt(),
+  updatedAt: updatedAt()
 })
 
 export const session = pgTable(
@@ -59,9 +59,9 @@ export const session = pgTable(
     // be able to clear it, and a deleted organization must not delete sessions.
     activeOrganizationId: text("active_organization_id"),
     createdAt: createdAt(),
-    updatedAt: updatedAt(),
+    updatedAt: updatedAt()
   },
-  (table) => [index("idx_session__user_id").on(table.userId)],
+  (table) => [index("idx_session__user_id").on(table.userId)]
 )
 
 export const account = pgTable(
@@ -77,19 +77,19 @@ export const account = pgTable(
     refreshToken: text("refresh_token"),
     accessTokenExpiresAt: timestamp("access_token_expires_at", {
       withTimezone: true,
-      mode: "date",
+      mode: "date"
     }),
     refreshTokenExpiresAt: timestamp("refresh_token_expires_at", {
       withTimezone: true,
-      mode: "date",
+      mode: "date"
     }),
     scope: text("scope"),
     idToken: text("id_token"),
     password: text("password"),
     createdAt: createdAt(),
-    updatedAt: updatedAt(),
+    updatedAt: updatedAt()
   },
-  (table) => [index("idx_account__user_id").on(table.userId)],
+  (table) => [index("idx_account__user_id").on(table.userId)]
 )
 
 export const verification = pgTable(
@@ -100,9 +100,9 @@ export const verification = pgTable(
     value: text("value").notNull(),
     expiresAt: timestamp("expires_at", { withTimezone: true, mode: "date" }).notNull(),
     createdAt: createdAt(),
-    updatedAt: updatedAt(),
+    updatedAt: updatedAt()
   },
-  (table) => [index("idx_verification__identifier").on(table.identifier)],
+  (table) => [index("idx_verification__identifier").on(table.identifier)]
 )
 
 // --- Better Auth: organization plugin ----------------------------------------
@@ -116,7 +116,7 @@ export const organization = pgTable("organization", {
   slug: text("slug").notNull().unique(),
   logo: text("logo"),
   metadata: text("metadata"),
-  createdAt: createdAt(),
+  createdAt: createdAt()
 })
 
 export const member = pgTable(
@@ -130,12 +130,12 @@ export const member = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     role: text("role").notNull().default("member"),
-    createdAt: createdAt(),
+    createdAt: createdAt()
   },
   (table) => [
     uniqueIndex("uq_member__organization_id_user_id").on(table.organizationId, table.userId),
-    index("idx_member__user_id").on(table.userId),
-  ],
+    index("idx_member__user_id").on(table.userId)
+  ]
 )
 
 export const invitation = pgTable(
@@ -152,12 +152,12 @@ export const invitation = pgTable(
     inviterId: text("inviter_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: createdAt(),
+    createdAt: createdAt()
   },
   (table) => [
     index("idx_invitation__organization_id").on(table.organizationId),
-    index("idx_invitation__email").on(table.email),
-  ],
+    index("idx_invitation__email").on(table.email)
+  ]
 )
 
 // --- Application ------------------------------------------------------------
@@ -178,9 +178,9 @@ export const post = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     title: text("title").notNull(),
     createdAt: createdAt(),
-    updatedAt: updatedAt(),
+    updatedAt: updatedAt()
   },
-  (table) => [index("idx_post__organization_id").on(table.organizationId)],
+  (table) => [index("idx_post__organization_id").on(table.organizationId)]
 )
 
 export type Post = typeof post.$inferSelect

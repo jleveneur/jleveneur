@@ -26,16 +26,16 @@ function capture(value: unknown): Record<string, unknown> {
           "*.authorization",
           "*.cookie",
           "headers.authorization",
-          "headers.cookie",
+          "headers.cookie"
         ],
-        censor: "[redacted]",
-      },
+        censor: "[redacted]"
+      }
     },
     {
       write(line: string) {
         lines.push(line)
-      },
-    },
+      }
+    }
   )
 
   log.info(value, "test")

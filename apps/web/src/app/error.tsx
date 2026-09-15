@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo
  */
 export default function ErrorBoundary({
   error,
-  reset,
+  reset
 }: {
   error: Error & { digest?: string }
   reset: () => void

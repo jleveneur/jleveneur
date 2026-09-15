@@ -21,7 +21,7 @@ const REDACTED = [
   "*.authorization",
   "*.cookie",
   "headers.authorization",
-  "headers.cookie",
+  "headers.cookie"
 ]
 
 /**
@@ -39,9 +39,9 @@ export const logger = pino({
   timestamp: pino.stdTimeFunctions.isoTime,
   formatters: {
     // `"level":"error"` instead of `"level":50`, for the same reason.
-    level: (label) => ({ level: label }),
+    level: (label) => ({ level: label })
   },
-  redact: { paths: REDACTED, censor: "[redacted]" },
+  redact: { paths: REDACTED, censor: "[redacted]" }
 })
 
 export type Logger = typeof logger

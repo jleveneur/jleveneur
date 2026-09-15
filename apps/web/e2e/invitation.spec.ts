@@ -18,7 +18,7 @@ test("an owner can invite someone, and they can join", async ({ page }) => {
   await expect(page.getByRole("status")).toContainText(inviteeEmail)
   // The pending invitation shows up in the members list, not just the toast.
   await expect(page.getByRole("listitem").filter({ hasText: inviteeEmail })).toContainText(
-    "invited",
+    "invited"
   )
 
   const invitationLink = await waitForEmailLink(inviteeEmail, /^join /i)
@@ -33,7 +33,7 @@ test("an owner can invite someone, and they can join", async ({ page }) => {
 
   await page.waitForURL("**/dashboard")
   await expect(page.getByRole("combobox", { name: "Organization" })).toContainText(
-    organization ?? "",
+    organization ?? ""
   )
 })
 

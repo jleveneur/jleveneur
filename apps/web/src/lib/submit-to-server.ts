@@ -22,7 +22,7 @@ type ActionResult = {
  * stored whole and reaches the UI as an object instead of the message.
  */
 export async function submitToServer(
-  action: () => Promise<ActionResult>,
+  action: () => Promise<ActionResult>
 ): Promise<{ form: string; fields: Record<string, never> } | null> {
   try {
     const { error } = await action()

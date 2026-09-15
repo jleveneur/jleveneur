@@ -98,7 +98,7 @@ For Base UI projects, use the `toast` component:
 import { toast } from "@/components/ui/toast"
 
 toast.add({
-  title: "Changes saved.",
+  title: "Changes saved."
 })
 ```
 
@@ -110,7 +110,7 @@ import { toast } from "sonner"
 toast.success("Changes saved.")
 toast.error("Something went wrong.")
 toast("File deleted.", {
-  action: { label: "Undo", onClick: () => undoDelete() },
+  action: { label: "Undo", onClick: () => undoDelete() }
 })
 ```
 

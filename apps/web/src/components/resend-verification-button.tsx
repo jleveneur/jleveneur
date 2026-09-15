@@ -20,13 +20,11 @@ export function ResendVerificationButton({ email }: { email: string }) {
     defaultValues: {},
     validators: {
       onSubmitAsync: () =>
-        submitToServer(() =>
-          authClient.sendVerificationEmail({ email, callbackURL: "/dashboard" }),
-        ),
+        submitToServer(() => authClient.sendVerificationEmail({ email, callbackURL: "/dashboard" }))
     },
     onSubmit: () => {
       setSent(true)
-    },
+    }
   })
 
   if (sent) {

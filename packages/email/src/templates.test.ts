@@ -16,7 +16,7 @@ describe("templates", () => {
     const { subject } = invitationEmail({
       organizationName: "Acme",
       inviterName: "Ada",
-      url: URL_UNDER_TEST,
+      url: URL_UNDER_TEST
     })
 
     expect(subject).toBe("Join Acme")
@@ -26,7 +26,7 @@ describe("templates", () => {
     const { html } = invitationEmail({
       organizationName: "<script>alert(1)</script>",
       inviterName: "Ada & Co",
-      url: URL_UNDER_TEST,
+      url: URL_UNDER_TEST
     })
 
     expect(html).not.toContain("<script>")
@@ -37,7 +37,7 @@ describe("templates", () => {
   it("escapes the query string so a token cannot break out of the attribute", () => {
     const { html } = resetPasswordEmail({
       name: "Ada",
-      url: 'https://app.example.com/r?t=x"><script>alert(1)</script>',
+      url: 'https://app.example.com/r?t=x"><script>alert(1)</script>'
     })
 
     expect(html).not.toContain("<script>")
@@ -67,7 +67,7 @@ describe("escaping round-trip", () => {
 describe("parseOutbox", () => {
   it("reads one entry per line and ignores blanks", () => {
     const entries = parseOutbox(
-      `{"to":"a@example.test","subject":"One","html":"<a href=\\"x\\">x</a>","sentAt":"2026-01-01T00:00:00.000Z"}\n\n{"to":"b@example.test","subject":"Two","html":"","sentAt":"2026-01-01T00:00:01.000Z"}\n`,
+      `{"to":"a@example.test","subject":"One","html":"<a href=\\"x\\">x</a>","sentAt":"2026-01-01T00:00:00.000Z"}\n\n{"to":"b@example.test","subject":"Two","html":"","sentAt":"2026-01-01T00:00:01.000Z"}\n`
     )
 
     expect(entries.map((entry) => entry.to)).toStrictEqual(["a@example.test", "b@example.test"])

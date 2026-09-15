@@ -14,7 +14,7 @@ import { serverError, submitToServer } from "@/lib/submit-to-server.ts"
 const schema = z.object({
   name: z.string().min(1, "Enter your name."),
   email: z.email("Enter a valid email address."),
-  password: z.string().min(8, "Use at least 8 characters."),
+  password: z.string().min(8, "Use at least 8 characters.")
 })
 
 export function SignUpForm() {
@@ -31,15 +31,15 @@ export function SignUpForm() {
             // Where the link in the verification email lands. Without it Better
             // Auth sends the newly confirmed user to `/` — the marketing page —
             // instead of into the product they just signed up for.
-            callbackURL: "/dashboard",
-          }),
-        ),
+            callbackURL: "/dashboard"
+          })
+        )
     },
     onSubmit: ({ value }) => {
       // Addresses must be verified, so sign-up produces no session. The link
       // in the email is what signs the user in.
       router.push(`/verify-email?email=${encodeURIComponent(value.email)}`)
-    },
+    }
   })
 
   return (

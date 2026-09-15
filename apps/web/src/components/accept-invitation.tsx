@@ -26,12 +26,12 @@ export function AcceptInvitation({ invitationId }: { invitationId: string }) {
       // error covers the common mistake of opening the link while signed in as
       // a different account — and expired or used links.
       onSubmitAsync: () =>
-        submitToServer(() => authClient.organization.acceptInvitation({ invitationId })),
+        submitToServer(() => authClient.organization.acceptInvitation({ invitationId }))
     },
     onSubmit: () => {
       router.push("/dashboard")
       router.refresh()
-    },
+    }
   })
 
   return (

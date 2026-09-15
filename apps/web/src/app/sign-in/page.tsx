@@ -8,7 +8,7 @@ import { safeRedirect } from "@/lib/safe-redirect.ts"
 import { getSession } from "@/lib/session.ts"
 
 export default async function SignInPage({
-  searchParams,
+  searchParams
 }: {
   searchParams: Promise<{ next?: string; reset?: string }>
 }) {

@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { about, links, name, stack, tagline } from "@/lib/content.ts"
 
 export const metadata: Metadata = {
-  title: name,
+  title: name
 }
 
 export default function HomePage() {

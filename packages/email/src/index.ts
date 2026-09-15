@@ -32,7 +32,7 @@ export async function sendEmail(input: SendEmailInput): Promise<void> {
     // logged because one nobody can see is the same as an email nobody sent.
     logger.warn(
       { to: input.to, subject: input.subject, link: firstLink(input.html) },
-      "email not sent: no RESEND_API_KEY, written to the local outbox",
+      "email not sent: no RESEND_API_KEY, written to the local outbox"
     )
     return
   }
@@ -41,7 +41,7 @@ export async function sendEmail(input: SendEmailInput): Promise<void> {
     from: env.EMAIL_FROM,
     to: input.to,
     subject: input.subject,
-    html: input.html,
+    html: input.html
   })
 
   if (error) {

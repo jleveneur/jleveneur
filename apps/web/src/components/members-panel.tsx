@@ -29,7 +29,7 @@ export type InvitationRow = {
 
 const schema = z.object({
   email: z.email("Enter a valid email address."),
-  role: z.enum(roleNames),
+  role: z.enum(roleNames)
 })
 
 /**
@@ -46,7 +46,7 @@ const schema = z.object({
 export function MembersPanel({
   members,
   invitations,
-  canInvite,
+  canInvite
 }: {
   members: MemberRow[]
   invitations: InvitationRow[]
@@ -63,15 +63,15 @@ export function MembersPanel({
       // the compiler so, since the field's value is typed as a plain string.
       onSubmitAsync: ({ value }) =>
         submitToServer(() =>
-          authClient.organization.inviteMember({ email: value.email, role: toRole(value.role) }),
-        ),
+          authClient.organization.inviteMember({ email: value.email, role: toRole(value.role) })
+        )
     },
     onSubmit: ({ value }) => {
       setSentTo(value.email)
       // Keeps the chosen role, so inviting a second person to it is one field.
       form.reset({ email: "", role: value.role })
       router.refresh()
-    },
+    }
   })
 
   return (
@@ -142,7 +142,7 @@ export function MembersPanel({
                   }}
                   className={cn(
                     "border-input bg-background h-8 rounded-lg border px-2 text-sm",
-                    "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 focus-visible:outline-none",
+                    "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 focus-visible:outline-none"
                   )}
                 >
                   {roleNames.map((name) => (

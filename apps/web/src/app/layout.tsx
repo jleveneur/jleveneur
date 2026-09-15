@@ -7,7 +7,7 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   title: "Next.js starter",
-  description: "Next.js, Drizzle, Better Auth, and oRPC in a Turborepo monorepo.",
+  description: "Next.js, Drizzle, Better Auth, and oRPC in a Turborepo monorepo."
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

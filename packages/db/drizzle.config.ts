@@ -32,11 +32,11 @@ export default defineConfig({
 
       if (value === undefined || value === "") {
         throw new Error(
-          "DATABASE_URL is required. Copy .env.example to .env at the repository root.",
+          "DATABASE_URL is required. Copy .env.example to .env at the repository root."
         )
       }
 
       return value
-    },
-  },
+    }
+  }
 })

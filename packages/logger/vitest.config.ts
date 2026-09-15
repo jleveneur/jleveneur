@@ -3,6 +3,6 @@ import { defineConfig } from "vitest/config"
 export default defineConfig({
   test: {
     name: "@repo/logger",
-    include: ["src/**/*.test.ts"],
-  },
+    include: ["src/**/*.test.ts"]
+  }
 })

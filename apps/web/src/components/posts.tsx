@@ -15,7 +15,7 @@ import { orpc } from "@/lib/orpc.ts"
 import { serverError } from "@/lib/submit-to-server.ts"
 
 const schema = z.object({
-  title: z.string().min(1, "Write something first.").max(200, "Keep it under 200 characters."),
+  title: z.string().min(1, "Write something first.").max(200, "Keep it under 200 characters.")
 })
 
 /**
@@ -50,11 +50,11 @@ export function Posts({ initialPosts, canDelete }: { initialPosts: Post[]; canDe
           const message = error instanceof Error ? error.message : "Something went wrong."
           return { form: message, fields: {} }
         }
-      },
+      }
     },
     onSubmit: () => {
       form.reset()
-    },
+    }
   })
 
   return (

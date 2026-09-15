@@ -7,6 +7,6 @@ export default defineConfig({
     // One database, shared. Parallel files would truncate each other's rows.
     fileParallelism: false,
     // Sign-up hashes a password, which is deliberately slow.
-    testTimeout: 30_000,
-  },
+    testTimeout: 30_000
+  }
 })

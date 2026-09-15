@@ -11,7 +11,7 @@ export const tagline = "Full-stack developer building web apps with TypeScript a
 export const about = [
   "Building web projects and sharpening my full-stack skills",
   "Interested in modern front-end tooling, APIs, and clean architecture",
-  "Happy to chat about TypeScript, React, Node.js, or web dev in general",
+  "Happy to chat about TypeScript, React, Node.js, or web dev in general"
 ]
 
 export const stack = [
@@ -22,27 +22,27 @@ export const stack = [
   "Node.js",
   "NestJS",
   "PostgreSQL",
-  "Docker",
+  "Docker"
 ]
 
 export const links: Link[] = [
   {
     label: "LinkedIn",
     href: "https://www.linkedin.com/in/jleveneur",
-    external: true,
+    external: true
   },
   {
     label: "GitHub",
     href: "https://github.com/jleveneur",
-    external: true,
+    external: true
   },
   {
     label: "Email",
-    href: "mailto:jleveneur.pro@gmail.com",
+    href: "mailto:jleveneur.pro@gmail.com"
   },
   {
     label: "X",
     href: "https://x.com/jleveneur_",
-    external: true,
-  },
+    external: true
+  }
 ]

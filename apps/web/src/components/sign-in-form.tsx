@@ -14,7 +14,7 @@ import { serverError, submitToServer } from "@/lib/submit-to-server.ts"
 
 const schema = z.object({
   email: z.email("Enter a valid email address."),
-  password: z.string().min(1, "Enter your password."),
+  password: z.string().min(1, "Enter your password.")
 })
 
 export function SignInForm({ next }: { next: string }) {
@@ -24,14 +24,14 @@ export function SignInForm({ next }: { next: string }) {
     defaultValues: { email: "", password: "" },
     validators: {
       onSubmit: schema,
-      onSubmitAsync: ({ value }) => submitToServer(() => authClient.signIn.email(value)),
+      onSubmitAsync: ({ value }) => submitToServer(() => authClient.signIn.email(value))
     },
     onSubmit: () => {
       router.push(next)
       // The destination is a Server Component that reads the session, so the
       // router cache has to be dropped for it to see the new cookie.
       router.refresh()
-    },
+    }
   })
 
   return (

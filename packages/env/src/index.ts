@@ -22,5 +22,5 @@ export const env = createEnv({
   // A `.env` line like `BETTER_AUTH_URL=` sets the empty string rather than
   // leaving the variable unset, which would satisfy `.optional()` and skip
   // `.default()`. Treat it as missing.
-  emptyStringAsUndefined: true,
+  emptyStringAsUndefined: true
 })

@@ -16,7 +16,7 @@ export async function resolveActiveOrganization(userId: string): Promise<string>
   const rows = await db
     .select({
       organizationId: member.organizationId,
-      remembered: user.lastActiveOrganizationId,
+      remembered: user.lastActiveOrganizationId
     })
     .from(user)
     .leftJoin(member, eq(member.userId, user.id))
@@ -74,14 +74,14 @@ export async function createPersonalOrganization(userId: string): Promise<string
       name: `${owner.name}'s workspace`,
       // The id suffix is what makes this unique without a round trip to check;
       // the handle is only there to keep it readable.
-      slug: `${handle || "workspace"}-${organizationId.slice(0, 8)}`,
+      slug: `${handle || "workspace"}-${organizationId.slice(0, 8)}`
     })
 
     await tx.insert(member).values({
       id: crypto.randomUUID(),
       organizationId,
       userId,
-      role: "owner",
+      role: "owner"
     })
   })
 
@@ -98,7 +98,7 @@ export async function createPersonalOrganization(userId: string): Promise<string
  */
 export async function rememberActiveOrganization(
   userId: string,
-  organizationId: string,
+  organizationId: string
 ): Promise<void> {
   await db.update(user).set({ lastActiveOrganizationId: organizationId }).where(eq(user.id, userId))
 }

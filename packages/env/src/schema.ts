@@ -10,7 +10,7 @@ export const server = {
   DATABASE_URL: z
     .string()
     .refine((value) => value.startsWith("postgres://") || value.startsWith("postgresql://"), {
-      message: "must be a postgres:// or postgresql:// URL",
+      message: "must be a postgres:// or postgresql:// URL"
     }),
 
   /** Better Auth refuses to start below 32 characters, so fail here instead. */
@@ -26,7 +26,7 @@ export const server = {
    */
   BETTER_AUTH_URL: z.url({
     protocol: /^https?$/,
-    error: "must be an http:// or https:// URL",
+    error: "must be an http:// or https:// URL"
   }),
 
   /**
@@ -64,7 +64,7 @@ export const server = {
    * Better Auth infers this from `NODE_ENV`; it is spelled out here because a
    * limit nobody can see is a limit nobody tunes when they move behind a proxy.
    */
-  AUTH_RATE_LIMIT: z.enum(["on", "off"]).default("on"),
+  AUTH_RATE_LIMIT: z.enum(["on", "off"]).default("on")
 }
 
 /**

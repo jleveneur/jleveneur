@@ -14,7 +14,7 @@ import { signUpAndVerify, uniqueEmail } from "./helpers/auth.ts"
  * rather than the security boundary.
  */
 test("a member sees no delete or invite controls, and cannot delete via the API", async ({
-  page,
+  page
 }) => {
   const email = uniqueEmail("demoted")
   await signUpAndVerify(page, "Ada Lovelace", email)

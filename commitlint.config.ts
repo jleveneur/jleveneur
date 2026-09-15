@@ -22,8 +22,8 @@ const config: UserConfig = {
         "build", // Build system, dependencies, tooling config
         "ci", // Pipelines
         "chore", // Maintenance with no src or test change
-        "revert",
-      ],
+        "revert"
+      ]
     ],
     // Scopes are package or app names without the @repo/ prefix. Left open
     // rather than enumerated so adding a package does not require editing this
@@ -34,8 +34,8 @@ const config: UserConfig = {
     "subject-full-stop": [2, "never", "."],
     "header-max-length": [2, "always", 100],
     "body-max-line-length": [2, "always", 100],
-    "footer-leading-blank": [2, "always"],
-  },
+    "footer-leading-blank": [2, "always"]
+  }
 }
 
 export default config

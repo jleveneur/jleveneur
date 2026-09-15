@@ -8,7 +8,7 @@ const schema = z.object(server)
 const valid = {
   DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/app",
   BETTER_AUTH_SECRET: "a".repeat(32),
-  BETTER_AUTH_URL: "http://localhost:3000",
+  BETTER_AUTH_URL: "http://localhost:3000"
 }
 
 describe("server environment schema", () => {
@@ -38,7 +38,7 @@ describe("server environment schema", () => {
 
   it("accepts an https BETTER_AUTH_URL", () => {
     expect(schema.safeParse({ ...valid, BETTER_AUTH_URL: "https://app.example.com" }).success).toBe(
-      true,
+      true
     )
   })
 

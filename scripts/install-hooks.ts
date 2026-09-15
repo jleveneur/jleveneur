@@ -30,7 +30,7 @@ const result = spawnSync("lefthook", ["install"], {
   cwd: ROOT,
   stdio: "pipe",
   encoding: "utf8",
-  shell: false,
+  shell: false
 })
 
 if (result.status === 0) {
@@ -47,8 +47,8 @@ console.warn(
     "",
     "  Continuing anyway — hooks are a convenience, not a gate. Run `pnpm check`",
     "  before pushing, or `pnpm exec lefthook install` once the cause is fixed.",
-    "",
-  ].join("\n"),
+    ""
+  ].join("\n")
 )
 
 process.exit(0)

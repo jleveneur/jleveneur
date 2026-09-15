@@ -16,7 +16,7 @@ import { serverError, submitToServer } from "@/lib/submit-to-server.ts"
 type Organization = { id: string; name: string; slug: string; role: string }
 
 const schema = z.object({
-  name: z.string().refine((value) => toSlug(value) !== "", "Use at least one letter or number."),
+  name: z.string().refine((value) => toSlug(value) !== "", "Use at least one letter or number.")
 })
 
 /**
@@ -37,7 +37,7 @@ const schema = z.object({
  */
 export function OrganizationSwitcher({
   organizations,
-  activeId,
+  activeId
 }: {
   organizations: Organization[]
   activeId: string
@@ -50,14 +50,14 @@ export function OrganizationSwitcher({
     validators: {
       onSubmitAsync: ({ value }) =>
         submitToServer(() =>
-          authClient.organization.setActive({ organizationId: value.organizationId }),
-        ),
+          authClient.organization.setActive({ organizationId: value.organizationId })
+        )
     },
     // The dashboard is a Server Component that reads the active organization,
     // so the router cache has to be dropped to see the change.
     onSubmit: () => {
       router.refresh()
-    },
+    }
   })
 
   const createForm = useForm({
@@ -66,14 +66,14 @@ export function OrganizationSwitcher({
       onSubmit: schema,
       onSubmitAsync: ({ value }) =>
         submitToServer(() =>
-          authClient.organization.create({ name: value.name, slug: toSlug(value.name) }),
-        ),
+          authClient.organization.create({ name: value.name, slug: toSlug(value.name) })
+        )
     },
     onSubmit: () => {
       setCreating(false)
       createForm.reset()
       router.refresh()
-    },
+    }
   })
 
   return (
@@ -97,7 +97,7 @@ export function OrganizationSwitcher({
                     className={cn(
                       "border-input bg-background h-8 rounded-lg border px-2 text-sm",
                       "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 focus-visible:outline-none",
-                      "disabled:pointer-events-none disabled:opacity-50",
+                      "disabled:pointer-events-none disabled:opacity-50"
                     )}
                   >
                     {organizations.map((item) => (

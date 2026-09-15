@@ -12,7 +12,7 @@ import { Input } from "@repo/ui/components/input"
 import { serverError, submitToServer } from "@/lib/submit-to-server.ts"
 
 const schema = z.object({
-  email: z.email("Enter a valid email address."),
+  email: z.email("Enter a valid email address.")
 })
 
 export function ForgotPasswordForm() {
@@ -28,13 +28,13 @@ export function ForgotPasswordForm() {
             email: value.email,
             // Better Auth validates the token, then redirects here with it as a
             // query parameter — or with `?error=INVALID_TOKEN` if it has expired.
-            redirectTo: "/reset-password",
-          }),
-        ),
+            redirectTo: "/reset-password"
+          })
+        )
     },
     onSubmit: ({ value }) => {
       setSentTo(value.email)
-    },
+    }
   })
 
   if (sentTo !== null) {

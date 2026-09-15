@@ -42,7 +42,7 @@ function toRequestHeaders(response: Response): Headers {
 async function signUp(email: string): Promise<{ headers: Headers; userId: string }> {
   await auth.api.signUpEmail({
     body: { name: "Test User", email, password: PASSWORD },
-    asResponse: true,
+    asResponse: true
   })
 
   await db.update(user).set({ emailVerified: true }).where(eq(user.email, email))
@@ -60,7 +60,7 @@ async function signUp(email: string): Promise<{ headers: Headers; userId: string
 async function signIn(email: string): Promise<Headers> {
   const response = await auth.api.signInEmail({
     body: { email, password: PASSWORD },
-    asResponse: true,
+    asResponse: true
   })
 
   return toRequestHeaders(response)
@@ -68,7 +68,7 @@ async function signIn(email: string): Promise<Headers> {
 
 beforeEach(async () => {
   await db.execute(
-    sql`truncate table "user", "session", "account", "verification", "organization", "member", "invitation", "post" cascade`,
+    sql`truncate table "user", "session", "account", "verification", "organization", "member", "invitation", "post" cascade`
   )
 })
 
@@ -76,7 +76,7 @@ describe("sign-up", () => {
   it("does not sign in an unverified address", async () => {
     const response = await auth.api.signUpEmail({
       body: { name: "Test User", email: "unverified@example.test", password: PASSWORD },
-      asResponse: true,
+      asResponse: true
     })
 
     await expect(auth.api.getSession({ headers: toRequestHeaders(response) })).resolves.toBeNull()
@@ -86,7 +86,7 @@ describe("sign-up", () => {
     const { headers } = await signUp("owner@example.test")
 
     const current = await call(appRouter.organization.current, undefined, {
-      context: await createContext(headers),
+      context: await createContext(headers)
     })
 
     expect(current.role).toBe("owner")
@@ -111,12 +111,12 @@ describe("post", () => {
     await call(
       appRouter.post.create,
       { title: "private" },
-      { context: await createContext(owner.headers) },
+      { context: await createContext(owner.headers) }
     )
 
     const stranger = await signUp("stranger@example.test")
     const visible = await call(appRouter.post.list, undefined, {
-      context: await createContext(stranger.headers),
+      context: await createContext(stranger.headers)
     })
 
     expect(visible).toStrictEqual([])
@@ -128,14 +128,14 @@ describe("post", () => {
       appRouter.post.create,
       { title: "keep me" },
       {
-        context: await createContext(headers),
-      },
+        context: await createContext(headers)
+      }
     )
 
     await db.update(member).set({ role: "member" }).where(eq(member.userId, userId))
 
     await expect(
-      call(appRouter.post.delete, { id: created.id }, { context: await createContext(headers) }),
+      call(appRouter.post.delete, { id: created.id }, { context: await createContext(headers) })
     ).rejects.toThrow(/does not allow/)
 
     const survivors = await db.select().from(post).where(eq(post.id, created.id))
@@ -159,7 +159,7 @@ describe("organization switching", () => {
 
     const second = await auth.api.createOrganization({
       headers,
-      body: { name: "Second", slug: "second" },
+      body: { name: "Second", slug: "second" }
     })
     if (second === null) {
       throw new Error("Could not create the second organization")
@@ -170,7 +170,7 @@ describe("organization switching", () => {
     // A fresh sign-in builds a new session, which is where a choice stored
     // only on the old session would be lost.
     const current = await call(appRouter.organization.current, undefined, {
-      context: await createContext(await signIn("owner@example.test")),
+      context: await createContext(await signIn("owner@example.test"))
     })
 
     expect(current.id).toBe(second.id)
@@ -181,7 +181,7 @@ describe("organization switching", () => {
     await auth.api.createOrganization({ headers, body: { name: "Second", slug: "second" } })
 
     const listed = await call(appRouter.organization.list, undefined, {
-      context: await createContext(headers),
+      context: await createContext(headers)
     })
 
     expect(listed.map((row) => row.name)).toStrictEqual(["Test User's workspace", "Second"])
@@ -193,7 +193,7 @@ describe("organization switching", () => {
     const outsider = await signUp("outsider@example.test")
 
     const listed = await call(appRouter.organization.list, undefined, {
-      context: await createContext(outsider.headers),
+      context: await createContext(outsider.headers)
     })
 
     expect(listed).toHaveLength(1)

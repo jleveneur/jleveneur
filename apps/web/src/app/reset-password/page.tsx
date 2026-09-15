@@ -10,7 +10,7 @@ import { ResetPasswordForm } from "@/components/reset-password-form.tsx"
  * an expired link is the common one, not the exception.
  */
 export default async function ResetPasswordPage({
-  searchParams,
+  searchParams
 }: {
   searchParams: Promise<{ token?: string; error?: string }>
 }) {

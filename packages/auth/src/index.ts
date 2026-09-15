@@ -34,8 +34,8 @@ export const auth = betterAuth({
       verification: schema.verification,
       organization: schema.organization,
       member: schema.member,
-      invitation: schema.invitation,
-    },
+      invitation: schema.invitation
+    }
   }),
 
   emailAndPassword: {
@@ -45,7 +45,7 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
       await sendEmail({ to: user.email, ...resetPasswordEmail({ name: user.name, url }) })
-    },
+    }
   },
 
   emailVerification: {
@@ -55,24 +55,24 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
       await sendEmail({ to: user.email, ...verificationEmail({ name: user.name, url }) })
-    },
+    }
   },
 
   session: {
     expiresIn: DAY_IN_SECONDS * 30,
     updateAge: DAY_IN_SECONDS,
     // Signed cookie holding the session, so the common path costs no query.
-    cookieCache: { enabled: true, maxAge: 5 * 60 },
+    cookieCache: { enabled: true, maxAge: 5 * 60 }
   },
 
   rateLimit: {
-    enabled: env.AUTH_RATE_LIMIT === "on",
+    enabled: env.AUTH_RATE_LIMIT === "on"
   },
 
   advanced: {
     // `NODE_ENV=production` defaults to Secure cookies, which browsers drop on
     // plain HTTP. Follow the public URL instead so `next start` works locally.
-    useSecureCookies: new URL(env.BETTER_AUTH_URL).protocol === "https:",
+    useSecureCookies: new URL(env.BETTER_AUTH_URL).protocol === "https:"
   },
 
   plugins: [
@@ -88,11 +88,11 @@ export const auth = betterAuth({
             inviterName: inviter.user.name,
             // The invitation id is the token: Better Auth looks the row up by
             // it and checks the address on the invitation against the caller.
-            url: `${env.BETTER_AUTH_URL}/accept-invitation/${id}`,
-          }),
+            url: `${env.BETTER_AUTH_URL}/accept-invitation/${id}`
+          })
         })
-      },
-    }),
+      }
+    })
   ],
 
   databaseHooks: {
@@ -113,9 +113,9 @@ export const auth = betterAuth({
         before: async (created) => ({
           data: {
             ...created,
-            activeOrganizationId: await resolveActiveOrganization(created.userId),
-          },
-        }),
+            activeOrganizationId: await resolveActiveOrganization(created.userId)
+          }
+        })
       },
 
       update: {
@@ -133,10 +133,10 @@ export const auth = betterAuth({
           if (typeof active === "string") {
             await rememberActiveOrganization(updated.userId, active)
           }
-        },
-      },
-    },
-  },
+        }
+      }
+    }
+  }
 })
 
 export type Session = typeof auth.$Infer.Session

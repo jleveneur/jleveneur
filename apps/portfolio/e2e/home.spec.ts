@@ -18,7 +18,7 @@ test("the public homepage is the portfolio", async ({ page }) => {
       if (link.external === true) {
         await expect(item).toHaveAttribute("target", "_blank")
       }
-    }),
+    })
   )
 
   await expect(page.getByRole("link", { name: "Create an account" })).toHaveCount(0)

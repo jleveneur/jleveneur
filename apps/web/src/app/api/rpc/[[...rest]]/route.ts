@@ -44,14 +44,14 @@ const handler = new RPCHandler(appRouter, {
 
         throw error
       }
-    },
-  ],
+    }
+  ]
 })
 
 export async function POST(request: Request): Promise<Response> {
   const { matched, response } = await handler.handle(request, {
     prefix: "/api/rpc",
-    context: await createContext(request.headers),
+    context: await createContext(request.headers)
   })
 
   if (!matched) {

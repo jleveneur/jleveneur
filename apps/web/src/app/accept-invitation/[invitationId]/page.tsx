@@ -15,7 +15,7 @@ import { getSession } from "@/lib/session.ts"
  * person.
  */
 export default async function AcceptInvitationPage({
-  params,
+  params
 }: {
   params: Promise<{ invitationId: string }>
 }) {

@@ -11,5 +11,5 @@ import { appRouter, createContext } from "@repo/api"
  * The context is built per call from the incoming request's headers.
  */
 export const api = createRouterClient(appRouter, {
-  context: async () => createContext(await headers()),
+  context: async () => createContext(await headers())
 })

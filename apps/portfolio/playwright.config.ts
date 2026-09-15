@@ -20,7 +20,7 @@ export default defineConfig({
 
   use: {
     baseURL,
-    trace: "retain-on-failure",
+    trace: "retain-on-failure"
   },
 
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
@@ -29,6 +29,6 @@ export default defineConfig({
     command: "pnpm build && pnpm start --port " + String(PORT),
     url: baseURL,
     reuseExistingServer: process.env["CI"] === undefined,
-    timeout: 180_000,
-  },
+    timeout: 180_000
+  }
 })

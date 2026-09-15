@@ -12,7 +12,7 @@ import { Input } from "@repo/ui/components/input"
 import { serverError, submitToServer } from "@/lib/submit-to-server.ts"
 
 const schema = z.object({
-  password: z.string().min(8, "Use at least 8 characters."),
+  password: z.string().min(8, "Use at least 8 characters.")
 })
 
 export function ResetPasswordForm({ token }: { token: string }) {
@@ -23,7 +23,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
     validators: {
       onSubmit: schema,
       onSubmitAsync: ({ value }) =>
-        submitToServer(() => authClient.resetPassword({ newPassword: value.password, token })),
+        submitToServer(() => authClient.resetPassword({ newPassword: value.password, token }))
     },
     onSubmit: () => {
       // Resetting does not sign anyone in — the new password still has to be
@@ -31,7 +31,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       // in.
       router.push("/sign-in?reset=1")
       router.refresh()
-    },
+    }
   })
 
   return (

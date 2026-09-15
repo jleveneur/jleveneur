@@ -76,7 +76,7 @@ Use `icon={CheckIcon}`, not a string key to a lookup map.
 ```tsx
 const iconMap = {
   check: CheckIcon,
-  alert: AlertIcon,
+  alert: AlertIcon
 }
 
 function StatusBadge({ icon }: { icon: string }) {
