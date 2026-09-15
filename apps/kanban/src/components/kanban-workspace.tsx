@@ -211,7 +211,10 @@ export function KanbanWorkspace({
                             <PlusIcon />
                           </Button>
                         </div>
-                        <KanbanColumnContent value={column.id} className="min-h-40">
+                        <KanbanColumnContent
+                          value={column.id}
+                          className="min-h-40 max-h-[min(36rem,calc(100dvh-18rem))] overflow-y-auto"
+                        >
                           {(columns[column.id] ?? []).map((item) => (
                             <KanbanItem key={item.id} value={item.id}>
                               <KanbanItemHandle>

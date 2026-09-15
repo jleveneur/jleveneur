@@ -19,13 +19,15 @@ export function useBoardRealtime(
   onEvent: (event: BoardEvent) => void
 ): PresenceUser[] {
   const [presence, setPresence] = useState<PresenceUser[]>([])
+  const { userId, name, image } = user
 
   useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss" : "ws"
     const socket = new WebSocket(`${protocol}://${window.location.host}/api/realtime/${boardId}`)
+    const joined = { userId, name, image }
 
     socket.addEventListener("open", () => {
-      socket.send(JSON.stringify({ type: "join", user }))
+      socket.send(JSON.stringify({ type: "join", user: joined }))
     })
 
     socket.addEventListener("message", (message) => {
@@ -45,7 +47,7 @@ export function useBoardRealtime(
         setPresence(parsed.users)
         return
       }
-      if (parsed.event.actorId !== user.userId) {
+      if (parsed.event.actorId !== userId) {
         toast(labelFor(parsed.event))
       }
       onEvent(parsed.event)
@@ -54,7 +56,7 @@ export function useBoardRealtime(
     return () => {
       socket.close()
     }
-  }, [boardId, onEvent, user])
+  }, [boardId, image, name, onEvent, userId])
 
   return presence
 }
