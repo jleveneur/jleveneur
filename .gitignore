@@ -7,7 +7,6 @@ out/
 build/
 .next/
 .turbo/
-.vinext/
 .wrangler/
 *.tsbuildinfo
 

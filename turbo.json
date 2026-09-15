@@ -16,7 +16,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.test.*"],
-      "outputs": [".next/**", "!.next/cache/**"],
+      "outputs": [".next/**", "!.next/cache/**", "out/**"],
       // `next build` evaluates route modules, which validate the environment.
       // The values do not end up in the output — no NEXT_PUBLIC_* variable
       // exists — but they must be present for the build to run at all.
@@ -30,11 +30,6 @@
         "AUTH_RATE_LIMIT",
         "LOG_LEVEL"
       ]
-    },
-
-    // vinext + Wrangler output for apps/portfolio. Independent of `next build`.
-    "build:vinext": {
-      "outputs": ["dist/**"]
     },
 
     "dev": {

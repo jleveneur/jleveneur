@@ -23,8 +23,8 @@ allowBuilds:
   # Next's optional image-optimisation dependency. Prebuilt binaries ship for
   # every supported platform; the script only rebuilds libvips from source.
   sharp: false
-  # Wrangler and the Cloudflare Vite plugin spawn workerd. The package ships
-  # platform binaries; the install script only selects which one to link.
+  # Wrangler spawns workerd. The package ships platform binaries; the install
+  # script only selects which one to link.
   workerd: true
 
 # ---------------------------------------------------------------------------
@@ -94,17 +94,8 @@ catalog:
   vitest: 4.1.11
   "@playwright/test": 1.63.0
 
-  # --- Cloudflare Workers (apps/portfolio via vinext) ----------------------
-  # Cloudflare's current Next.js → Workers path. next-starter has no deploy
-  # adapter; OpenNext is only for apps already on it.
-  vinext: 1.0.0-beta.9
-  "@vinext/cloudflare": 1.0.0-beta.7
-  vite: 8.3.0
-  "@vitejs/plugin-react": 6.1.1
-  "@vitejs/plugin-rsc": 0.5.34
-  "@cloudflare/vite-plugin": 1.54.9
+  # --- Cloudflare Workers (apps/portfolio static assets) -------------------
   wrangler: 4.131.2
-  "react-server-dom-webpack": 19.2.8
 
 # Entries still inside pnpm's default release-age cutoff. Delete each one as
 # soon as it ages past the window — this list is a waiver, not a setting.
@@ -115,6 +106,5 @@ minimumReleaseAgeExclude:
   - "@orpc/shared@2.0.0-beta.33"
   - "@orpc/tanstack-query@2.0.0-beta.33"
   - resend@6.28.0
-  - "@cloudflare/vite-plugin@1.54.9"
   - miniflare@5.20260911.1-alpha
   - wrangler@4.131.2

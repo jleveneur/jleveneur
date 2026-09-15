@@ -5,9 +5,9 @@
   // Dashboard: Workers & Pages → Create → Import a repository → jleveneur/jleveneur
   // Worker name must match this `name` or the build fails.
   // Root directory: apps/portfolio
-  // Build command: pnpm run build:vinext
-  // Deploy command: pnpm run workers:deploy
-  // Non-production: pnpm run workers:preview
+  // Build command: pnpm run build
+  // Deploy command: pnpm exec wrangler deploy
+  // Non-production: pnpm exec wrangler versions upload
   // Build variable: PNPM_VERSION=12.3.0 (image default is pnpm 10; this repo is pnpm 12)
   // Watch paths (optional): apps/portfolio/*, tooling/tailwind/*, pnpm-lock.yaml, pnpm-workspace.yaml
   //
@@ -15,16 +15,13 @@
   // Settings → Build. Cloudflare mints the deploy token; no GitHub secrets.
   "name": "jleveneur",
   "compatibility_date": "2026-09-14",
-  "compatibility_flags": ["nodejs_compat"],
-  // Custom domain (jleveneur.com) is the public hostname. vinext/Workers Builds
-  // deploy the generated dist/server/wrangler.json, which copies this file.
+  // Custom domain (jleveneur.com) is the public hostname. This Worker has no
+  // script: Wrangler uploads `out/` and Cloudflare serves the files.
   "workers_dev": false,
   "preview_urls": true,
-  "main": "vinext/server/fetch-handler",
   "assets": {
-    "directory": "dist/client",
-    "not_found_handling": "none",
-    "binding": "ASSETS"
+    "directory": "./out",
+    "not_found_handling": "404-page"
   },
   "observability": {
     "enabled": true

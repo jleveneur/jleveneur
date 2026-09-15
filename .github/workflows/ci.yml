@@ -46,10 +46,6 @@ jobs:
       - run: pnpm react-doctor
       - run: pnpm test
 
-      # Prove the Workers toolchain compiles apps/portfolio. Production deploy
-      # is Cloudflare Workers Builds (Connect Git), not this workflow.
-      - run: pnpm --filter @repo/portfolio build:vinext
-
       # The PR title becomes the squashed commit message, so it is the thing
       # that has to satisfy commitlint. The commit-msg hook covers local commits.
       - name: Lint PR title
@@ -58,12 +54,16 @@ jobs:
 
       # `next build` evaluates route modules, which validate the environment.
       # No secret is baked into the output — nothing is NEXT_PUBLIC_ — so
-      # placeholders are enough to prove the app compiles.
+      # placeholders are enough to prove the app compiles. Portfolio writes
+      # `out/`; Wrangler dry-run checks that config points at those assets.
+      # Production deploy is Cloudflare Workers Builds (Connect Git), not this
+      # workflow.
       - run: pnpm build
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app
           BETTER_AUTH_SECRET: ci-placeholder-secret-at-least-32-characters
           BETTER_AUTH_URL: http://localhost:3000
+      - run: pnpm --filter @repo/portfolio exec wrangler deploy --dry-run
 
   integration:
     name: Integration
