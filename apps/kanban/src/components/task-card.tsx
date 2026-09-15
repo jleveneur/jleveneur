@@ -1,6 +1,7 @@
 "use client"
 
 import { CalendarIcon, MessageSquareIcon, PaperclipIcon } from "lucide-react"
+import { useRef } from "react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/components/card"
 
@@ -9,9 +10,44 @@ import type { CardSummary } from "@/server/board-queries.ts"
 import { CircularProgress } from "./circular-progress.tsx"
 import { UserAvatar } from "./user-avatar.tsx"
 
+const DRAG_CLICK_SLOP_PX = 8
+
 export function TaskCard({ card, onOpen }: { card: CardSummary; onOpen: () => void }) {
+  const origin = useRef<{ x: number; y: number } | null>(null)
+  const dragged = useRef(false)
+
   return (
-    <button type="button" onClick={onOpen} className="w-full text-left">
+    <div
+      role="button"
+      tabIndex={0}
+      data-card-title={card.title}
+      className="w-full cursor-grab text-left active:cursor-grabbing"
+      onPointerDown={(event) => {
+        origin.current = { x: event.clientX, y: event.clientY }
+        dragged.current = false
+      }}
+      onPointerMove={(event) => {
+        if (origin.current === null) {
+          return
+        }
+        const dx = event.clientX - origin.current.x
+        const dy = event.clientY - origin.current.y
+        if (dx * dx + dy * dy > DRAG_CLICK_SLOP_PX * DRAG_CLICK_SLOP_PX) {
+          dragged.current = true
+        }
+      }}
+      onClick={() => {
+        if (!dragged.current) {
+          onOpen()
+        }
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault()
+          onOpen()
+        }
+      }}
+    >
       <Card className="hover:bg-muted/30">
         <CardHeader>
           <CardTitle>{card.title}</CardTitle>
@@ -50,7 +86,7 @@ export function TaskCard({ card, onOpen }: { card: CardSummary; onOpen: () => vo
           </div>
         </CardContent>
       </Card>
-    </button>
+    </div>
   )
 }
 

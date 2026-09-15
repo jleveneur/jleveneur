@@ -6,6 +6,10 @@ export function sanitizeFileName(fileName: string): string {
   return safe.length > 0 ? safe : "file"
 }
 
+export function attachmentContentDisposition(fileName: string): string {
+  return `inline; filename="${sanitizeFileName(fileName)}"`
+}
+
 /**
  * Object key for a card attachment in R2.
  *

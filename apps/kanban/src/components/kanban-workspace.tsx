@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { PlusIcon } from "lucide-react"
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { Button } from "@repo/ui/components/button"
 import { Input } from "@repo/ui/components/input"
@@ -61,15 +61,15 @@ export function KanbanWorkspace({
     [data.cards, priority, search]
   )
 
-  const columns = useMemo(() => {
-    const grouped: Record<string, CardSummary[]> = {}
-    for (const column of data.columns) {
-      grouped[column.id] = filtered
-        .filter((card) => card.columnId === column.id)
-        .toSorted((a, b) => a.position - b.position)
-    }
-    return grouped
-  }, [data.columns, filtered])
+  const serverColumns = useMemo(
+    () => groupCardsByColumn(data.columns, filtered),
+    [data.columns, filtered]
+  )
+  const [columns, setColumns] = useState(serverColumns)
+
+  useEffect(() => {
+    setColumns(serverColumns)
+  }, [serverColumns])
 
   const refresh = useCallback(() => {
     void queryClient.invalidateQueries()
@@ -91,6 +91,9 @@ export function KanbanWorkspace({
   const move = useMutation({
     mutationFn: (input: { cardId: string; toColumnId: string; position: number }) =>
       rpc.card.move(input),
+    onError: () => {
+      setColumns(serverColumns)
+    },
     onSuccess: refresh
   })
 
@@ -140,7 +143,7 @@ export function KanbanWorkspace({
           <div className="flex flex-col gap-4">
             <Kanban
               value={columns}
-              onValueChange={() => undefined}
+              onValueChange={setColumns}
               getItemValue={(item) => item.id}
               onMove={(event) => {
                 move.mutate({
@@ -158,7 +161,7 @@ export function KanbanWorkspace({
                     className="rounded-xl bg-muted/40 p-3"
                   >
                     <div className="flex items-center justify-between px-1">
-                      <h2 className="text-sm font-medium">
+                      <h2 className="text-sm font-medium" data-column-name={column.name}>
                         {column.name}{" "}
                         <span className="text-muted-foreground">
                           {(columns[column.id] ?? []).length}
@@ -314,4 +317,17 @@ export function KanbanWorkspace({
       />
     </div>
   )
+}
+
+function groupCardsByColumn(
+  columns: BoardSnapshot["columns"],
+  cards: CardSummary[]
+): Record<string, CardSummary[]> {
+  const grouped: Record<string, CardSummary[]> = {}
+  for (const column of columns) {
+    grouped[column.id] = cards
+      .filter((card) => card.columnId === column.id)
+      .toSorted((a, b) => a.position - b.position)
+  }
+  return grouped
 }

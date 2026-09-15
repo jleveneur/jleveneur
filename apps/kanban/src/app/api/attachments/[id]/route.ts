@@ -1,5 +1,6 @@
 import { ORPCError } from "@orpc/server"
 
+import { attachmentContentDisposition } from "@/lib/r2-key.ts"
 import { downloadCardAttachment } from "@/server/attachments.ts"
 import { createContext } from "@/server/context.ts"
 
@@ -12,10 +13,12 @@ export async function GET(
 
   try {
     const downloaded = await downloadCardAttachment(appContext, id)
+    const contentType =
+      downloaded.object.httpMetadata?.contentType ?? downloaded.metadata.contentType
     return new Response(downloaded.object.body, {
       headers: {
-        "content-type": downloaded.metadata.contentType,
-        "content-disposition": `inline; filename="${downloaded.metadata.fileName}"`
+        "content-type": contentType,
+        "content-disposition": attachmentContentDisposition(downloaded.metadata.fileName)
       }
     })
   } catch (error) {

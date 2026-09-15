@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm"
 
 import { attachment, card, member } from "@/db/schema.ts"
 
+import { createAuth } from "./auth.ts"
 import { broadcastBoardEvent } from "./broadcast.ts"
 import type { Context } from "./context.ts"
 import { deleteAttachmentObject, getAttachmentObject, putAttachmentObject } from "./r2.ts"
@@ -36,6 +37,15 @@ export async function uploadCardAttachment(
 
   if (membership === undefined) {
     throw new ORPCError("FORBIDDEN", { message: "Not a member of the active organization" })
+  }
+
+  const auth = createAuth(context.db)
+  const allowed = await auth.api.hasPermission({
+    headers: context.headers,
+    body: { organizationId, permissions: { card: ["attach"] } }
+  })
+  if (!allowed.success) {
+    throw new ORPCError("FORBIDDEN", { message: "Your role does not allow attach on card" })
   }
 
   const [owned] = await context.db

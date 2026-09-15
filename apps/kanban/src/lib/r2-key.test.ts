@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { buildAttachmentKey, sanitizeFileName } from "./r2-key.ts"
+import { attachmentContentDisposition, buildAttachmentKey, sanitizeFileName } from "./r2-key.ts"
 
 describe("buildAttachmentKey", () => {
   it("nests the object under org, card, and attachment ids", () => {
@@ -30,5 +30,11 @@ describe("buildAttachmentKey", () => {
 describe("sanitizeFileName", () => {
   it("strips path separators", () => {
     expect(sanitizeFileName("../../etc/passwd")).toBe("..-..-etc-passwd")
+  })
+})
+
+describe("attachmentContentDisposition", () => {
+  it("quotes a sanitized filename for the R2 download header", () => {
+    expect(attachmentContentDisposition('quote"name.pdf')).toBe('inline; filename="quote-name.pdf"')
   })
 })

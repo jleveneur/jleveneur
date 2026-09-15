@@ -93,6 +93,13 @@ function TaskDrawerBody({ cardId }: { cardId: string }) {
     }
   })
 
+  const uploadFile = useMutation({
+    mutationFn: (file: File) => uploadAttachment(cardId, file),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries()
+    }
+  })
+
   if (detail.data === undefined) {
     return (
       <SheetBody>
@@ -117,13 +124,14 @@ function TaskDrawerBody({ cardId }: { cardId: string }) {
           <dd>
             <Select
               value={card.columnId}
+              items={Object.fromEntries(card.columns.map((item) => [item.id, item.name]))}
               onValueChange={(value) => {
                 if (value !== null) {
                   updateCard.mutate({ columnId: value })
                 }
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger aria-label="Status">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -141,13 +149,14 @@ function TaskDrawerBody({ cardId }: { cardId: string }) {
           <dd>
             <Select
               value={card.priority}
+              items={Object.fromEntries(priorities.map((item) => [item, item]))}
               onValueChange={(value) => {
                 if (value === "low" || value === "medium" || value === "high") {
                   updateCard.mutate({ priority: value })
                 }
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger aria-label="Priority">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -244,13 +253,16 @@ function TaskDrawerBody({ cardId }: { cardId: string }) {
                   if (file === undefined) {
                     return
                   }
-                  void uploadAttachment(cardId, file).then(() => queryClient.invalidateQueries())
+                  uploadFile.mutate(file)
                   event.target.value = ""
                 }}
               />
               + Add file
             </label>
           </div>
+          {uploadFile.isError ? (
+            <p className="text-sm text-destructive">Upload to R2 failed. Try another file.</p>
+          ) : null}
           {card.attachments.map((item) => (
             <a
               key={item.id}

@@ -252,7 +252,7 @@ export function KanbanColumnContent({
     <SortableContext items={items} strategy={verticalListSortingStrategy}>
       <div
         data-slot="kanban-column-content"
-        className={cn("flex min-h-16 flex-col gap-3", className)}
+        className={cn("flex min-h-40 flex-col gap-3", className)}
       >
         {children}
       </div>
@@ -284,7 +284,7 @@ export function KanbanItem({
       data-slot="kanban-item"
       data-value={value}
       data-dragging={isDragging}
-      className={cn(isDragging && "opacity-50", className)}
+      className={cn("cursor-grab", isDragging && "cursor-grabbing opacity-50", className)}
       {...attributes}
       {...listeners}
     >
