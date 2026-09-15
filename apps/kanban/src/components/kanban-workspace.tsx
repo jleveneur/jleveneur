@@ -1,9 +1,10 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { PlusIcon } from "lucide-react"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { GripVerticalIcon, PlusIcon } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react"
 
+import { Badge } from "@repo/ui/components/badge"
 import { Button } from "@repo/ui/components/button"
 import { Input } from "@repo/ui/components/input"
 import {
@@ -11,8 +12,13 @@ import {
   KanbanBoard,
   KanbanColumn,
   KanbanColumnContent,
-  KanbanItem
+  KanbanColumnHandle,
+  KanbanItem,
+  KanbanItemHandle,
+  KanbanOverlay,
+  identifierToString
 } from "@repo/ui/components/kanban"
+import { SidebarInset, SidebarProvider } from "@repo/ui/components/sidebar"
 import {
   Table,
   TableBody,
@@ -27,11 +33,19 @@ import { orpc, rpc } from "@/lib/orpc.ts"
 import type { BoardEvent } from "@/lib/realtime-types.ts"
 import type { BoardSnapshot, CardSummary } from "@/server/board-queries.ts"
 
+import { AppSidebar } from "./app-sidebar.tsx"
 import { BoardChrome } from "./board-chrome.tsx"
+import { SiteHeader } from "./site-header.tsx"
 import { TaskCard } from "./task-card.tsx"
 import { TaskDrawer } from "./task-drawer.tsx"
 import { useBoardRealtime } from "./use-board-realtime.ts"
 import { UserAvatar } from "./user-avatar.tsx"
+
+const workspaceSidebarStyle: CSSProperties = {}
+Object.assign(workspaceSidebarStyle, {
+  "--sidebar-width": "calc(var(--spacing) * 72)",
+  "--header-height": "calc(var(--spacing) * 12)"
+})
 
 export function KanbanWorkspace({
   initial,
@@ -120,202 +134,237 @@ export function KanbanWorkspace({
     }
   })
 
+  const startAdd = () => {
+    const first = data.columns[0]
+    if (first !== undefined) {
+      setDraftColumn(first.id)
+    }
+  }
+
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <BoardChrome
-        title={data.board.name}
-        orgName="Shadowon Outlet"
-        search={search}
-        onSearch={setSearch}
-        priority={priority}
-        onPriority={setPriority}
-        presence={presence}
-        notificationCount={notifications.data?.filter((item) => !item.read).length ?? 0}
-        onAdd={() => {
-          const first = data.columns[0]
-          if (first !== undefined) {
-            setDraftColumn(first.id)
-          }
-        }}
-      />
-      <div className="min-h-0 flex-1 overflow-auto px-6 py-4">
-        {view === "board" ? (
-          <div className="flex flex-col gap-4">
-            <Kanban
-              value={columns}
-              onValueChange={setColumns}
-              getItemValue={(item) => item.id}
-              onMove={(event) => {
-                move.mutate({
-                  cardId: event.itemId,
-                  toColumnId: event.overContainer,
-                  position: event.overIndex
-                })
-              }}
-            >
-              <KanbanBoard>
-                {data.columns.map((column) => (
-                  <KanbanColumn
-                    key={column.id}
-                    value={column.id}
-                    className="rounded-xl bg-muted/40 p-3"
-                  >
-                    <div className="flex items-center justify-between px-1">
-                      <h2 className="text-sm font-medium" data-column-name={column.name}>
-                        {column.name}{" "}
-                        <span className="text-muted-foreground">
-                          {(columns[column.id] ?? []).length}
-                        </span>
-                      </h2>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        aria-label={`Add card to ${column.name}`}
-                        onClick={() => {
-                          setDraftColumn(column.id)
-                        }}
+    <SidebarProvider style={workspaceSidebarStyle}>
+      <AppSidebar user={user} onAdd={startAdd} />
+      <SidebarInset>
+        <SiteHeader
+          title={data.board.name}
+          search={search}
+          onSearch={setSearch}
+          presence={presence}
+          notificationCount={notifications.data?.filter((item) => !item.read).length ?? 0}
+          onAdd={startAdd}
+        />
+        <div className="@container/main flex min-h-0 flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6">
+          <BoardChrome
+            search={search}
+            onSearch={setSearch}
+            priority={priority}
+            onPriority={setPriority}
+          />
+          <div className="min-h-0 flex-1 overflow-auto px-4 lg:px-6">
+            {view === "board" ? (
+              <div className="flex flex-col gap-4">
+                <Kanban
+                  value={columns}
+                  onValueChange={setColumns}
+                  getItemValue={(item) => item.id}
+                  restoreOnCancel
+                  onValueCommit={(_next, meta) => {
+                    if (meta.kind !== "item") {
+                      return
+                    }
+                    move.mutate({
+                      cardId: identifierToString(meta.event.active.id),
+                      toColumnId: meta.overContainer,
+                      position: meta.overIndex
+                    })
+                  }}
+                >
+                  <KanbanBoard className="flex auto-rows-auto grid-cols-none gap-4 overflow-x-auto pb-2">
+                    {data.columns.map((column) => (
+                      <KanbanColumn
+                        key={column.id}
+                        value={column.id}
+                        className="w-80 shrink-0 rounded-xl bg-muted/50 p-3"
                       >
-                        <PlusIcon />
-                      </Button>
-                    </div>
-                    <KanbanColumnContent value={column.id}>
-                      {(columns[column.id] ?? []).map((item) => (
-                        <KanbanItem key={item.id} value={item.id}>
-                          <TaskCard card={item} onOpen={() => setOpenCardId(item.id)} />
-                        </KanbanItem>
-                      ))}
-                    </KanbanColumnContent>
-                    {draftColumn === column.id ? (
-                      <form
-                        className="flex flex-col gap-2"
-                        noValidate
-                        onSubmit={(event) => {
-                          event.preventDefault()
-                          if (draftTitle.trim() !== "") {
-                            createCard.mutate({ columnId: column.id, title: draftTitle })
-                          }
-                        }}
-                      >
-                        <Input
-                          autoFocus
-                          value={draftTitle}
-                          onChange={(event) => {
-                            setDraftTitle(event.target.value)
-                          }}
-                          placeholder="Card title"
-                          aria-label="New card title"
-                        />
-                        <div className="flex gap-2">
-                          <Button type="submit" size="sm">
-                            Create
-                          </Button>
+                        <div className="flex items-center justify-between gap-2 px-1">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <KanbanColumnHandle className="opacity-100">
+                              <GripVerticalIcon />
+                              <span className="sr-only">Reorder {column.name}</span>
+                            </KanbanColumnHandle>
+                            <h2
+                              className="inline-flex items-center gap-2 truncate text-sm font-medium"
+                              data-column-name={column.name}
+                            >
+                              {column.name}
+                              <Badge variant="secondary">{(columns[column.id] ?? []).length}</Badge>
+                            </h2>
+                          </div>
                           <Button
-                            type="button"
-                            size="sm"
                             variant="ghost"
+                            size="icon-xs"
+                            aria-label={`Add card to ${column.name}`}
                             onClick={() => {
-                              setDraftColumn(null)
+                              setDraftColumn(column.id)
                             }}
                           >
-                            Cancel
+                            <PlusIcon />
                           </Button>
                         </div>
-                      </form>
-                    ) : null}
-                  </KanbanColumn>
-                ))}
-              </KanbanBoard>
-            </Kanban>
-            <form
-              className="flex max-w-sm gap-2"
-              noValidate
-              onSubmit={(event) => {
-                event.preventDefault()
-                if (columnName.trim() !== "") {
-                  createColumn.mutate(columnName)
-                }
-              }}
-            >
-              <Input
-                value={columnName}
-                onChange={(event) => {
-                  setColumnName(event.target.value)
-                }}
-                placeholder="Add a column"
-                aria-label="New column name"
-              />
-              <Button type="submit" variant="outline">
-                Add column
-              </Button>
-            </form>
-          </div>
-        ) : null}
-
-        {view === "list" ? (
-          <div className="flex flex-col gap-6">
-            {data.columns.map((column) => (
-              <section key={column.id} className="flex flex-col gap-2">
-                <h2 className="text-sm font-medium">{column.name}</h2>
-                {(columns[column.id] ?? []).map((item) => (
-                  <TaskCard key={item.id} card={item} onOpen={() => setOpenCardId(item.id)} />
-                ))}
-              </section>
-            ))}
-          </div>
-        ) : null}
-
-        {view === "table" ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Task</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Due</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead>Assignees</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((item) => {
-                const status = data.columns.find((column) => column.id === item.columnId)
-                return (
-                  <TableRow
-                    key={item.id}
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setOpenCardId(item.id)
+                        <KanbanColumnContent value={column.id} className="min-h-40">
+                          {(columns[column.id] ?? []).map((item) => (
+                            <KanbanItem key={item.id} value={item.id}>
+                              <KanbanItemHandle>
+                                <TaskCard card={item} onOpen={() => setOpenCardId(item.id)} />
+                              </KanbanItemHandle>
+                            </KanbanItem>
+                          ))}
+                        </KanbanColumnContent>
+                        {draftColumn === column.id ? (
+                          <form
+                            className="flex flex-col gap-2"
+                            noValidate
+                            onSubmit={(event) => {
+                              event.preventDefault()
+                              if (draftTitle.trim() !== "") {
+                                createCard.mutate({ columnId: column.id, title: draftTitle })
+                              }
+                            }}
+                          >
+                            <Input
+                              autoFocus
+                              value={draftTitle}
+                              onChange={(event) => {
+                                setDraftTitle(event.target.value)
+                              }}
+                              placeholder="Card title"
+                              aria-label="New card title"
+                            />
+                            <div className="flex gap-2">
+                              <Button type="submit" size="sm">
+                                Create
+                              </Button>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  setDraftColumn(null)
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </form>
+                        ) : null}
+                      </KanbanColumn>
+                    ))}
+                  </KanbanBoard>
+                  <KanbanOverlay>
+                    {({ value, variant }) => {
+                      if (variant !== "item") {
+                        return <div className="size-full rounded-xl bg-muted" />
+                      }
+                      const card = findCard(columns, identifierToString(value))
+                      if (card === undefined) {
+                        return null
+                      }
+                      return <TaskCard card={card} onOpen={() => undefined} />
                     }}
-                  >
-                    <TableCell>{item.title}</TableCell>
-                    <TableCell>{status?.name ?? ""}</TableCell>
-                    <TableCell>{item.priority}</TableCell>
-                    <TableCell>{item.dueDate ?? ""}</TableCell>
-                    <TableCell>{item.progress}%</TableCell>
-                    <TableCell>
-                      <div className="flex [&>*:not(:first-child)]:-ml-2">
-                        {item.assignees.map((person) => (
-                          <UserAvatar key={person.id} name={person.name} image={person.image} />
-                        ))}
-                      </div>
-                    </TableCell>
+                  </KanbanOverlay>
+                </Kanban>
+                <form
+                  className="flex max-w-sm gap-2"
+                  noValidate
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    if (columnName.trim() !== "") {
+                      createColumn.mutate(columnName)
+                    }
+                  }}
+                >
+                  <Input
+                    value={columnName}
+                    onChange={(event) => {
+                      setColumnName(event.target.value)
+                    }}
+                    placeholder="Add a column"
+                    aria-label="New column name"
+                  />
+                  <Button type="submit" variant="outline">
+                    Add column
+                  </Button>
+                </form>
+              </div>
+            ) : null}
+
+            {view === "list" ? (
+              <div className="flex flex-col gap-6">
+                {data.columns.map((column) => (
+                  <section key={column.id} className="flex flex-col gap-2">
+                    <h2 className="text-sm font-medium">{column.name}</h2>
+                    {(columns[column.id] ?? []).map((item) => (
+                      <TaskCard key={item.id} card={item} onOpen={() => setOpenCardId(item.id)} />
+                    ))}
+                  </section>
+                ))}
+              </div>
+            ) : null}
+
+            {view === "table" ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Task</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Priority</TableHead>
+                    <TableHead>Due</TableHead>
+                    <TableHead>Progress</TableHead>
+                    <TableHead>Assignees</TableHead>
                   </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        ) : null}
-      </div>
-      <TaskDrawer
-        cardId={openCardId}
-        open={openCardId !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setOpenCardId(null)
-          }
-        }}
-      />
-    </div>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((item) => {
+                    const status = data.columns.find((column) => column.id === item.columnId)
+                    return (
+                      <TableRow
+                        key={item.id}
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setOpenCardId(item.id)
+                        }}
+                      >
+                        <TableCell>{item.title}</TableCell>
+                        <TableCell>{status?.name ?? ""}</TableCell>
+                        <TableCell>{item.priority}</TableCell>
+                        <TableCell>{item.dueDate ?? ""}</TableCell>
+                        <TableCell>{item.progress}%</TableCell>
+                        <TableCell>
+                          <div className="flex [&>*:not(:first-child)]:-ml-2">
+                            {item.assignees.map((person) => (
+                              <UserAvatar key={person.id} name={person.name} image={person.image} />
+                            ))}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            ) : null}
+          </div>
+          <TaskDrawer
+            cardId={openCardId}
+            open={openCardId !== null}
+            onOpenChange={(open) => {
+              if (!open) {
+                setOpenCardId(null)
+              }
+            }}
+          />
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
 
@@ -330,4 +379,14 @@ function groupCardsByColumn(
       .toSorted((a, b) => a.position - b.position)
   }
   return grouped
+}
+
+function findCard(columns: Record<string, CardSummary[]>, cardId: string): CardSummary | undefined {
+  for (const items of Object.values(columns)) {
+    const found = items.find((item) => item.id === cardId)
+    if (found !== undefined) {
+      return found
+    }
+  }
+  return undefined
 }

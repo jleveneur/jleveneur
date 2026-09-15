@@ -1,8 +1,8 @@
 "use client"
 
 import { CalendarIcon, MessageSquareIcon, PaperclipIcon } from "lucide-react"
-import { useRef } from "react"
 
+import { Badge } from "@repo/ui/components/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/components/card"
 
 import type { CardSummary } from "@/server/board-queries.ts"
@@ -10,37 +10,14 @@ import type { CardSummary } from "@/server/board-queries.ts"
 import { CircularProgress } from "./circular-progress.tsx"
 import { UserAvatar } from "./user-avatar.tsx"
 
-const DRAG_CLICK_SLOP_PX = 8
-
 export function TaskCard({ card, onOpen }: { card: CardSummary; onOpen: () => void }) {
-  const origin = useRef<{ x: number; y: number } | null>(null)
-  const dragged = useRef(false)
-
   return (
     <div
       role="button"
       tabIndex={0}
       data-card-title={card.title}
-      className="w-full cursor-grab text-left active:cursor-grabbing"
-      onPointerDown={(event) => {
-        origin.current = { x: event.clientX, y: event.clientY }
-        dragged.current = false
-      }}
-      onPointerMove={(event) => {
-        if (origin.current === null) {
-          return
-        }
-        const dx = event.clientX - origin.current.x
-        const dy = event.clientY - origin.current.y
-        if (dx * dx + dy * dy > DRAG_CLICK_SLOP_PX * DRAG_CLICK_SLOP_PX) {
-          dragged.current = true
-        }
-      }}
-      onClick={() => {
-        if (!dragged.current) {
-          onOpen()
-        }
-      }}
+      className="w-full text-left"
+      onClick={onOpen}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault()
@@ -48,7 +25,7 @@ export function TaskCard({ card, onOpen }: { card: CardSummary; onOpen: () => vo
         }
       }}
     >
-      <Card className="hover:bg-muted/30">
+      <Card size="sm" className="bg-card shadow-xs ring-foreground/5 hover:bg-muted/30">
         <CardHeader>
           <CardTitle>{card.title}</CardTitle>
           <CardDescription className="line-clamp-2">{card.description}</CardDescription>
@@ -63,11 +40,12 @@ export function TaskCard({ card, onOpen }: { card: CardSummary; onOpen: () => vo
             <CircularProgress value={card.progress} />
           </div>
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <span className="size-1.5 rounded-full bg-destructive" />
-              {card.priority}
+            <span className="inline-flex items-center gap-2">
+              <Badge variant={card.priority === "high" ? "destructive" : "secondary"}>
+                {card.priority}
+              </Badge>
               {card.dueDate === null ? null : (
-                <span className="ml-2 inline-flex items-center gap-1">
+                <span className="inline-flex items-center gap-1">
                   <CalendarIcon />
                   {formatDue(card.dueDate)}
                 </span>

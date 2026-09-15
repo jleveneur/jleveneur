@@ -1,11 +1,20 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { CalendarIcon, PaperclipIcon, PlusIcon, SendIcon } from "lucide-react"
+import { CalendarIcon, PaperclipIcon, PlusIcon, SendIcon, XIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { Button } from "@repo/ui/components/button"
 import { Checkbox } from "@repo/ui/components/checkbox"
+import {
+  Drawer,
+  DrawerBody,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle
+} from "@repo/ui/components/drawer"
 import { Input } from "@repo/ui/components/input"
 import { Progress } from "@repo/ui/components/progress"
 import {
@@ -17,14 +26,6 @@ import {
   SelectValue
 } from "@repo/ui/components/select"
 import { Separator } from "@repo/ui/components/separator"
-import {
-  Sheet,
-  SheetBody,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle
-} from "@repo/ui/components/sheet"
 
 import { priorities } from "@/lib/card-filters.ts"
 import { orpc, rpc } from "@/lib/orpc.ts"
@@ -41,12 +42,12 @@ export function TaskDrawer({
   onOpenChange: (open: boolean) => void
 }) {
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
-      <SheetContent>
-        <SheetTitle className="sr-only">Task Detail</SheetTitle>
+    <Drawer open={open} onOpenChange={onOpenChange} swipeDirection="right">
+      <DrawerContent>
+        <DrawerTitle className="sr-only">Task Detail</DrawerTitle>
         {cardId === null ? null : <TaskDrawerBody cardId={cardId} />}
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   )
 }
 
@@ -102,9 +103,9 @@ function TaskDrawerBody({ cardId }: { cardId: string }) {
 
   if (detail.data === undefined) {
     return (
-      <SheetBody>
+      <DrawerBody>
         <p className="text-sm text-muted-foreground">Loading task…</p>
-      </SheetBody>
+      </DrawerBody>
     )
   }
 
@@ -113,12 +114,18 @@ function TaskDrawerBody({ cardId }: { cardId: string }) {
 
   return (
     <>
-      <SheetHeader>
+      <DrawerHeader className="relative pr-12">
         <p className="text-xs font-medium text-muted-foreground">Task Detail</p>
-        <SheetTitle>{card.title}</SheetTitle>
-        <SheetDescription>{card.description}</SheetDescription>
-      </SheetHeader>
-      <SheetBody className="flex flex-col gap-6">
+        <DrawerTitle>{card.title}</DrawerTitle>
+        <DrawerDescription>{card.description}</DrawerDescription>
+        <DrawerClose
+          render={<Button variant="ghost" size="icon-sm" className="absolute top-3 right-3" />}
+        >
+          <XIcon />
+          <span className="sr-only">Close</span>
+        </DrawerClose>
+      </DrawerHeader>
+      <DrawerBody className="flex flex-col gap-6">
         <dl className="grid grid-cols-[auto_1fr] items-center gap-x-6 gap-y-3 text-sm">
           <dt className="text-muted-foreground">Status</dt>
           <dd>
@@ -314,7 +321,7 @@ function TaskDrawerBody({ cardId }: { cardId: string }) {
             </article>
           ))}
         </section>
-      </SheetBody>
+      </DrawerBody>
     </>
   )
 }

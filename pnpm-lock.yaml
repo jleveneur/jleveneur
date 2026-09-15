@@ -722,6 +722,9 @@ importers:
       lucide-react:
         specifier: 'catalog:'
         version: 1.46.0(react@19.2.8)
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.8(react@19.2.8)
     devDependencies:
       '@repo/tsconfig':
         specifier: workspace:*
@@ -735,9 +738,6 @@ importers:
       react:
         specifier: 'catalog:'
         version: 19.2.8
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.2.8(react@19.2.8)
       typescript:
         specifier: 'catalog:'
         version: 7.0.2

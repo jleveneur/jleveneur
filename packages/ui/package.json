@@ -18,7 +18,8 @@
     "@dnd-kit/utilities": "catalog:",
     "class-variance-authority": "catalog:",
     "cn": "catalog:",
-    "lucide-react": "catalog:"
+    "lucide-react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
