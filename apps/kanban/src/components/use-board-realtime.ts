@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { cardIdFromEvent } from "@/lib/card-id-from-event.ts"
 import type { BoardEvent, PresenceUser, RealtimeMessage } from "@/lib/realtime-types.ts"
 
 function isRealtimeMessage(value: unknown): value is RealtimeMessage {
@@ -16,7 +17,8 @@ function isRealtimeMessage(value: unknown): value is RealtimeMessage {
 export function useBoardRealtime(
   boardId: string,
   user: PresenceUser,
-  onEvent: (event: BoardEvent) => void
+  onEvent: (event: BoardEvent) => void,
+  onOpenCard: (cardId: string) => void
 ): PresenceUser[] {
   const [presence, setPresence] = useState<PresenceUser[]>([])
   const { userId, name, image } = user
@@ -48,7 +50,20 @@ export function useBoardRealtime(
         return
       }
       if (parsed.event.actorId !== userId) {
-        toast(labelFor(parsed.event))
+        const cardId = cardIdFromEvent(parsed.event)
+        toast(labelFor(parsed.event), {
+          description: parsed.event.kind,
+          ...(cardId === null
+            ? {}
+            : {
+                action: {
+                  label: "Open",
+                  onClick: () => {
+                    onOpenCard(cardId)
+                  }
+                }
+              })
+        })
       }
       onEvent(parsed.event)
     })
@@ -56,7 +71,7 @@ export function useBoardRealtime(
     return () => {
       socket.close()
     }
-  }, [boardId, image, name, onEvent, userId])
+  }, [boardId, image, name, onEvent, onOpenCard, userId])
 
   return presence
 }

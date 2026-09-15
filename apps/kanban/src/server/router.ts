@@ -12,6 +12,7 @@ import {
   subtask,
   user
 } from "@/db/schema.ts"
+import { ensureVisitorNotification } from "@/db/seed.ts"
 import { priorities } from "@/lib/card-filters.ts"
 import { applyCardMove } from "@/lib/move-card.ts"
 
@@ -185,7 +186,8 @@ export const appRouter = {
         await notifyOrg(context.db, context.organizationId, context.user.id, {
           kind: "card.moved",
           title: "Card moved",
-          body: `A card moved to another column.`
+          body: "A card moved to another column.",
+          cardId: input.cardId
         })
 
         return { id: input.cardId }
@@ -346,7 +348,8 @@ export const appRouter = {
         await notifyOrg(context.db, context.organizationId, context.user.id, {
           kind: "comment.added",
           title: "New comment",
-          body: context.user.name
+          body: context.user.name,
+          cardId: input.cardId
         })
 
         return { id, createdAt: createdAt.toISOString() }
@@ -354,9 +357,25 @@ export const appRouter = {
   },
 
   notification: {
-    list: orgProcedure.handler(({ context }) =>
-      listNotifications(context.db, context.organizationId, context.user.id)
-    )
+    list: orgProcedure.handler(async ({ context }) => {
+      await ensureVisitorNotification(context.db, context.organizationId, context.user.id)
+      return listNotifications(context.db, context.organizationId, context.user.id)
+    }),
+    markRead: orgProcedure
+      .input(z.object({ notificationId: z.string().min(1) }))
+      .handler(async ({ input, context }) => {
+        await context.db
+          .update(notification)
+          .set({ read: true })
+          .where(
+            and(
+              eq(notification.id, input.notificationId),
+              eq(notification.organizationId, context.organizationId),
+              eq(notification.userId, context.user.id)
+            )
+          )
+        return { id: input.notificationId }
+      })
   },
 
   members: {
@@ -376,7 +395,7 @@ async function notifyOrg(
   db: Parameters<typeof listNotifications>[0],
   organizationId: string,
   actorId: string,
-  input: { kind: string; title: string; body: string }
+  input: { kind: string; title: string; body: string; cardId?: string }
 ): Promise<void> {
   const members = await db
     .select({ userId: member.userId })
@@ -395,6 +414,7 @@ async function notifyOrg(
       kind: input.kind,
       title: input.title,
       body: input.body,
+      cardId: input.cardId ?? null,
       read: false,
       createdAt
     })

@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server"
-import { and, asc, eq, inArray } from "drizzle-orm"
+import { and, asc, desc, eq, inArray } from "drizzle-orm"
 
 import type { Database } from "@/db/client.ts"
 import {
@@ -226,17 +226,42 @@ export async function loadCardDetail(db: Database, organizationId: string, cardI
   }
 }
 
-export async function listNotifications(db: Database, organizationId: string, userId: string) {
-  return db
+export type BoardNotification = {
+  id: string
+  kind: string
+  title: string
+  body: string
+  cardId: string | null
+  read: boolean
+  createdAt: string
+}
+
+export async function listNotifications(
+  db: Database,
+  organizationId: string,
+  userId: string
+): Promise<BoardNotification[]> {
+  const rows = await db
     .select({
       id: notification.id,
       kind: notification.kind,
       title: notification.title,
       body: notification.body,
+      cardId: notification.cardId,
       read: notification.read,
       createdAt: notification.createdAt
     })
     .from(notification)
     .where(and(eq(notification.organizationId, organizationId), eq(notification.userId, userId)))
-    .orderBy(asc(notification.createdAt))
+    .orderBy(desc(notification.createdAt))
+
+  return rows.map((row) => ({
+    id: row.id,
+    kind: row.kind,
+    title: row.title,
+    body: row.body,
+    cardId: row.cardId ?? null,
+    read: row.read,
+    createdAt: row.createdAt.toISOString()
+  }))
 }

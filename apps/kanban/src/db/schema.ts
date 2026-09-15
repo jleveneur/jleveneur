@@ -264,6 +264,7 @@ export const notification = sqliteTable(
     kind: text("kind").notNull(),
     title: text("title").notNull(),
     body: text("body").notNull(),
+    cardId: text("card_id"),
     read: integer("read", { mode: "boolean" }).notNull().default(false),
     createdAt: createdAt()
   },

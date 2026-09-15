@@ -31,7 +31,7 @@ import {
 import { matchesCardFilters, type Priority } from "@/lib/card-filters.ts"
 import { orpc, rpc } from "@/lib/orpc.ts"
 import type { BoardEvent } from "@/lib/realtime-types.ts"
-import type { BoardSnapshot, CardSummary } from "@/server/board-queries.ts"
+import type { BoardNotification, BoardSnapshot, CardSummary } from "@/server/board-queries.ts"
 
 import { AppSidebar } from "./app-sidebar.tsx"
 import { BoardChrome } from "./board-chrome.tsx"
@@ -96,10 +96,29 @@ export function KanbanWorkspace({
     [refresh]
   )
 
+  const onOpenCard = useCallback((cardId: string) => {
+    setOpenCardId(cardId)
+  }, [])
+
+  const markRead = useMutation({
+    mutationFn: (notificationId: string) => rpc.notification.markRead({ notificationId }),
+    onSuccess: refresh
+  })
+
+  const onNotificationOpen = (item: BoardNotification) => {
+    if (item.cardId !== null) {
+      setOpenCardId(item.cardId)
+    }
+    if (!item.read) {
+      markRead.mutate(item.id)
+    }
+  }
+
   const presence = useBoardRealtime(
     data.board.id,
     { userId: user.id, name: user.name, image: user.image },
-    onEvent
+    onEvent,
+    onOpenCard
   )
 
   const move = useMutation({
@@ -150,7 +169,8 @@ export function KanbanWorkspace({
           search={search}
           onSearch={setSearch}
           presence={presence}
-          notificationCount={notifications.data?.filter((item) => !item.read).length ?? 0}
+          notifications={notifications.data ?? []}
+          onNotificationOpen={onNotificationOpen}
           onAdd={startAdd}
         />
         <div className="@container/main flex min-h-0 flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6">

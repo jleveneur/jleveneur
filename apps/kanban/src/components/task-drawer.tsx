@@ -43,7 +43,7 @@ export function TaskDrawer({
 }) {
   return (
     <Drawer open={open} onOpenChange={onOpenChange} swipeDirection="right">
-      <DrawerContent>
+      <DrawerContent data-card-id={cardId ?? ""}>
         <DrawerTitle className="sr-only">Task Detail</DrawerTitle>
         {cardId === null ? null : <TaskDrawerBody cardId={cardId} />}
       </DrawerContent>
@@ -116,7 +116,7 @@ function TaskDrawerBody({ cardId }: { cardId: string }) {
     <>
       <DrawerHeader className="relative pr-12">
         <p className="text-xs font-medium text-muted-foreground">Task Detail</p>
-        <DrawerTitle>{card.title}</DrawerTitle>
+        <DrawerTitle data-drawer-title={card.title}>{card.title}</DrawerTitle>
         <DrawerDescription>{card.description}</DrawerDescription>
         <DrawerClose
           render={<Button variant="ghost" size="icon-sm" className="absolute top-3 right-3" />}

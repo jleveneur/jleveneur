@@ -8,6 +8,7 @@ import {
   column,
   comment,
   member,
+  notification,
   organization,
   subtask,
   user
@@ -53,8 +54,65 @@ export async function ensureDemoWorkspace(db: Database, visitorId: string): Prom
   await ensureSeedPeople(db, organizationId, createdAt)
   await ensureMembership(db, organizationId, visitorId, createdAt)
   await ensureDemoBoard(db, organizationId, createdAt)
+  await ensureVisitorNotification(db, organizationId, visitorId)
 
   return organizationId
+}
+
+export async function ensureVisitorNotification(
+  db: Database,
+  organizationId: string,
+  visitorId: string
+): Promise<void> {
+  const [preferred] = await db
+    .select({ id: card.id, title: card.title })
+    .from(card)
+    .where(and(eq(card.organizationId, organizationId), eq(card.id, CARD_STRIPE)))
+    .limit(1)
+
+  const [fallback] =
+    preferred === undefined
+      ? await db
+          .select({ id: card.id, title: card.title })
+          .from(card)
+          .where(eq(card.organizationId, organizationId))
+          .limit(1)
+      : [preferred]
+
+  const target = preferred ?? fallback
+  if (target === undefined) {
+    return
+  }
+
+  const existing = await db
+    .select({ id: notification.id, cardId: notification.cardId })
+    .from(notification)
+    .where(and(eq(notification.organizationId, organizationId), eq(notification.userId, visitorId)))
+
+  if (existing.length === 0) {
+    await db.insert(notification).values({
+      id: `notif_${visitorId}`,
+      organizationId,
+      userId: visitorId,
+      kind: "comment.added",
+      title: "New comment",
+      body: `Daniel Smith commented on ${target.title}.`,
+      cardId: target.id,
+      read: false,
+      createdAt: now()
+    })
+    return
+  }
+
+  for (const row of existing) {
+    if (row.cardId !== null) {
+      continue
+    }
+    await db
+      .update(notification)
+      .set({ cardId: target.id })
+      .where(and(eq(notification.id, row.id), eq(notification.organizationId, organizationId)))
+  }
 }
 
 async function ensureSeedPeople(

@@ -150,6 +150,7 @@ const STATEMENTS = [
     "kind" text NOT NULL,
     "title" text NOT NULL,
     "body" text NOT NULL,
+    "card_id" text,
     "read" integer NOT NULL DEFAULT 0,
     "created_at" integer NOT NULL
   )`,
@@ -160,10 +161,33 @@ export const ATTACHMENT_TABLE_SQL =
   STATEMENTS.find((sql) => sql.includes('CREATE TABLE IF NOT EXISTS "attachment"')) ??
   'CREATE TABLE IF NOT EXISTS "attachment"'
 
+export const NOTIFICATION_TABLE_SQL =
+  STATEMENTS.find((sql) => sql.includes('CREATE TABLE IF NOT EXISTS "notification"')) ??
+  'CREATE TABLE IF NOT EXISTS "notification"'
+
 export async function ensureSchema(db: D1Database): Promise<void> {
   for (const statement of STATEMENTS) {
     await db.prepare(statement).run()
   }
+  await ensureNotificationCardId(db)
+}
+
+function isPragmaColumn(value: unknown): value is { name: string } {
+  return (
+    typeof value === "object" && value !== null && "name" in value && typeof value.name === "string"
+  )
+}
+
+async function ensureNotificationCardId(db: D1Database): Promise<void> {
+  const info = await db.prepare(`PRAGMA table_info("notification")`).all()
+  const rows = info.results
+  if (!Array.isArray(rows)) {
+    return
+  }
+  if (rows.some((row) => isPragmaColumn(row) && row.name === "card_id")) {
+    return
+  }
+  await db.prepare(`ALTER TABLE "notification" ADD COLUMN "card_id" text`).run()
 }
 
 let ready: Promise<void> | null = null
