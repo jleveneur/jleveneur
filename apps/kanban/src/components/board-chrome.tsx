@@ -55,7 +55,15 @@ export function BoardChrome({
         <div className="flex items-center gap-3">
           <label className="relative hidden w-64 md:block">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input className="pl-8" placeholder="Search..." />
+            <Input
+              className="pl-8"
+              placeholder="Search..."
+              value={search}
+              onChange={(event) => {
+                onSearch(event.target.value)
+              }}
+              aria-label="Search"
+            />
           </label>
           <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
             <BellIcon />
@@ -101,6 +109,12 @@ export function BoardChrome({
           </label>
           <Select
             value={priority}
+            items={{
+              all: "All priorities",
+              low: "low",
+              medium: "medium",
+              high: "high"
+            }}
             onValueChange={(value) => {
               if (value === null) {
                 return
