@@ -37,7 +37,7 @@ function SelectContent({ className, children, ...props }: SelectPrimitive.Popup.
         <SelectPrimitive.Popup
           data-slot="select-content"
           className={cn(
-            "z-50 min-w-(--anchor-width) overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md",
+            "z-100 min-w-(--anchor-width) overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md",
             className
           )}
           {...props}

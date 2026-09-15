@@ -4,8 +4,7 @@ import type { DragEndEvent, DragOverEvent, UniqueIdentifier } from "@dnd-kit/cor
 import {
   DndContext,
   KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
+  PointerSensor,
   closestCorners,
   useDroppable,
   useSensor,
@@ -88,8 +87,7 @@ export function Kanban<T>({
   )
 
   const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor)
   )
 

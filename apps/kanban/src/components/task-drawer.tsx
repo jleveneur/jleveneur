@@ -41,7 +41,7 @@ export function TaskDrawer({
   onOpenChange: (open: boolean) => void
 }) {
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
       <SheetContent>
         <SheetTitle className="sr-only">Task Detail</SheetTitle>
         {cardId === null ? null : <TaskDrawerBody cardId={cardId} />}
