@@ -125,7 +125,9 @@ them through `transpilePackages`; Vitest and `tsc` read them directly.
 
 `apps/portfolio` deploys as Worker **`jleveneur`** via **Workers Builds** (Connect Git). Use **Workers**, not Pages. Do not connect `apps/web`. There is no GitHub Actions deploy workflow and no `CLOUDFLARE_API_TOKEN` secret.
 
-`next build` (`output: "export"`) writes static files to `out/`. Wrangler uploads that directory; Cloudflare serves the files. There is no Worker script.
+Local and GitHub CI use a normal Next server: `pnpm run build` then `pnpm start` (`next start`). Cloudflare cannot use that — `next start` cannot serve a static export.
+
+Workers Builds runs `pnpm run build:export` (`PORTFOLIO_EXPORT=1 next build` → `out/`). Wrangler uploads that directory; Cloudflare serves the files. There is no Worker script.
 
 In [Workers & Pages](https://dash.cloudflare.com/?to=/:account/workers-and-pages) → Worker **jleveneur** → **Settings** → **Build**:
 
@@ -134,12 +136,12 @@ In [Workers & Pages](https://dash.cloudflare.com/?to=/:account/workers-and-pages
 | Worker name           | `jleveneur` (must match `wrangler.jsonc`)                                           |
 | Production branch     | `main` (after this PR merges). Enable non-production branch builds for PR previews. |
 | Root directory        | `apps/portfolio`                                                                    |
-| Build command         | `pnpm run build` (`next build` → `out/`)                                            |
+| Build command         | `pnpm run build:export` (`next build` → `out/`)                                     |
 | Deploy command        | `pnpm exec wrangler deploy`                                                         |
 | Non-production deploy | `pnpm exec wrangler versions upload`                                                |
 | Build variable        | `PNPM_VERSION=12.3.0` (Workers Builds defaults to pnpm 10)                          |
 
-If Connect Git is already wired from the vinext setup, change only the three commands: build `pnpm run build:vinext` → `pnpm run build`; deploy `pnpm run workers:deploy` → `pnpm exec wrangler deploy`; non-production `pnpm run workers:preview` → `pnpm exec wrangler versions upload`.
+If Connect Git is already wired from the vinext setup, change the three commands: build `pnpm run build:vinext` → `pnpm run build:export`; deploy `pnpm run workers:deploy` → `pnpm exec wrangler deploy`; non-production `pnpm run workers:preview` → `pnpm exec wrangler versions upload`. If you already switched the build command to `pnpm run build`, change it to `pnpm run build:export` — plain `next build` does not write `out/`.
 
 Optional watch paths: `apps/portfolio/*`, `tooling/tailwind/*`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`. Cloudflare mints the Builds API token in the dashboard. After the first successful deploy, attach jleveneur.com to Worker `jleveneur`.
 

@@ -16,7 +16,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.test.*"],
-      "outputs": [".next/**", "!.next/cache/**", "out/**"],
+      "outputs": [".next/**", "!.next/cache/**"],
       // `next build` evaluates route modules, which validate the environment.
       // The values do not end up in the output — no NEXT_PUBLIC_* variable
       // exists — but they must be present for the build to run at all.
@@ -30,6 +30,13 @@
         "AUTH_RATE_LIMIT",
         "LOG_LEVEL"
       ]
+    },
+
+    // Static HTML for apps/portfolio Wrangler assets. Local/CI `build` is a
+    // Next server so Playwright can `next start`.
+    "build:export": {
+      "outputs": ["out/**"],
+      "env": ["PORTFOLIO_EXPORT"]
     },
 
     "dev": {

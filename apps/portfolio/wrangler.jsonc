@@ -5,7 +5,7 @@
   // Dashboard: Workers & Pages → Create → Import a repository → jleveneur/jleveneur
   // Worker name must match this `name` or the build fails.
   // Root directory: apps/portfolio
-  // Build command: pnpm run build
+  // Build command: pnpm run build:export
   // Deploy command: pnpm exec wrangler deploy
   // Non-production: pnpm exec wrangler versions upload
   // Build variable: PNPM_VERSION=12.3.0 (image default is pnpm 10; this repo is pnpm 12)
