@@ -1,22 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  // Workers Builds (Connect Git) — not GitHub Actions, not Pages.
-  //
-  // Dashboard: Workers & Pages → Create → Import a repository → jleveneur/jleveneur
-  // Worker name must match this `name` or the build fails.
-  // Root directory: apps/portfolio
-  // Build command: pnpm run build:export
-  // Deploy command: pnpm exec wrangler deploy
-  // Non-production: pnpm exec wrangler versions upload
-  // Build variable: PNPM_VERSION=12.3.0 (image default is pnpm 10; this repo is pnpm 12)
-  // Watch paths (optional): apps/portfolio/*, tooling/tailwind/*, pnpm-lock.yaml, pnpm-workspace.yaml
-  //
-  // Workers Builds does not read wrangler `build.command`. Those fields live in
-  // Settings → Build. Cloudflare mints the deploy token; no GitHub secrets.
   "name": "jleveneur",
   "compatibility_date": "2026-09-14",
-  // Custom domain (jleveneur.com) is the public hostname. This Worker has no
-  // script: Wrangler uploads `out/` and Cloudflare serves the files.
   "workers_dev": false,
   "preview_urls": true,
   "assets": {

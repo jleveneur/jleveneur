@@ -103,47 +103,27 @@ them through `transpilePackages`; Vitest and `tsc` read them directly.
 
 ## Commands
 
-| Command                                | What it does                                                                             |
-| -------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `pnpm dev`                             | Next dev servers (`web` :3000, `portfolio` :3001)                                        |
-| `pnpm build`                           | Production build                                                                         |
-| `pnpm check`                           | The full local gate — everything below plus tests                                        |
-| `pnpm lint` / `pnpm format`            | Oxlint (type-aware) / Oxfmt                                                              |
-| `pnpm typecheck`                       | `tsc --noEmit` in every package                                                          |
-| `pnpm knip`                            | Unused files, exports, and dependencies                                                  |
-| `pnpm react-doctor`                    | React and accessibility diagnostics                                                      |
-| `pnpm test`                            | Vitest — pure logic, no services                                                         |
-| `pnpm test:integration`                | Vitest against a real database                                                           |
-| `pnpm test:e2e`                        | Playwright browser journeys                                                              |
-| `pnpm db:start` / `db:stop`            | Postgres in a container, via `compose.yml`                                               |
-| `pnpm db:generate`                     | Generate a migration from `schema.ts`                                                    |
-| `pnpm db:migrate`                      | Apply pending migrations                                                                 |
-| `pnpm db:studio`                       | Drizzle Studio                                                                           |
-| `pnpm --filter @repo/portfolio deploy` | Local Wrangler upload of `apps/portfolio/out/` (optional). Production is Workers Builds. |
+| Command                                | What it does                                                          |
+| -------------------------------------- | --------------------------------------------------------------------- |
+| `pnpm dev`                             | Next dev servers (`web` :3000, `portfolio` :3001)                     |
+| `pnpm build`                           | Production build                                                      |
+| `pnpm check`                           | The full local gate — everything below plus tests                     |
+| `pnpm lint` / `pnpm format`            | Oxlint (type-aware) / Oxfmt                                           |
+| `pnpm typecheck`                       | `tsc --noEmit` in every package                                       |
+| `pnpm knip`                            | Unused files, exports, and dependencies                               |
+| `pnpm react-doctor`                    | React and accessibility diagnostics                                   |
+| `pnpm test`                            | Vitest — pure logic, no services                                      |
+| `pnpm test:integration`                | Vitest against a real database                                        |
+| `pnpm test:e2e`                        | Playwright browser journeys                                           |
+| `pnpm db:start` / `db:stop`            | Postgres in a container, via `compose.yml`                            |
+| `pnpm db:generate`                     | Generate a migration from `schema.ts`                                 |
+| `pnpm db:migrate`                      | Apply pending migrations                                              |
+| `pnpm db:studio`                       | Drizzle Studio                                                        |
+| `pnpm --filter @repo/portfolio deploy` | Upload `apps/portfolio/out/` with Wrangler (run `build:export` first) |
 
 ## Cloudflare (public site)
 
-`apps/portfolio` deploys as Worker **`jleveneur`** via **Workers Builds** (Connect Git). Use **Workers**, not Pages. Do not connect `apps/web`. There is no GitHub Actions deploy workflow and no `CLOUDFLARE_API_TOKEN` secret.
-
-Local and GitHub CI use a normal Next server: `pnpm run build` then `pnpm start` (`next start`). Cloudflare cannot use that — `next start` cannot serve a static export.
-
-Workers Builds runs `pnpm run build:export` (`PORTFOLIO_EXPORT=1 next build` → `out/`). Wrangler uploads that directory; Cloudflare serves the files. There is no Worker script.
-
-In [Workers & Pages](https://dash.cloudflare.com/?to=/:account/workers-and-pages) → Worker **jleveneur** → **Settings** → **Build**:
-
-| Setting               | Value                                                                               |
-| --------------------- | ----------------------------------------------------------------------------------- |
-| Worker name           | `jleveneur` (must match `wrangler.jsonc`)                                           |
-| Production branch     | `main` (after this PR merges). Enable non-production branch builds for PR previews. |
-| Root directory        | `apps/portfolio`                                                                    |
-| Build command         | `pnpm run build:export` (`next build` → `out/`)                                     |
-| Deploy command        | `pnpm exec wrangler deploy`                                                         |
-| Non-production deploy | `pnpm exec wrangler versions upload`                                                |
-| Build variable        | `PNPM_VERSION=12.3.0` (Workers Builds defaults to pnpm 10)                          |
-
-If Connect Git is already wired from the vinext setup, change the three commands: build `pnpm run build:vinext` → `pnpm run build:export`; deploy `pnpm run workers:deploy` → `pnpm exec wrangler deploy`; non-production `pnpm run workers:preview` → `pnpm exec wrangler versions upload`. If you already switched the build command to `pnpm run build`, change it to `pnpm run build:export` — plain `next build` does not write `out/`.
-
-Optional watch paths: `apps/portfolio/*`, `tooling/tailwind/*`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`. Cloudflare mints the Builds API token in the dashboard. After the first successful deploy, attach jleveneur.com to Worker `jleveneur`.
+`apps/portfolio` is a Worker. Local and CI use `next build` / `next start`. Production uses `pnpm run build:export` then `wrangler deploy`. `next start` cannot serve a static export.
 
 ## Organizations and permissions
 

@@ -19,9 +19,6 @@ if (existsSync(rootEnv)) {
  * page, so they can ship in a starter. A `script-src` worth having requires a
  * per-request nonce threaded through the app, and one written without that
  * either breaks Next's inline bootstrap or is loose enough to be decorative.
- *
- * `next start` applies these. A static export ignores `headers()` here; Workers
- * reads the same values from `public/_headers` (copied into `out/`).
  */
 const SECURITY_HEADERS = [
   // Browsers ignore this over plain HTTP, so it costs nothing locally.
@@ -36,14 +33,15 @@ const SECURITY_HEADERS = [
   }
 ]
 
-// `next start` cannot serve `output: "export"`. Local/CI use a normal Next
-// server. Workers Builds runs `pnpm run build:export`, which sets this flag so
-// `next build` writes `out/` for Wrangler assets.
+// `next start` cannot serve `output: "export"`. `build:export` sets this so
+// `next build` writes `out/` for Wrangler.
 const staticExport = process.env["PORTFOLIO_EXPORT"] === "1"
 
 const nextConfig: NextConfig = {
   ...(staticExport ? { output: "export" as const } : {}),
 
+  // A static export ignores `headers()` here; `public/_headers` is copied into
+  // `out/` and applied by the asset host instead.
   ...(!staticExport
     ? {
         headers() {

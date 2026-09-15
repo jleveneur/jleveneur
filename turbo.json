@@ -32,8 +32,6 @@
       ]
     },
 
-    // Static HTML for apps/portfolio Wrangler assets. Local/CI `build` is a
-    // Next server so Playwright can `next start`.
     "build:export": {
       "outputs": ["out/**"],
       "env": ["PORTFOLIO_EXPORT"]

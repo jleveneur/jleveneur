@@ -94,7 +94,7 @@ catalog:
   vitest: 4.1.11
   "@playwright/test": 1.63.0
 
-  # --- Cloudflare Workers (apps/portfolio static assets) -------------------
+  # --- Cloudflare Workers ---------------------------------------------------
   wrangler: 4.131.2
 
 # Entries still inside pnpm's default release-age cutoff. Delete each one as

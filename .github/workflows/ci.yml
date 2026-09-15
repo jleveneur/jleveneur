@@ -54,16 +54,13 @@ jobs:
 
       # `next build` evaluates route modules, which validate the environment.
       # No secret is baked into the output — nothing is NEXT_PUBLIC_ — so
-      # placeholders are enough to prove the app compiles. Portfolio's default
-      # build is a Next server (`next start` in Playwright). The export build
-      # writes `out/`; Wrangler dry-run checks that config points at it.
-      # Production deploy is Cloudflare Workers Builds (Connect Git), not this
-      # workflow.
+      # placeholders are enough to prove the app compiles.
       - run: pnpm build
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app
           BETTER_AUTH_SECRET: ci-placeholder-secret-at-least-32-characters
           BETTER_AUTH_URL: http://localhost:3000
+      # Default `pnpm build` does not write `out/`.
       - run: pnpm --filter @repo/portfolio build:export
       - run: pnpm --filter @repo/portfolio exec wrangler deploy --dry-run
 
