@@ -1,18 +1,56 @@
 import { DurableObject } from "cloudflare:workers"
 
-import type { BoardEvent, PresenceUser, RealtimeMessage } from "../src/lib/realtime-types.ts"
+import type {
+  BoardEvent,
+  BoardEventKind,
+  PresenceUser,
+  RealtimeMessage
+} from "../src/lib/realtime-types.ts"
 
-export type { BoardEvent, PresenceUser, RealtimeMessage }
-
-function isPresenceUser(value: unknown): value is PresenceUser {
-  if (typeof value !== "object" || value === null) {
-    return false
+function isEventKind(value: unknown): value is BoardEventKind {
+  switch (value) {
+    case "card.created":
+    case "card.moved":
+    case "card.updated":
+    case "column.created":
+    case "comment.added":
+    case "attachment.added":
+      return true
+    default:
+      return false
   }
-  const record = value as Record<string, unknown>
-  return typeof record["userId"] === "string" && typeof record["name"] === "string"
 }
 
-export class BoardRoom extends DurableObject<Cloudflare.Env> {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
+}
+
+function isPresenceUser(value: unknown): value is PresenceUser {
+  if (!isRecord(value)) {
+    return false
+  }
+  const image = value["image"]
+  return (
+    typeof value["userId"] === "string" &&
+    typeof value["name"] === "string" &&
+    (image === null || typeof image === "string")
+  )
+}
+
+function isBoardEvent(value: unknown): value is BoardEvent {
+  if (!isRecord(value)) {
+    return false
+  }
+  return (
+    isEventKind(value["kind"]) &&
+    typeof value["boardId"] === "string" &&
+    typeof value["actorId"] === "string" &&
+    typeof value["at"] === "string" &&
+    isRecord(value["payload"])
+  )
+}
+
+export class BoardRoom extends DurableObject {
   override async fetch(request: Request): Promise<Response> {
     if (request.headers.get("Upgrade") === "websocket") {
       const pair = new WebSocketPair()
@@ -22,14 +60,16 @@ export class BoardRoom extends DurableObject<Cloudflare.Env> {
 
     if (request.method === "POST") {
       const event: unknown = await request.json()
-      this.broadcast({ type: "event", event: event as BoardEvent })
+      if (isBoardEvent(event)) {
+        this.broadcast({ type: "event", event })
+      }
       return new Response(null, { status: 204 })
     }
 
     return new Response("Not found", { status: 404 })
   }
 
-  override async webSocketMessage(socket: WebSocket, message: string | ArrayBuffer): Promise<void> {
+  override webSocketMessage(socket: WebSocket, message: string | ArrayBuffer): void {
     if (typeof message !== "string") {
       return
     }
@@ -41,20 +81,15 @@ export class BoardRoom extends DurableObject<Cloudflare.Env> {
       return
     }
 
-    if (typeof parsed !== "object" || parsed === null) {
+    if (!isRecord(parsed) || parsed["type"] !== "join" || !isPresenceUser(parsed["user"])) {
       return
     }
 
-    const record = parsed as Record<string, unknown>
-    if (record["type"] !== "join" || !isPresenceUser(record["user"])) {
-      return
-    }
-
-    socket.serializeAttachment(record["user"])
+    socket.serializeAttachment(parsed["user"])
     this.broadcastPresence()
   }
 
-  override async webSocketClose(socket: WebSocket): Promise<void> {
+  override webSocketClose(socket: WebSocket): void {
     socket.serializeAttachment(null)
     this.broadcastPresence()
   }

@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "types:cf": "wrangler types"
+    "types:cf": "wrangler types",
+    "deploy": "vinext-cloudflare deploy"
   },
   "dependencies": {
     "@orpc/client": "catalog:",
@@ -21,7 +22,6 @@
     "@repo/env": "workspace:*",
     "@repo/logger": "workspace:*",
     "@repo/ui": "workspace:*",
-    "@tanstack/react-form": "catalog:",
     "@tanstack/react-query": "catalog:",
     "better-auth": "catalog:",
     "cn": "catalog:",

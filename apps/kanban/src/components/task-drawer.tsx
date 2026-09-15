@@ -194,7 +194,9 @@ function TaskDrawerBody({ cardId }: { cardId: string }) {
               <Checkbox
                 checked={item.done}
                 onCheckedChange={(checked) => {
-                  toggleSubtask.mutate({ subtaskId: item.id, done: checked === true })
+                  if (typeof checked === "boolean") {
+                    toggleSubtask.mutate({ subtaskId: item.id, done: checked })
+                  }
                 }}
               />
               <span className={item.done ? "text-muted-foreground line-through" : undefined}>

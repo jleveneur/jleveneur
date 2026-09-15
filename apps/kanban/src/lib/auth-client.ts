@@ -1,5 +1,4 @@
-import { anonymousClient } from "better-auth/client/plugins"
-import { organizationClient } from "better-auth/client/plugins"
+import { anonymousClient, organizationClient } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/react"
 
 import { ac, roles } from "@repo/authz"

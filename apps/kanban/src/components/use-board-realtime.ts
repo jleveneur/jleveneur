@@ -29,6 +29,9 @@ export function useBoardRealtime(
     })
 
     socket.addEventListener("message", (message) => {
+      if (typeof message.data !== "string") {
+        return
+      }
       let parsed: unknown
       try {
         parsed = JSON.parse(message.data)
@@ -70,5 +73,7 @@ function labelFor(event: BoardEvent): string {
       return "New comment"
     case "attachment.added":
       return "New attachment"
+    default:
+      return "Board updated"
   }
 }

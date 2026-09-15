@@ -5,21 +5,22 @@ import { putAttachmentObject } from "./r2.ts"
 class MemoryBucket {
   readonly objects = new Map<string, { body: ArrayBuffer; contentType: string }>()
 
-  async put(key: string, value: ArrayBuffer, options: { httpMetadata?: { contentType?: string } }) {
+  put(key: string, value: ArrayBuffer, options: { httpMetadata?: { contentType?: string } }) {
     this.objects.set(key, {
       body: value,
       contentType: options.httpMetadata?.contentType ?? "application/octet-stream"
     })
-    return { key }
+    return Promise.resolve({ key })
   }
 
-  async get(key: string) {
+  get(key: string) {
     const found = this.objects.get(key)
-    return found === undefined ? null : found
+    return Promise.resolve(found === undefined ? null : found)
   }
 
-  async delete(key: string) {
+  delete(key: string) {
     this.objects.delete(key)
+    return Promise.resolve()
   }
 }
 

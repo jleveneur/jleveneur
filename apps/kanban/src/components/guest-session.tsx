@@ -5,8 +5,7 @@ import { useEffect, type ReactNode } from "react"
 
 import { Skeleton } from "@repo/ui/components/skeleton"
 
-import { useSession } from "@/lib/auth-client.ts"
-import { authClient } from "@/lib/auth-client.ts"
+import { authClient, useSession } from "@/lib/auth-client.ts"
 
 export function GuestSession({ children }: { children: ReactNode }) {
   const router = useRouter()
@@ -19,6 +18,7 @@ export function GuestSession({ children }: { children: ReactNode }) {
 
     void authClient.signIn.anonymous().then(() => {
       router.refresh()
+      return undefined
     })
   }, [data, isPending, router])
 

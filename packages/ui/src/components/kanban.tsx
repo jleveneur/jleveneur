@@ -38,21 +38,18 @@ export type KanbanMoveEvent = {
   itemId: string
 }
 
-type KanbanContextValue<T> = {
-  columns: KanbanColumns<T>
-  getItemId: (item: T) => string
-  columnIds: string[]
-  findContainer: (id: UniqueIdentifier) => string | undefined
+type KanbanContextValue = {
+  itemIdsByColumn: Record<string, string[]>
 }
 
-const KanbanContext = createContext<KanbanContextValue<unknown> | null>(null)
+const KanbanContext = createContext<KanbanContextValue | null>(null)
 
-function useKanban<T>(): KanbanContextValue<T> {
+function useKanban(): KanbanContextValue {
   const value = useContext(KanbanContext)
   if (value === null) {
     throw new Error("Kanban components must be rendered inside <Kanban>")
   }
-  return value as KanbanContextValue<T>
+  return value
 }
 
 function asId(id: UniqueIdentifier): string {
@@ -179,18 +176,18 @@ export function Kanban<T>({
     [columnIds, findContainer, getItemValue, onMove, onValueChange, value]
   )
 
-  const context = useMemo(
-    () => ({
-      columns: value,
-      getItemId: getItemValue,
-      columnIds,
-      findContainer
-    }),
-    [columnIds, findContainer, getItemValue, value]
-  )
+  const itemIdsByColumn = useMemo(() => {
+    const ids: Record<string, string[]> = {}
+    for (const columnId of columnIds) {
+      ids[columnId] = (value[columnId] ?? []).map((item) => getItemValue(item))
+    }
+    return ids
+  }, [columnIds, getItemValue, value])
+
+  const context = useMemo(() => ({ itemIdsByColumn }), [itemIdsByColumn])
 
   return (
-    <KanbanContext.Provider value={context as KanbanContextValue<unknown>}>
+    <KanbanContext.Provider value={context}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -248,8 +245,8 @@ export function KanbanColumnContent({
   className?: string
   children: ReactNode
 }) {
-  const { columns, getItemId } = useKanban()
-  const items = (columns[value] ?? []).map((item) => getItemId(item))
+  const { itemIdsByColumn } = useKanban()
+  const items = itemIdsByColumn[value] ?? []
 
   return (
     <SortableContext items={items} strategy={verticalListSortingStrategy}>
