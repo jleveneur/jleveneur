@@ -30,7 +30,7 @@ const types: Record<string, string> = {
   ".svg": "image/svg+xml",
   ".txt": "text/plain; charset=utf-8",
   ".woff": "font/woff",
-  ".woff2": "font/woff2",
+  ".woff2": "font/woff2"
 }
 
 function isInsideRoot(file: string): boolean {
@@ -52,7 +52,7 @@ async function existingFile(file: string): Promise<string | undefined> {
 }
 
 async function resolveFile(
-  pathname: string,
+  pathname: string
 ): Promise<{ file: string; status: number } | undefined> {
   const decoded = decodeURIComponent(pathname)
   const candidates: string[] = []
@@ -90,7 +90,7 @@ const server = createServer((req, res) => {
     }
     await access(resolved.file)
     res.writeHead(resolved.status, {
-      "content-type": types[extname(resolved.file)] ?? "application/octet-stream",
+      "content-type": types[extname(resolved.file)] ?? "application/octet-stream"
     })
     createReadStream(resolved.file).pipe(res)
   })().catch(() => {
