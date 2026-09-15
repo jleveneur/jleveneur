@@ -25,6 +25,18 @@ describe("organization roles", () => {
     expect(roles.admin.authorize({ invitation: ["create"] }).success).toBe(true)
     expect(roles.member.authorize({ invitation: ["create"] }).success).toBe(false)
   })
+
+  it("lets every role create and comment on cards", () => {
+    for (const name of roleNames) {
+      expect(roles[name].authorize({ card: ["create", "comment", "attach"] }).success).toBe(true)
+    }
+  })
+
+  it("only lets owners and admins delete a card", () => {
+    expect(roles.owner.authorize({ card: ["delete"] }).success).toBe(true)
+    expect(roles.admin.authorize({ card: ["delete"] }).success).toBe(true)
+    expect(roles.member.authorize({ card: ["delete"] }).success).toBe(false)
+  })
 })
 
 describe("isRole", () => {

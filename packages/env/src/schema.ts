@@ -75,3 +75,17 @@ export const server = {
  * a secret placed in this object is published, not configured.
  */
 export const client = {}
+
+/**
+ * Environment for the Cloudflare Kanban worker.
+ *
+ * Bindings (D1, R2, Durable Objects) are not process variables — they arrive
+ * on `env` from `cloudflare:workers`. These four are the wrangler vars that
+ * still need the same Zod checks as the Next app.
+ */
+export const kanbanServer = {
+  BETTER_AUTH_SECRET: server.BETTER_AUTH_SECRET,
+  BETTER_AUTH_URL: server.BETTER_AUTH_URL,
+  LOG_LEVEL: server.LOG_LEVEL,
+  AUTH_RATE_LIMIT: server.AUTH_RATE_LIMIT
+}

@@ -24,6 +24,7 @@ playwright-report/
 .env
 .env.*
 !.env.example
+.dev.vars
 
 # Local tooling caches
 .cache/

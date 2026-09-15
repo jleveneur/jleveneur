@@ -13,7 +13,7 @@
     {
       // App packages declare `@/*` → `./src/*` (no `baseUrl`).
       // Parent-relative imports are the pattern the alias exists to replace.
-      "files": ["apps/web/src/**", "apps/portfolio/src/**"],
+      "files": ["apps/web/src/**", "apps/portfolio/src/**", "apps/kanban/src/**"],
       "rules": {
         "no-restricted-imports": [
           "error",

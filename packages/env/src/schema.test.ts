@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { z } from "zod"
 
+import { parseKanbanEnv } from "./kanban.ts"
 import { server } from "./schema.ts"
 
 const schema = z.object(server)
@@ -46,5 +47,29 @@ describe("server environment schema", () => {
     const paths = schema.safeParse({}).error?.issues.map((issue) => issue.path[0])
 
     expect(paths).toStrictEqual(["DATABASE_URL", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL"])
+  })
+})
+
+describe("kanban environment schema", () => {
+  it("accepts auth vars without a Postgres URL", () => {
+    expect(
+      parseKanbanEnv({
+        BETTER_AUTH_SECRET: "a".repeat(32),
+        BETTER_AUTH_URL: "http://localhost:3002"
+      })
+    ).toMatchObject({
+      BETTER_AUTH_URL: "http://localhost:3002",
+      LOG_LEVEL: "info",
+      AUTH_RATE_LIMIT: "on"
+    })
+  })
+
+  it("rejects a short auth secret", () => {
+    expect(() =>
+      parseKanbanEnv({
+        BETTER_AUTH_SECRET: "short",
+        BETTER_AUTH_URL: "http://localhost:3002"
+      })
+    ).toThrow(/at least 32/)
   })
 })
