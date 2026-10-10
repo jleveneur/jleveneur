@@ -43,7 +43,6 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
-pnpm-debug.log*
 
 # Per-developer Cursor overrides. The shared config is committed.
 .cursor/mcp.local.json

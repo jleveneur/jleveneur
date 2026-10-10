@@ -16,17 +16,17 @@
     "@repo/db": "workspace:*",
     "@repo/email": "workspace:*",
     "@repo/env": "workspace:*",
-    "better-auth": "catalog:",
-    "drizzle-orm": "catalog:"
+    "better-auth": "1.6.25",
+    "drizzle-orm": "0.45.2"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "@types/react": "catalog:",
-    "react": "catalog:",
-    "typescript": "catalog:"
+    "@types/node": "24.13.3",
+    "@types/react": "19.2.18",
+    "react": "19.2.8",
+    "typescript": "7.0.2"
   },
   "peerDependencies": {
-    "react": "catalog:"
+    "react": "19.2.8"
   }
 }

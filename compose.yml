@@ -4,8 +4,8 @@
 # without. Email falls back to the `.mail/` outbox when `RESEND_API_KEY` is
 # unset, and there is no Redis, queue, or object storage to stand up.
 #
-#   pnpm db:start     # or: docker compose up -d --wait
-#   pnpm db:migrate
+#   bun run db:start     # or: docker compose up -d --wait
+#   bun run db:migrate
 #
 # This file is for development. It does not containerise the application —
 # deploying is still your choice to make.
@@ -31,7 +31,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      # What `--wait` blocks on. Without it `pnpm db:migrate` races the
+      # What `--wait` blocks on. Without it `bun run db:migrate` races the
       # container and fails on a connection refused the first time.
       test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
       interval: 5s

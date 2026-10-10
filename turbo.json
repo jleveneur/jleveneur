@@ -2,9 +2,8 @@
   "$schema": "https://turborepo.com/schema.json",
   "ui": "stream",
   "globalDependencies": [
-    "pnpm-lock.yaml",
-    "pnpm-workspace.yaml",
-    ".npmrc",
+    "bun.lock",
+    "bunfig.toml",
     ".oxlintrc.json",
     "tooling/oxlint/*.json",
     "tooling/tailwind/*.css",

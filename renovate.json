@@ -31,7 +31,6 @@
   "minimumReleaseAge": "3 days",
 
   "prConcurrentLimit": 8,
-  "postUpdateOptions": ["pnpmDedupe"],
 
   "automerge": true,
   "automergeType": "pr",
@@ -52,8 +51,7 @@
     {
       // engines is a floor, not a selection. The global "pin" strategy would
       // rewrite ">=24.0.0" to the newest published Node, contradicting
-      // devEngines.runtime and packageManager and failing every job with
-      // ERR_PNPM_UNSUPPORTED_ENGINE.
+      // devEngines.runtime, which CI reads to install Node.
       "matchDepTypes": ["engines"],
       "rangeStrategy": "replace"
     },
@@ -61,15 +59,6 @@
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch", "minor"],
       "groupName": "dev dependencies"
-    },
-    {
-      // Shared dependencies live in the pnpm-workspace.yaml catalog, where
-      // Renovate gives them depType pnpm.catalog.default; the package.json
-      // entries beside them are the literal string "catalog:". Without this
-      // group they arrive one PR at a time.
-      "matchDepTypes": ["pnpm.catalog.default"],
-      "matchUpdateTypes": ["patch", "minor"],
-      "groupName": "catalog dependencies"
     },
     {
       // Type definitions travel with the library they describe, and splitting

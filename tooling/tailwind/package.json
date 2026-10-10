@@ -13,7 +13,7 @@
     "./animations.css": "./animations.css"
   },
   "dependencies": {
-    "tailwindcss": "catalog:"
+    "tailwindcss": "4.3.3"
   },
   "repo": {
     "layer": "tooling",

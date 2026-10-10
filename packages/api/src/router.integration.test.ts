@@ -17,7 +17,7 @@ import { appRouter } from "./router.ts"
  * a permission check reading the member row it actually wrote. That wiring is
  * where an upstream version bump breaks things silently.
  *
- * Requires a database. Apply migrations first: `pnpm db:migrate`.
+ * Requires a database. Apply migrations first: `bun run db:migrate`.
  */
 
 const PASSWORD = "correct-horse-battery"

@@ -15,17 +15,17 @@
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
-    "@orpc/server": "catalog:",
+    "@orpc/server": "2.0.0-beta.35",
     "@repo/auth": "workspace:*",
     "@repo/authz": "workspace:*",
     "@repo/db": "workspace:*",
-    "drizzle-orm": "catalog:",
-    "zod": "catalog:"
+    "drizzle-orm": "0.45.2",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "@types/node": "24.13.3",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
   }
 }

@@ -30,7 +30,7 @@ const REDACTED = [
  * JSON on stdout, with no transport. Pino's pretty-printing transport runs in
  * a worker thread, which Next's bundler does not reliably carry through a
  * build — and structured output is what a log aggregator wants anyway. For a
- * readable local stream, pipe it: `pnpm dev | pnpm dlx pino-pretty`.
+ * readable local stream, pipe it: `bun run dev | bunx pino-pretty`.
  */
 export const logger = pino({
   level: env.LOG_LEVEL,

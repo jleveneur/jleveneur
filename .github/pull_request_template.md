@@ -30,7 +30,7 @@ Delete the lines that do not apply.
 ## Checklist
 
 - [ ] Title follows [Conventional Commits](https://www.conventionalcommits.org) — it becomes the squashed commit message
-- [ ] `pnpm check` passes locally
+- [ ] `bun run check` passes locally
 - [ ] Tests cover the behaviour, not the implementation
 - [ ] Every new query is scoped to the caller
 - [ ] No secrets, tokens, or real customer data in code, tests, or fixtures

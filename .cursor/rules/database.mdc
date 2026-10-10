@@ -12,8 +12,8 @@ explicit at the column. Tenant-scoped tables lead with `organization_id`.
 ## Migrations are generated, never hand-written
 
 ```bash
-pnpm db:generate   # after editing schema.ts
-pnpm db:migrate    # apply
+bun run db:generate   # after editing schema.ts
+bun run db:migrate    # apply
 ```
 
 Do not edit a file in `migrations/` that has already been committed, and never
