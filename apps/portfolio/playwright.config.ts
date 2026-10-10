@@ -26,7 +26,7 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 
   webServer: {
-    command: "pnpm build && pnpm start --port " + String(PORT),
+    command: "bun run build && bun run start --port " + String(PORT),
     url: baseURL,
     reuseExistingServer: process.env["CI"] === undefined,
     timeout: 180_000

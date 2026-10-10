@@ -13,11 +13,11 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "better-auth": "catalog:"
+    "better-auth": "1.6.25"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
   }
 }

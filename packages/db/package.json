@@ -17,13 +17,13 @@
   },
   "dependencies": {
     "@repo/env": "workspace:*",
-    "drizzle-orm": "catalog:",
-    "postgres": "catalog:"
+    "drizzle-orm": "0.45.2",
+    "postgres": "3.4.9"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "drizzle-kit": "catalog:",
-    "typescript": "catalog:"
+    "@types/node": "24.13.3",
+    "drizzle-kit": "0.31.10",
+    "typescript": "7.0.2"
   }
 }

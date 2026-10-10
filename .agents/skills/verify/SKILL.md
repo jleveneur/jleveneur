@@ -9,15 +9,15 @@ description: >-
 
 # Verifying a change
 
-Three suites, split by what they need. `pnpm check` runs only the first.
+Three suites, split by what they need. `bun run check` runs only the first.
 
-| Command                 | Covers                                                                           | Needs                |
-| ----------------------- | -------------------------------------------------------------------------------- | -------------------- |
-| `pnpm check`            | format, type-aware lint, typecheck, knip, React Doctor, unit tests               | nothing              |
-| `pnpm test:integration` | Better Auth through the Drizzle adapter, permissions read from real member rows  | PostgreSQL           |
-| `pnpm test:e2e`         | verification, password reset, invite and accept, permission gating, in a browser | PostgreSQL, chromium |
+| Command                    | Covers                                                                           | Needs                |
+| -------------------------- | -------------------------------------------------------------------------------- | -------------------- |
+| `bun run check`            | format, type-aware lint, typecheck, knip, React Doctor, unit tests               | nothing              |
+| `bun run test:integration` | Better Auth through the Drizzle adapter, permissions read from real member rows  | PostgreSQL           |
+| `bun run test:e2e`         | verification, password reset, invite and accept, permission gating, in a browser | PostgreSQL, chromium |
 
-Start with `pnpm check`. Run the other two when the change touches the schema,
+Start with `bun run check`. Run the other two when the change touches the schema,
 Better Auth's configuration, a procedure's guards, a page, a form, or an email.
 
 ## Running the service-dependent suites
@@ -35,9 +35,9 @@ export BETTER_AUTH_SECRET="local-placeholder-secret-at-least-32ch"
 export BETTER_AUTH_URL="http://127.0.0.1:3111"
 export RESEND_API_KEY=""
 
-pnpm db:migrate
-pnpm test:integration
-pnpm test:e2e
+bun run db:migrate
+bun run test:integration
+bun run test:e2e
 
 docker rm -f starter-pg
 ```
@@ -57,7 +57,7 @@ default and you debug the wrong thing.
 
 **Your shell may already have these exported.** A stale `DATABASE_URL` from an
 earlier run makes a check pass that would fail in CI. When reproducing a CI
-failure, clear them: `env -u DATABASE_URL -u BETTER_AUTH_SECRET pnpm knip`.
+failure, clear them: `env -u DATABASE_URL -u BETTER_AUTH_SECRET bun run knip`.
 
 ## A green suite proves nothing until it has failed
 

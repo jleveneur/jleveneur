@@ -1,0 +1,8 @@
+[install]
+# Each package sees only the dependencies it declares, so importing something a
+# package never declared fails instead of silently working through hoisting.
+linker = "isolated"
+
+# Supply-chain delay: versions published less than a day ago are not picked
+# when resolving. Versions already pinned in bun.lock are kept as they are.
+minimumReleaseAge = 86400

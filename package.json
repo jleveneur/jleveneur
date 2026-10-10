@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "description": "Julien Leveneur's site, based on the Next.js monorepo starter.",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tooling/*"
+  ],
   "type": "module",
   "scripts": {
     "dev": "turbo run dev",
@@ -12,26 +17,26 @@
     "test": "turbo run test",
     "test:integration": "turbo run test:integration",
     "test:e2e": "turbo run test:e2e",
-    "lint": "pnpm --filter @repo/web --filter @repo/portfolio typegen && oxlint --type-aware",
-    "lint:fix": "pnpm --filter @repo/web --filter @repo/portfolio typegen && oxlint --type-aware --fix",
+    "lint": "bun run --cwd apps/web typegen && bun run --cwd apps/portfolio typegen && oxlint --type-aware",
+    "lint:fix": "bun run --cwd apps/web typegen && bun run --cwd apps/portfolio typegen && oxlint --type-aware --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "knip": "knip",
     "react-doctor": "react-doctor --no-telemetry --no-supply-chain --yes",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm knip && pnpm react-doctor && pnpm test",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun run knip && bun run react-doctor && bun run test",
     "db:start": "docker compose up -d --wait",
     "db:stop": "docker compose down",
-    "db:generate": "pnpm --filter @repo/db db:generate",
-    "db:migrate": "pnpm --filter @repo/db db:migrate",
-    "db:push": "pnpm --filter @repo/db db:push",
-    "db:studio": "pnpm --filter @repo/db db:studio",
+    "db:generate": "bun run --cwd packages/db db:generate",
+    "db:migrate": "bun run --cwd packages/db db:migrate",
+    "db:push": "bun run --cwd packages/db db:push",
+    "db:studio": "bun run --cwd packages/db db:studio",
     "prepare": "node scripts/install-hooks.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.2",
     "@commitlint/config-conventional": "21.2.2",
     "@commitlint/types": "21.2.0",
-    "@types/node": "catalog:",
+    "@types/node": "24.13.3",
     "knip": "6.35.1",
     "lefthook": "2.1.12",
     "oxfmt": "0.61.0",
@@ -39,18 +44,20 @@
     "oxlint-tsgolint": "7.0.2001",
     "react-doctor": "0.9.13",
     "turbo": "2.10.12",
-    "typescript": "catalog:"
+    "typescript": "7.0.2"
   },
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "24.19.0",
-      "onFail": "download"
+      "version": "24.19.0"
     }
   },
   "engines": {
-    "node": ">=24.0.0",
-    "pnpm": ">=12.0.0"
+    "node": ">=24.0.0"
   },
-  "packageManager": "pnpm@12.3.0"
+  "packageManager": "bun@1.4.2",
+  "trustedDependencies": [
+    "esbuild",
+    "workerd"
+  ]
 }

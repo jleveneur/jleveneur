@@ -5,7 +5,7 @@ import { buttonVariants } from "@repo/ui/components/button"
 const stack = [
   "Next.js (App Router)",
   "TypeScript",
-  "Turborepo + pnpm workspaces",
+  "Turborepo + Bun workspaces",
   "Oxlint + Oxfmt",
   "Tailwind CSS + shadcn/ui",
   "Drizzle ORM + PostgreSQL",

@@ -3,13 +3,13 @@
   "servers": {
     "next-devtools": {
       "transport": "stdio",
-      "command": "pnpm",
-      "args": ["dlx", "next-devtools-mcp@latest"]
+      "command": "bunx",
+      "args": ["next-devtools-mcp@latest"]
     },
     "playwright": {
       "transport": "stdio",
-      "command": "pnpm",
-      "args": ["dlx", "@playwright/mcp@latest", "--browser", "chromium"]
+      "command": "bunx",
+      "args": ["@playwright/mcp@latest", "--browser", "chromium"]
     },
     "reui": {
       "transport": "http",
@@ -17,8 +17,8 @@
     },
     "shadcn": {
       "transport": "stdio",
-      "command": "pnpm",
-      "args": ["dlx", "shadcn@latest", "mcp"]
+      "command": "bunx",
+      "args": ["shadcn@latest", "mcp"]
     }
   }
 }

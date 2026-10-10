@@ -25,44 +25,45 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # Installs pnpm (from `packageManager`) and Node (from
-      # `devEngines.runtime`) in one step, and caches the store.
+      # Bun (from `packageManager`) installs the packages; Node (from
+      # `devEngines.runtime`) runs Next.js and the tooling.
       #
-      # `install: false` because the action's own install does not pass
-      # `--frozen-lockfile`, and an out-of-date lockfile has to fail CI rather
-      # than be silently resolved. Its `require-lockfile` input would cover
-      # this, but that is unreleased — collapse these two steps once it ships.
-      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
+      # `--frozen-lockfile` because an out-of-date lockfile has to fail CI
+      # rather than be silently resolved.
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          cache: true
-          install: false
+          bun-version-file: package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
 
-      - run: pnpm install --frozen-lockfile
+      - run: bun install --frozen-lockfile
 
-      - run: pnpm format:check
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm knip
-      - run: pnpm react-doctor
-      - run: pnpm test
+      - run: bun run format:check
+      - run: bun run lint
+      - run: bun run typecheck
+      - run: bun run knip
+      - run: bun run react-doctor
+      - run: bun run test
 
       # The PR title becomes the squashed commit message, so it is the thing
       # that has to satisfy commitlint. The commit-msg hook covers local commits.
       - name: Lint PR title
         if: github.event_name == 'pull_request'
-        run: echo "${{ github.event.pull_request.title }}" | pnpm exec commitlint
+        run: echo "${{ github.event.pull_request.title }}" | bunx commitlint
 
       # `next build` evaluates route modules, which validate the environment.
       # No secret is baked into the output — nothing is NEXT_PUBLIC_ — so
       # placeholders are enough to prove the app compiles.
-      - run: pnpm build
+      - run: bun run build
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app
           BETTER_AUTH_SECRET: ci-placeholder-secret-at-least-32-characters
           BETTER_AUTH_URL: http://localhost:3000
-      # Default `pnpm build` does not write `out/`.
-      - run: pnpm --filter @repo/portfolio build:export
-      - run: pnpm --filter @repo/portfolio exec wrangler deploy --dry-run
+      # Default `bun run build` does not write `out/`.
+      - run: bun run --cwd apps/portfolio build:export
+      - run: bunx wrangler deploy --dry-run
+        working-directory: apps/portfolio
 
   integration:
     name: Integration
@@ -91,14 +92,16 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          cache: true
-          install: false
+          bun-version-file: package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm db:migrate
-      - run: pnpm test:integration
+      - run: bun install --frozen-lockfile
+      - run: bun run db:migrate
+      - run: bun run test:integration
 
   e2e:
     name: Browser
@@ -129,17 +132,19 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          cache: true
-          install: false
+          bun-version-file: package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm db:migrate
-      # One install: both apps pin the same Playwright from the catalog, and two
+      - run: bun install --frozen-lockfile
+      - run: bun run db:migrate
+      # One install: both apps pin the same Playwright version, and two
       # `--with-deps` runs fight over apt's lock.
-      - run: pnpm --filter @repo/web test:e2e:install
-      - run: pnpm test:e2e
+      - run: bun run --cwd apps/web test:e2e:install
+      - run: bun run test:e2e
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()

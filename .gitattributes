@@ -16,7 +16,7 @@
 # Generated: excluded from language statistics and collapsed in review, so a
 # lockfile bump does not bury the actual change. The migration SQL itself stays
 # diffable — it is reviewed like any other change.
-pnpm-lock.yaml linguist-generated=true -diff
+bun.lock linguist-generated=true -diff
 packages/db/migrations/meta/** linguist-generated=true -diff
 
 # Binary — never diff or merge these.

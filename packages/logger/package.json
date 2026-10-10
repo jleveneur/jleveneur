@@ -14,12 +14,12 @@
   },
   "dependencies": {
     "@repo/env": "workspace:*",
-    "pino": "catalog:"
+    "pino": "10.3.1"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "@types/node": "24.13.3",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
   }
 }

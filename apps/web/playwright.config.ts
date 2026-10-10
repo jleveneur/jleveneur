@@ -37,7 +37,7 @@ export default defineConfig({
   webServer: {
     // The production build, not `next dev`: it is what CI ships, and dev-mode
     // recompilation makes the first navigation of every spec flaky.
-    command: "pnpm build && pnpm start --port " + String(PORT),
+    command: "bun run build && bun run start --port " + String(PORT),
     url: baseURL,
     reuseExistingServer: process.env["CI"] === undefined,
     timeout: 180_000,

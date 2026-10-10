@@ -7,7 +7,7 @@ import { boolean, index, pgTable, text, timestamp, uniqueIndex, uuid } from "dri
  * makes that mapping explicit at the column, which is the only place it should
  * ever appear.
  *
- * Migrations are generated from this file (`pnpm db:generate`) and reviewed as
+ * Migrations are generated from this file (`bun run db:generate`) and reviewed as
  * SQL before they are applied. Nothing generates them at runtime.
  */
 

@@ -13,13 +13,13 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@t3-oss/env-nextjs": "catalog:",
-    "zod": "catalog:"
+    "@t3-oss/env-nextjs": "0.13.11",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "@types/node": "24.13.3",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
   }
 }

@@ -15,12 +15,12 @@
   "dependencies": {
     "@repo/env": "workspace:*",
     "@repo/logger": "workspace:*",
-    "resend": "catalog:"
+    "resend": "6.28.0"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "@types/node": "24.13.3",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
   }
 }
