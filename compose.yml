@@ -29,7 +29,10 @@ services:
       # itself, so nothing else needs to know.
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      # Postgres 18 images keep their data in a versioned subdirectory
+      # (/var/lib/postgresql/18/docker) and refuse to start with a mount at the
+      # old /var/lib/postgresql/data, so the volume sits one level up.
+      - postgres-data:/var/lib/postgresql
     healthcheck:
       # What `--wait` blocks on. Without it `bun run db:migrate` races the
       # container and fails on a connection refused the first time.
