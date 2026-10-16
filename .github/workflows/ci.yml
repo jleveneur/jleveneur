@@ -48,9 +48,12 @@ jobs:
 
       # The PR title becomes the squashed commit message, so it is the thing
       # that has to satisfy commitlint. The commit-msg hook covers local commits.
+      # Through `env`: a title interpolated into the script would run as shell.
       - name: Lint PR title
         if: github.event_name == 'pull_request'
-        run: echo "${{ github.event.pull_request.title }}" | bunx commitlint
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: echo "$TITLE" | bunx commitlint
 
       # `next build` evaluates route modules, which validate the environment.
       # No secret is baked into the output — nothing is NEXT_PUBLIC_ — so
