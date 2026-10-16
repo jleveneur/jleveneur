@@ -56,6 +56,13 @@
       "rangeStrategy": "replace"
     },
     {
+      // This Node is agentcfg's `engines` floor, installed on purpose to test the
+      // tarball on the oldest version it supports. It moves with `engines`.
+      "matchFileNames": [".github/workflows/agentcfg.yml"],
+      "matchDepNames": ["node"],
+      "enabled": false
+    },
+    {
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch", "minor"],
       "groupName": "dev dependencies"
