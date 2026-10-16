@@ -30,19 +30,21 @@ export default async function VerifyEmailPage({
               : `We sent a confirmation link to ${email}.`}
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-6">
-          <p className="text-muted-foreground text-sm">
-            Open it to finish setting up your account. You will be signed in automatically.
-          </p>
+        <CardContent>
+          <div className="flex flex-col gap-6">
+            <p className="text-muted-foreground text-sm">
+              Open it to finish setting up your account. You will be signed in automatically.
+            </p>
 
-          {email === undefined ? null : <ResendVerificationButton email={email} />}
+            {email === undefined ? null : <ResendVerificationButton email={email} />}
 
-          <p className="text-muted-foreground text-sm">
-            Wrong address?{" "}
-            <Link href="/sign-up" className="text-foreground underline underline-offset-4">
-              Sign up again
-            </Link>
-          </p>
+            <p className="text-muted-foreground text-sm">
+              Wrong address?{" "}
+              <Link href="/sign-up" className="text-foreground underline underline-offset-4">
+                Sign up again
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </main>

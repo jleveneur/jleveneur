@@ -18,14 +18,16 @@ export default async function SignUpPage() {
           <CardTitle>Create an account</CardTitle>
           <CardDescription>Email and password, nothing else to configure.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-6">
-          <SignUpForm />
-          <p className="text-muted-foreground text-sm">
-            Already registered?{" "}
-            <Link href="/sign-in" className="text-foreground underline underline-offset-4">
-              Sign in
-            </Link>
-          </p>
+        <CardContent>
+          <div className="flex flex-col gap-6">
+            <SignUpForm />
+            <p className="text-muted-foreground text-sm">
+              Already registered?{" "}
+              <Link href="/sign-in" className="text-foreground underline underline-offset-4">
+                Sign in
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </main>

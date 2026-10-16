@@ -28,7 +28,7 @@ export default async function ResetPasswordPage({
               : "Reset links are single-use and time-limited."}
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-6">
+        <CardContent>
           {usable ? (
             <ResetPasswordForm token={token} />
           ) : (
