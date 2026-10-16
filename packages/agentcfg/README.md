@@ -166,15 +166,13 @@ Plugins and claude.ai connectors are not written by `sync`; `scan` and `status` 
 
 ## Development
 
-The source is TypeScript that Node runs directly, so tests need no build step. Bun installs dependencies and runs the scripts; the code, tests, and CLI run on Node 24.
+agentcfg lives in [`packages/agentcfg`](https://github.com/jleveneur/jleveneur/tree/main/packages/agentcfg) of the `jleveneur` monorepo, which provides the lint, format, and Git hook configuration. The source is TypeScript that Node runs directly, so tests need no build step. Bun installs dependencies and runs the scripts; the code, tests, and CLI run on Node 24.
 
 ```bash
-bun install
-bun run check       # format, lint, typecheck, unit tests
-bun run test:live   # needs the claude, codex, and cursor-agent CLIs
-node src/bin.ts scan
+bun install                                 # at the repository root
+bun run check                               # format, lint, typecheck, unit tests, whole repo
+bun run --cwd packages/agentcfg test:live   # needs the claude, codex, and cursor-agent CLIs
+node packages/agentcfg/src/bin.ts scan
 ```
 
-`bun install` sets up the Git hooks through the `prepare` script. No dependency is trusted to run install scripts: `trustedDependencies` is empty in `package.json`, which also leaves out lefthook, on Bun's default list.
-
-Releases go out from GitHub Actions: `npm version minor`, then `git push --follow-tags`. The tag triggers the release workflow, which publishes to npm with trusted publishing and creates the GitHub release.
+Releases go out from GitHub Actions. Bump the version in a pull request (`npm version minor --no-git-tag-version` in `packages/agentcfg`, plus the changelog), merge it, then tag the merged commit: `git tag agentcfg@v0.5.0 && git push origin agentcfg@v0.5.0`. The tag triggers the release workflow, which publishes to npm with trusted publishing and creates the GitHub release.

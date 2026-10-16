@@ -1,9 +1,10 @@
-name: Release
+name: agentcfg release
 
-# Push a tag such as v0.2.0, made by `npm version`, to publish that version.
+# Push a tag such as agentcfg@v0.5.0, on the main commit that bumped
+# packages/agentcfg/package.json, to publish that version.
 on:
   push:
-    tags: ["v*"]
+    tags: ["agentcfg@v*"]
 
 permissions:
   contents: read
@@ -34,15 +35,16 @@ jobs:
 
       - name: Check the tag matches package.json
         run: |
-          version="v$(node -p 'require("./package.json").version')"
+          version="agentcfg@v$(node -p 'require("./packages/agentcfg/package.json").version')"
           if [ "$version" != "$GITHUB_REF_NAME" ]; then
-            echo "Tag $GITHUB_REF_NAME does not match package.json $version" >&2
+            echo "Tag $GITHUB_REF_NAME does not match packages/agentcfg/package.json $version" >&2
             exit 1
           fi
 
-      - run: bun run check
+      - run: bun run --cwd packages/agentcfg typecheck
+      - run: bun run --cwd packages/agentcfg test
       # Built before npm reads package.json, so it finds the bin file.
-      - run: bun run build
+      - run: bun run --cwd packages/agentcfg build
 
       # npm 11.5.1 or newer exchanges the workflow's OIDC token and attaches
       # provenance on its own. It comes with the Node set up above, so a Node
@@ -53,6 +55,7 @@ jobs:
           node -e 'const [a, b, c] = process.argv[1].split(".").map(Number); process.exit(a > 11 || (a === 11 && (b > 5 || (b === 5 && c >= 1))) ? 0 : 1)' "$(npm --version)"
 
       - run: npm publish --access public
+        working-directory: packages/agentcfg
 
       - name: Create the GitHub release
         env:
