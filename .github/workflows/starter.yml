@@ -1,0 +1,54 @@
+name: Starter
+
+# Exports the starter the way `bun run new-project` does and checks the result
+# on its own, so templates/next/ cannot drift from the code it ships with.
+on:
+  pull_request:
+    paths-ignore:
+      - "apps/portfolio/**"
+      - "packages/agentcfg/**"
+      - "README.md"
+  push:
+    branches: [main]
+    paths-ignore:
+      - "apps/portfolio/**"
+      - "packages/agentcfg/**"
+      - "README.md"
+
+concurrency:
+  group: starter-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  DO_NOT_TRACK: 1
+
+jobs:
+  export:
+    name: Export and check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+
+      - run: bun run new-project "$RUNNER_TEMP/starter"
+      # Not frozen: the lockfile is this repository's, and install prunes the
+      # entries of the projects the export leaves out.
+      - run: bun install
+        working-directory: ${{ runner.temp }}/starter
+      - run: bun run check
+        working-directory: ${{ runner.temp }}/starter
+      - run: bun run build
+        working-directory: ${{ runner.temp }}/starter
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app
+          BETTER_AUTH_SECRET: ci-placeholder-secret-at-least-32-characters
+          BETTER_AUTH_URL: http://localhost:3000
