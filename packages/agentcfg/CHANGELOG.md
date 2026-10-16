@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+- Developed and released from the [jleveneur monorepo](https://github.com/jleveneur/jleveneur/tree/main/packages/agentcfg); the package's `repository`, `homepage`, and `bugs` links point there. The CLI is unchanged.
+
 ## 0.4.0
 
 - `sync`, `diff`, and `status` take `--from AGENT` to use that agent's own file as the source, with no `agentcfg.json`: `agentcfg sync --from claude` copies `.mcp.json` to Cursor and Codex, translating variables for each. Servers with literal secrets or managed by the Codex app stay out, and an `agentcfg.json` in scope is still the source.

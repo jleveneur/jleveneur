@@ -175,4 +175,4 @@ bun run --cwd packages/agentcfg test:live   # needs the claude, codex, and curso
 node packages/agentcfg/src/bin.ts scan
 ```
 
-Releases go out from GitHub Actions. Bump the version in a pull request (`npm version minor --no-git-tag-version` in `packages/agentcfg`, plus the changelog), merge it, then tag the merged commit: `git tag agentcfg@v0.5.0 && git push origin agentcfg@v0.5.0`. The tag triggers the release workflow, which publishes to npm with trusted publishing and creates the GitHub release.
+Releases go out from GitHub Actions. Bump the version in a pull request (`bun pm version minor --no-git-tag-version` in `packages/agentcfg`, plus the changelog; `npm version` fails on the workspace), merge it, then tag the merged commit: `git tag agentcfg@v0.5.0 && git push origin agentcfg@v0.5.0`. The tag triggers the release workflow, which publishes to npm with trusted publishing and creates the GitHub release.
