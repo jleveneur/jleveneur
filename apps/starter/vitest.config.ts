@@ -10,7 +10,7 @@ import { defineConfig } from "vitest/config"
  */
 export default defineConfig({
   test: {
-    name: "@repo/web",
+    name: "@repo/starter",
     include: ["src/**/*.test.ts"]
   }
 })

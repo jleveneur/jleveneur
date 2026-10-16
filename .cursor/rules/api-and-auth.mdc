@@ -1,6 +1,6 @@
 ---
 description: oRPC procedures, tenant scoping, and when to use authClient instead
-globs: packages/api/**/*.ts,packages/auth/**/*.ts,packages/authz/**/*.ts,apps/web/src/app/api/**
+globs: packages/api/**/*.ts,packages/auth/**/*.ts,packages/authz/**/*.ts,apps/starter/src/app/api/**
 alwaysApply: false
 ---
 

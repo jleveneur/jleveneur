@@ -13,7 +13,7 @@
   "ignorePatterns": ["**/next-env.d.ts", "**/.wrangler/**"],
   "settings": {
     "shadcn": {
-      // Matches `aliases.ui` in apps/web/components.json and the @repo/ui export.
+      // Matches `aliases.ui` in apps/starter/components.json and the @repo/ui export.
       "ui": "@repo/ui/components"
     }
   },
@@ -35,7 +35,7 @@
     {
       // App packages declare `@/*` → `./src/*` (no `baseUrl`).
       // Parent-relative imports are the pattern the alias exists to replace.
-      "files": ["apps/web/src/**", "apps/portfolio/src/**"],
+      "files": ["apps/starter/src/**", "apps/portfolio/src/**"],
       "rules": {
         "no-restricted-imports": [
           "error",
