@@ -1,19 +1,17 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tooling/typescript/node.json",
   "compilerOptions": {
+    // Published for Node 22.13 and later.
     "target": "es2023",
     "lib": ["es2023"],
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "types": ["node"],
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": false,
-    "erasableSyntaxOnly": true,
-    "verbatimModuleSyntax": true,
-    "allowImportingTsExtensions": true,
+    // Node runs the .ts sources directly in tests; the build rewrites the
+    // extensions to .js.
     "rewriteRelativeImportExtensions": true,
-    "skipLibCheck": true,
-    "noEmit": true
+    // Not adopted yet: 149 call sites predate the move. Turning them on is its
+    // own change, not part of moving the package.
+    "noPropertyAccessFromIndexSignature": false,
+    "exactOptionalPropertyTypes": false
   },
-  "include": ["src", "test", "scripts", "commitlint.config.ts"]
+  "include": ["src", "test"]
 }

@@ -38,6 +38,7 @@ the gate — do not treat a green hook as a substitute for `bun run check`.
 ```
 apps/web           Next.js starter example (auth, organizations, oRPC)
 apps/portfolio     Public site (brutalist homepage)
+packages/agentcfg  @jleveneur/agentcfg, the CLI published to npm
 packages/api       oRPC procedures and router
 packages/auth      Better Auth server and client
 packages/authz     Organization roles and the permissions they grant
@@ -60,10 +61,13 @@ The dependency direction is `env → db → auth → api → web`, with `authz` 
 way: a cycle between packages is a design error, not something to work around
 with a re-export.
 
-The starter (`apps/web`, the packages above, `tooling/` and the root configuration)
-is exported as a new repository with `bun run new-project <directory>`. A change
-to a root file that `templates/next/` also holds needs the same change there; the
-`starter` workflow exports and checks the result on every pull request.
+`packages/agentcfg` is published and imports no `@repo/*` package. It builds to
+`dist/` for Node 22.13 and later; see its README for releases.
+
+The starter (`apps/web`, the other packages above, `tooling/` and the root
+configuration) is exported as a new repository with `bun run new-project <directory>`.
+A change to a root file that `templates/next/` also holds needs the same change
+there; the `starter` workflow exports and checks the result on every pull request.
 
 `authz` is deliberately free of server dependencies — the browser imports the
 same role definitions to hide controls, so it must not pull in the database.

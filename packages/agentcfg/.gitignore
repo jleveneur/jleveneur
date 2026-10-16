@@ -1,7 +1,2 @@
-node_modules/
-dist/
-.DS_Store
 agentcfg.json
-*.log
-.env
-.env.*
+local-backup/
