@@ -18,14 +18,16 @@ export default async function ForgotPasswordPage() {
           <CardTitle>Reset your password</CardTitle>
           <CardDescription>We will email you a link to choose a new one.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-6">
-          <ForgotPasswordForm />
-          <p className="text-muted-foreground text-sm">
-            Remembered it?{" "}
-            <Link href="/sign-in" className="text-foreground underline underline-offset-4">
-              Sign in
-            </Link>
-          </p>
+        <CardContent>
+          <div className="flex flex-col gap-6">
+            <ForgotPasswordForm />
+            <p className="text-muted-foreground text-sm">
+              Remembered it?{" "}
+              <Link href="/sign-in" className="text-foreground underline underline-offset-4">
+                Sign in
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </main>

@@ -1,11 +1,17 @@
 "use client"
 
+import { Button } from "@repo/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/components/card"
+
+import "./globals.css"
+
 /**
  * The last resort: an error in the root layout itself.
  *
- * This replaces the whole document, so it has to render `<html>` and `<body>`
- * — and it cannot use anything the broken layout provides, which is why the
- * styling is inline rather than from the design system.
+ * This replaces the whole document, so it has to render `<html>` and `<body>`.
+ * The stylesheet is imported here because the broken layout no longer provides it.
+ * The message is deliberately not rendered: it can carry query fragments or
+ * internal detail, and the digest is what actually correlates with a server log.
  */
 export default function GlobalError({
   error,
@@ -16,35 +22,21 @@ export default function GlobalError({
 }) {
   return (
     <html lang="en">
-      <body
-        style={{
-          fontFamily: "system-ui, -apple-system, sans-serif",
-          display: "grid",
-          placeItems: "center",
-          minHeight: "100dvh",
-          margin: 0
-        }}
-      >
-        <main style={{ textAlign: "center", padding: "24px" }}>
-          <h1 style={{ fontSize: "20px", fontWeight: 600 }}>Something went wrong</h1>
-          <p style={{ fontSize: "14px", color: "#666" }}>
-            {error.digest === undefined ? "Try again in a moment." : `Reference: ${error.digest}`}
-          </p>
-          <button
-            type="button"
-            onClick={reset}
-            style={{
-              marginTop: "16px",
-              padding: "8px 16px",
-              borderRadius: "8px",
-              border: "1px solid #ddd",
-              background: "#111",
-              color: "#fff",
-              cursor: "pointer"
-            }}
-          >
-            Try again
-          </button>
+      <body className="min-h-dvh">
+        <main className="mx-auto flex max-w-sm flex-col justify-center px-6 py-24">
+          <Card>
+            <CardHeader>
+              <CardTitle>Something went wrong</CardTitle>
+              <CardDescription>
+                {error.digest === undefined
+                  ? "Try again in a moment."
+                  : `Reference: ${error.digest}`}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={reset}>Try again</Button>
+            </CardContent>
+          </Card>
         </main>
       </body>
     </html>

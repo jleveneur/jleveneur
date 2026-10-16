@@ -24,14 +24,16 @@ export default function ErrorBoundary({
           <CardTitle>Something went wrong</CardTitle>
           <CardDescription>That is on us, not on you.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-6">
-          <Button onClick={reset}>Try again</Button>
+        <CardContent>
+          <div className="flex flex-col gap-6">
+            <Button onClick={reset}>Try again</Button>
 
-          {error.digest === undefined ? null : (
-            <p className="text-muted-foreground text-sm">
-              Quote this if you get in touch: <code>{error.digest}</code>
-            </p>
-          )}
+            {error.digest === undefined ? null : (
+              <p className="text-muted-foreground text-sm">
+                Quote this if you get in touch: <code>{error.digest}</code>
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
     </main>

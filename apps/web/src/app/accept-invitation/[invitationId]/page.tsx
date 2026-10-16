@@ -37,15 +37,17 @@ export default async function AcceptInvitationPage({
             account.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-6">
-          <AcceptInvitation invitationId={invitationId} />
-          <p className="text-muted-foreground text-sm">
-            Wrong account?{" "}
-            <Link href="/dashboard" className="text-foreground underline underline-offset-4">
-              Go to your dashboard
-            </Link>{" "}
-            and sign out first.
-          </p>
+        <CardContent>
+          <div className="flex flex-col gap-6">
+            <AcceptInvitation invitationId={invitationId} />
+            <p className="text-muted-foreground text-sm">
+              Wrong account?{" "}
+              <Link href="/dashboard" className="text-foreground underline underline-offset-4">
+                Go to your dashboard
+              </Link>{" "}
+              and sign out first.
+            </p>
+          </div>
         </CardContent>
       </Card>
     </main>

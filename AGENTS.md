@@ -121,6 +121,12 @@ These fail `bun run check`, so there is no version of "just for now":
   explicit in the schema.
 - React Server Components by default; `"use client"` only where interactivity
   requires it.
+- Design-system components from `@repo/ui` keep their own appearance. `bun run lint`
+  errors on `className` restyles (`shadcn/no-restyle`), raw palette colors,
+  arbitrary values, inline styles, unknown classes, and class
+  strings the linter cannot read. Layout classes such as `w-full` and `mt-4`
+  are allowed. Fix the error, or add a variant in `packages/ui` when the
+  design calls for a new one.
 
 ---
 

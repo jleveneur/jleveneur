@@ -28,14 +28,16 @@ export default async function SignInPage({
             {reset === undefined ? "Welcome back." : "Password updated — sign in with it."}
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-6">
-          <SignInForm next={destination} />
-          <p className="text-muted-foreground text-sm">
-            No account?{" "}
-            <Link href="/sign-up" className="text-foreground underline underline-offset-4">
-              Create one
-            </Link>
-          </p>
+        <CardContent>
+          <div className="flex flex-col gap-6">
+            <SignInForm next={destination} />
+            <p className="text-muted-foreground text-sm">
+              No account?{" "}
+              <Link href="/sign-up" className="text-foreground underline underline-offset-4">
+                Create one
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </main>
