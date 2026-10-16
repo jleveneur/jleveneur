@@ -31,11 +31,6 @@
       ]
     },
 
-    "build:export": {
-      "outputs": ["out/**"],
-      "env": ["PORTFOLIO_EXPORT"]
-    },
-
     "dev": {
       "cache": false,
       "persistent": true

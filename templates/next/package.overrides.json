@@ -1,0 +1,27 @@
+{
+  "description": "Minimal production-ready Next.js monorepo starter.",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:integration": "turbo run test:integration",
+    "test:e2e": "turbo run test:e2e",
+    "lint": "bun run --cwd apps/web typegen && oxlint --type-aware",
+    "lint:fix": "bun run --cwd apps/web typegen && oxlint --type-aware --fix",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "knip": "knip",
+    "react-doctor": "react-doctor --no-telemetry --no-supply-chain --yes",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun run knip && bun run react-doctor && bun run test",
+    "db:start": "docker compose up -d --wait",
+    "db:stop": "docker compose down",
+    "db:generate": "bun run --cwd packages/db db:generate",
+    "db:migrate": "bun run --cwd packages/db db:migrate",
+    "db:push": "bun run --cwd packages/db db:push",
+    "db:studio": "bun run --cwd packages/db db:studio",
+    "prepare": "node scripts/install-hooks.ts"
+  },
+  "trustedDependencies": ["esbuild"]
+}

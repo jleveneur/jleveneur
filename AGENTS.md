@@ -48,6 +48,7 @@ packages/env       Zod-validated environment
 packages/ui        shadcn/ui components
 tooling/*          Lint, Tailwind, and tsconfig configuration
 scripts/           Repository setup scripts, run from package.json
+templates/next      Starter versions of the root files that name this repo's own projects
 ```
 
 Editor agents get more here: `.cursor/rules/` carries per-area conventions that
@@ -58,6 +59,11 @@ The dependency direction is `env → db → auth → api → web`, with `authz` 
 `email` feeding `auth`, and `ui` depending on nothing internal. Keep it that
 way: a cycle between packages is a design error, not something to work around
 with a re-export.
+
+The starter (`apps/web`, the packages above, `tooling/` and the root configuration)
+is exported as a new repository with `bun run new-project <directory>`. A change
+to a root file that `templates/next/` also holds needs the same change there; the
+`starter` workflow exports and checks the result on every pull request.
 
 `authz` is deliberately free of server dependencies — the browser imports the
 same role definitions to hide controls, so it must not pull in the database.
