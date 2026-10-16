@@ -1,6 +1,6 @@
 ---
 description: Next.js app conventions — server components, forms, and permission display
-globs: apps/web/src/**/*.tsx,apps/web/src/**/*.ts
+globs: apps/starter/src/**/*.tsx,apps/starter/src/**/*.ts
 alwaysApply: false
 ---
 

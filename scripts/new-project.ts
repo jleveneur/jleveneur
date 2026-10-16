@@ -1,11 +1,12 @@
 /**
- * Exports the Next.js starter — apps/web, the shared packages, tooling, and the
- * root configuration — as a new standalone repository:
+ * Exports the Next.js starter — apps/starter, the shared packages, tooling, and
+ * the root configuration — as a new standalone repository:
  *
  *   bun run new-project ../my-app
  *
- * Root files that mention this repository's own projects are replaced by their
- * starter version from templates/next/. The `starter` workflow runs this
+ * apps/starter becomes apps/web (@repo/web) there. Root files that mention this
+ * repository's own projects are replaced by their starter version from
+ * templates/next/. The `starter` workflow runs this
  * export and checks the result, so the template cannot rot unnoticed.
  */
 import { execFileSync } from "node:child_process"
@@ -38,6 +39,16 @@ if (existsSync(destination) && readdirSync(destination).length > 0) {
   process.exit(1)
 }
 
+// The demo app is `starter` here, beside the portfolio; a new project calls it `web`.
+const RENAMES: [string, string][] = [
+  ["apps/starter", "apps/web"],
+  ["@repo/starter", "@repo/web"]
+]
+
+function rename(text: string): string {
+  return RENAMES.reduce((result, [from, to]) => result.replaceAll(from, to), text)
+}
+
 function copy(from: string, to: string): void {
   mkdirSync(dirname(to), { recursive: true })
   cpSync(from, to)
@@ -48,7 +59,16 @@ const tracked = execFileSync("git", ["ls-files", "-z"], { cwd: ROOT, encoding: "
   .filter((file) => file !== "" && !EXCLUDED.some((prefix) => file.startsWith(prefix)))
 
 for (const file of tracked) {
-  copy(resolve(ROOT, file), resolve(destination, file))
+  const to = resolve(destination, rename(file))
+  copy(resolve(ROOT, file), to)
+  // Rewritten in place, which keeps the copied file's mode. A NUL byte means
+  // binary, left untouched.
+  const content = readFileSync(to)
+  if (!content.includes(0)) {
+    const text = content.toString("utf8")
+    const renamed = rename(text)
+    if (renamed !== text) writeFileSync(to, renamed)
+  }
 }
 
 const overlay = readdirSync(OVERLAY, { recursive: true, withFileTypes: true })

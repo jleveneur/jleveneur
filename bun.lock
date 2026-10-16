@@ -41,8 +41,8 @@
         "wrangler": "4.131.2",
       },
     },
-    "apps/web": {
-      "name": "@repo/web",
+    "apps/starter": {
+      "name": "@repo/starter",
       "version": "0.0.0",
       "dependencies": {
         "@orpc/client": "2.0.0-beta.37",
@@ -80,7 +80,7 @@
     },
     "packages/agentcfg": {
       "name": "@jleveneur/agentcfg",
-      "version": "0.4.1",
+      "version": "0.4.2",
       "bin": {
         "agentcfg": "dist/bin.js",
       },
@@ -782,13 +782,13 @@
 
     "@repo/portfolio": ["@repo/portfolio@workspace:apps/portfolio"],
 
+    "@repo/starter": ["@repo/starter@workspace:apps/starter"],
+
     "@repo/tailwind-config": ["@repo/tailwind-config@workspace:tooling/tailwind"],
 
     "@repo/tsconfig": ["@repo/tsconfig@workspace:tooling/typescript"],
 
     "@repo/ui": ["@repo/ui@workspace:packages/ui"],
-
-    "@repo/web": ["@repo/web@workspace:apps/web"],
 
     "@rolldown/binding-android-arm-eabi": ["@rolldown/binding-android-arm-eabi@1.2.5", "", { "os": "android", "cpu": "arm" }, "sha512-DLe/i+l8ynIBY7XEQ191TeZvCoowIGa18R+dIV30GW7DiOtp74i/xX8hs8GUjW5ARV7VZuie3d6AumSmCwbeRA=="],
 

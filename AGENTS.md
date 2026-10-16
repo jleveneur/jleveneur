@@ -36,7 +36,7 @@ the gate — do not treat a green hook as a substitute for `bun run check`.
 ## 2. Repository shape
 
 ```
-apps/web           Next.js starter example (auth, organizations, oRPC)
+apps/starter       Next.js starter example (auth, organizations, oRPC), exported as apps/web
 apps/portfolio     Public site (brutalist homepage)
 packages/agentcfg  @jleveneur/agentcfg, the CLI published to npm
 packages/api       oRPC procedures and router
@@ -64,7 +64,7 @@ with a re-export.
 `packages/agentcfg` is published and imports no `@repo/*` package. It builds to
 `dist/` for Node 22.13 and later; see its README for releases.
 
-The starter (`apps/web`, the other packages above, `tooling/` and the root
+The starter (`apps/starter`, the other packages above, `tooling/` and the root
 configuration) is exported as a new repository with `bun run new-project <directory>`.
 A change to a root file that `templates/next/` also holds needs the same change
 there; the `starter` workflow exports and checks the result on every pull request.
@@ -123,9 +123,9 @@ These fail `bun run check`, so there is no version of "just for now":
   Functions and variables: `camelCase`.
 - Tests sit beside the code as `*.test.ts`. Anything needing a live service is
   `*.integration.test.ts` and runs under its own config. Browser journeys live
-  in `apps/web/e2e/*.spec.ts` and `apps/portfolio/e2e/*.spec.ts`.
+  in `apps/starter/e2e/*.spec.ts` and `apps/portfolio/e2e/*.spec.ts`.
 - Import internal packages by name (`@repo/db`), never by relative path across
-  a package boundary. Inside `apps/web` and `apps/portfolio`, use the `@/` alias.
+  a package boundary. Inside `apps/starter` and `apps/portfolio`, use the `@/` alias.
 - Type-only imports use `import type`.
 - Database columns are `snake_case`; TypeScript is `camelCase`. The mapping is
   explicit in the schema.
