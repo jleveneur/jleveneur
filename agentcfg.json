@@ -1,6 +1,10 @@
 {
   "version": 1,
   "servers": {
+    "linear": {
+      "transport": "http",
+      "url": "https://mcp.linear.app/mcp"
+    },
     "next-devtools": {
       "transport": "stdio",
       "command": "bunx",
