@@ -14,6 +14,9 @@
     "shadcn": {
       "command": "bunx",
       "args": ["shadcn@latest", "mcp"]
+    },
+    "linear": {
+      "url": "https://mcp.linear.app/mcp"
     }
   }
 }
