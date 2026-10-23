@@ -1,7 +1,6 @@
 # Uptime Kuma on the VPS, at status.jleveneur.com behind the host Caddy
-# (deploy/caddy/uptime-kuma.caddy). Installed as /srv/uptime-kuma/compose.yml and
-# started there with `docker compose up -d`; nothing deploys it automatically, so
-# a change here is applied by hand.
+# (deploy/caddy/uptime-kuma.caddy). The deploy workflow installs it as
+# /srv/uptime-kuma/compose.yml and runs `docker compose up -d` there.
 #
 # Its own project, isolated from hydromag and the portfolio: own directory, own
 # volume, own network, and a port in its own range.
