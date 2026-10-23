@@ -1,0 +1,56 @@
+# Beszel on the VPS: the hub at monitor.jleveneur.com behind the host Caddy
+# (deploy/caddy/beszel.caddy), and the agent that reports this server to it.
+# Installed as /srv/beszel/compose.yml and started there by hand; nothing deploys
+# it automatically, so a change here is applied by hand.
+#
+# The agent's key and token come from the hub ("Add system") once its admin
+# account exists, so they live in /srv/beszel/.env (chmod 600), not here.
+name: beszel
+
+services:
+  hub:
+    image: henrygd/beszel:0.21.0
+    restart: unless-stopped
+    environment:
+      APP_URL: https://monitor.jleveneur.com
+    # Loopback only, in the 3300-3399 range the server's Caddyfile gives Beszel;
+    # Caddy terminates TLS in front of it.
+    ports:
+      - "127.0.0.1:3300:8090"
+    volumes:
+      - data:/beszel_data
+      - socket:/beszel_socket
+    healthcheck:
+      test: ["CMD", "/beszel", "health", "--url", "http://localhost:8090"]
+      interval: 60s
+      start_period: 10s
+      timeout: 5s
+
+  # On the host network to see the host's interfaces, and the Docker socket
+  # read-only for the containers' figures. It opens no port: the hub reaches it
+  # through the Unix socket the two services share.
+  agent:
+    image: henrygd/beszel-agent:0.21.0
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      LISTEN: /beszel_socket/beszel.sock
+      HUB_URL: http://127.0.0.1:3300
+      # Empty until the hub has issued them: start `hub` alone first, then
+      # fill .env and bring the agent up.
+      KEY: ${BESZEL_AGENT_KEY:-}
+      TOKEN: ${BESZEL_AGENT_TOKEN:-}
+    volumes:
+      - agent-data:/var/lib/beszel-agent
+      - socket:/beszel_socket
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    healthcheck:
+      test: ["CMD", "/agent", "health"]
+      interval: 60s
+      start_period: 10s
+      timeout: 5s
+
+volumes:
+  data:
+  agent-data:
+  socket:
