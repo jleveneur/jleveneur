@@ -63,10 +63,40 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app
           BETTER_AUTH_SECRET: ci-placeholder-secret-at-least-32-characters
           BETTER_AUTH_URL: http://localhost:3000
-      # Default `bun run build` does not write `out/`.
+      # Default `bun run build` does not write `out/`, which the deploy serves.
       - run: bun run --cwd apps/portfolio build:export
-      - run: bunx wrangler deploy --dry-run
-        working-directory: apps/portfolio
+
+  caddy:
+    name: Caddy
+    runs-on: ubuntu-latest
+    env:
+      # Keep in step with the Caddy the server runs.
+      CADDY_IMAGE: caddy:2.11.7-alpine
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The server's Caddyfile holds the global options and imports every
+      # project's file from /etc/caddy/sites. This one stands in for it, so a
+      # broken `deploy/caddy` file fails here rather than at deploy time.
+      - name: Validate deploy/caddy
+        run: |
+          printf '{\n\temail ci@example.invalid\n}\n\nimport /etc/caddy/sites/*.caddy\n' > "$RUNNER_TEMP/Caddyfile"
+          docker run --rm \
+            -v "$RUNNER_TEMP/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            -v "$PWD/deploy/caddy:/etc/caddy/sites:ro" \
+            "$CADDY_IMAGE" caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+
+      - name: Check deploy/caddy formatting
+        run: |
+          failed=0
+          for file in deploy/caddy/*.caddy; do
+            if docker run --rm -v "$PWD/deploy/caddy:/sites:ro" "$CADDY_IMAGE" \
+              caddy fmt --diff "/sites/$(basename "$file")" | grep -E '^[+-]'; then
+              echo "::error file=$file::not formatted, run caddy fmt --overwrite"
+              failed=1
+            fi
+          done
+          exit "$failed"
 
   integration:
     name: Integration
@@ -169,11 +199,12 @@ jobs:
   ci:
     name: CI
     if: always()
-    needs: [check, integration, e2e]
+    needs: [check, caddy, integration, e2e]
     runs-on: ubuntu-latest
     steps:
       - name: Require every job
         run: |
           test "${{ needs.check.result }}" = success
+          test "${{ needs.caddy.result }}" = success
           test "${{ needs.integration.result }}" = success
           test "${{ needs.e2e.result }}" = success

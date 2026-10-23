@@ -10,7 +10,7 @@
     "typeAware": true
   },
   // Extends does not always merge ignorePatterns into the root config.
-  "ignorePatterns": ["**/next-env.d.ts", "**/.wrangler/**"],
+  "ignorePatterns": ["**/next-env.d.ts"],
   "settings": {
     "shadcn": {
       // Matches `aliases.ui` in apps/starter/components.json and the @repo/ui export.

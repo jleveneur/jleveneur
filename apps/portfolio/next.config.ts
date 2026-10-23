@@ -34,14 +34,14 @@ const SECURITY_HEADERS = [
 ]
 
 // `next start` cannot serve `output: "export"`. `build:export` sets this so
-// `next build` writes `out/` for Wrangler.
+// `next build` writes `out/`, which Caddy serves on the VPS.
 const staticExport = process.env["PORTFOLIO_EXPORT"] === "1"
 
 const nextConfig: NextConfig = {
   ...(staticExport ? { output: "export" as const } : {}),
 
-  // A static export ignores `headers()` here; `public/_headers` is copied into
-  // `out/` and applied by the asset host instead.
+  // A static export ignores `headers()` here; Caddy sends the same headers
+  // (`deploy/caddy/jleveneur.caddy`).
   ...(!staticExport
     ? {
         headers() {

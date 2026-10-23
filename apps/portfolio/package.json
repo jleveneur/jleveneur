@@ -10,8 +10,6 @@
     "build": "next build",
     "build:export": "PORTFOLIO_EXPORT=1 next build",
     "start": "next start --port 3001",
-    "deploy": "wrangler deploy",
-    "preview": "wrangler versions upload",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install --with-deps chromium"
@@ -30,8 +28,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "tailwindcss": "4.3.3",
-    "typescript": "7.0.2",
-    "wrangler": "4.131.2"
+    "typescript": "7.0.2"
   },
   "packageManager": "bun@1.4.2"
 }

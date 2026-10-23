@@ -156,7 +156,7 @@ oRPC 2 is still a beta: pin the exact beta, and `@orpc/server`,
 
 Install scripts execute arbitrary code, so they only run for packages listed
 in `trustedDependencies` — today `esbuild`, which drizzle-kit needs for its
-CLI, and `workerd`, whose script links the platform binary Wrangler spawns.
+CLI.
 Lefthook's own postinstall stays blocked on purpose: the root `prepare` script
 installs the hooks without clobbering a local one. `bun pm untrusted` lists
 what was blocked; trust a package only when it does not work without its
