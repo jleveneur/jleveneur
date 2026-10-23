@@ -9,5 +9,9 @@
 
   // An export used only inside its own file is not dead code in a package that
   // exists to be imported; it is usually a helper under test.
+  // `bun check` is Bun's type checker, a subcommand like `bun test`; Knip reads
+  // the `check` after `bun` as a binary it cannot find.
+  "ignoreBinaries": ["check"],
+
   "ignoreExportsUsedInFile": true
 }

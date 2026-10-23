@@ -1,20 +1,24 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "stream",
-  "globalDependencies": [
-    "bun.lock",
-    "bunfig.toml",
-    ".oxlintrc.json",
-    "tooling/oxlint/*.json",
-    "tooling/tailwind/*.css",
-    "tooling/typescript/*.json"
-  ],
-  "globalEnv": ["NODE_ENV", "CI"],
+  // Agent guidance lives in the repository's own AGENTS.md; turbo would
+  // otherwise append a managed block to it whenever an agent runs a command.
+  "agentGuidance": false,
+  // Every task misses when one of these changes, so only what reaches every
+  // task belongs here. The lockfile is always in the global hash; the shared
+  // tsconfig and Tailwind packages reach the tasks that read them through the
+  // package graph (`^build`, `transit`); lint runs outside Turbo.
+  "globalDependencies": ["bunfig.toml"],
+  // `CI` is not here: only the Playwright configs read it, so it is declared on
+  // `test:e2e`. Hashed globally, it kept every local hash apart from CI's.
+  "globalEnv": ["NODE_ENV"],
   "globalPassThroughEnv": ["FORCE_COLOR", "TERM"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.test.*"],
+      // Next loads the app's `.env` files while the build runs, which Turbo does
+      // not see (they are not committed): listed so a change misses.
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!**/*.test.*"],
       "outputs": [".next/**", "!.next/cache/**"],
       // `next build` evaluates route modules, which validate the environment.
       // The values do not end up in the output — no NEXT_PUBLIC_* variable
@@ -42,18 +46,24 @@
       "persistent": true
     },
 
-    // typecheck and test declare no dependencies so they fan out across every
-    // package in parallel. That is only correct because internal packages ship
-    // TypeScript source with no build step; the moment a package emits
-    // declarations, typecheck would need "dependsOn": ["^build"].
+    // A transit node: it runs nothing, but a task that depends on `transit`
+    // takes the hashes of the internal packages it imports (the pattern of
+    // Turborepo's docs). typecheck, test, and test:e2e read those packages'
+    // source, so without it a change in a package would replay an app's
+    // cached pass on code it never checked. They still fan out in parallel:
+    // `transit` has no script to wait for.
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
+
     "typecheck": {
-      "dependsOn": [],
-      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json"],
-      "outputs": ["*.tsbuildinfo"]
+      "dependsOn": ["transit"],
+      // `bun check` reports and writes nothing.
+      "outputs": []
     },
 
     "test": {
-      "dependsOn": [],
+      "dependsOn": ["transit"],
       "outputs": []
     },
 
@@ -78,11 +88,17 @@
       ]
     },
 
-    // Browser journeys against a real build and a real database. Playwright
-    // starts the server itself, so this depends on nothing.
+    // Browser journeys against a real build, which Playwright starts itself
+    // (building through Turbo). Cached: CI migrates a fresh database and the
+    // suites set up their own data, so a pass is a property of the inputs —
+    // the app, the packages it imports (through `transit`), the lockfile, and
+    // the declared variables, `CI` among them. After a merge, `main` replays
+    // the pass its PR earned on the same tree. A failure is never cached.
     "test:e2e": {
-      "dependsOn": [],
-      "cache": false,
+      "dependsOn": ["transit"],
+      // The server Playwright starts loads the app's `.env` files.
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [],
       "env": [
         "DATABASE_URL",
         "BETTER_AUTH_SECRET",
@@ -92,7 +108,8 @@
         "MAIL_OUTBOX_DIR",
         "AUTH_RATE_LIMIT",
         "LOG_LEVEL",
-        "PLAYWRIGHT_*"
+        "PLAYWRIGHT_*",
+        "CI"
       ]
     }
   }

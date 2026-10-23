@@ -1,13 +1,6 @@
-import { existsSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 
 import { defineConfig, devices } from "@playwright/test"
-
-// Same single `.env` the app and drizzle-kit read.
-const rootEnv = fileURLToPath(new URL("../../.env", import.meta.url))
-if (existsSync(rootEnv)) {
-  process.loadEnvFile(rootEnv)
-}
 
 const PORT = 3111
 const baseURL = `http://127.0.0.1:${PORT}`
@@ -34,10 +27,12 @@ export default defineConfig({
 
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 
+  // Built through Turbo, so an app whose inputs and build variables have not
+  // changed comes back from the cache instead of being rebuilt.
   webServer: {
     // The production build, not `next dev`: it is what CI ships, and dev-mode
     // recompilation makes the first navigation of every spec flaky.
-    command: "bun run build && bun run start --port " + String(PORT),
+    command: `bun run --cwd ../.. build --filter=@repo/starter && bun run start --port ${String(PORT)}`,
     url: baseURL,
     reuseExistingServer: process.env["CI"] === undefined,
     timeout: 180_000,

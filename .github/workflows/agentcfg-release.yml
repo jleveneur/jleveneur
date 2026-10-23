@@ -13,6 +13,7 @@ jobs:
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     # Must match the environment named in the npm trusted publisher settings.
     environment: npm
     permissions:

@@ -17,16 +17,16 @@ services:
     image: postgres:18-alpine
     environment:
       POSTGRES_USER: postgres
-      # Local-only, and deliberately the values already in `.env.example`, so a
-      # fresh clone runs with no edits. Nothing here is a secret; anywhere real
+      # Local-only, and deliberately the values already in the `.env.example`
+      # files, so a fresh clone runs with no edits. Nothing here is a secret; anywhere real
       # sets `DATABASE_URL` to its own.
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: app
     ports:
-      # Defaults to the port in `.env.example`. Another project holding 5432 is
-      # common enough that it is worth a variable: set `POSTGRES_PORT` in `.env`
-      # and point `DATABASE_URL` at the same number. Compose reads that file
-      # itself, so nothing else needs to know.
+      # Defaults to the port in the `.env.example` files. Another project
+      # holding 5432 is common enough that it is worth a variable: run
+      # `POSTGRES_PORT=5433 bun run db:start` and point every `DATABASE_URL` at
+      # the same number.
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       # Postgres 18 images keep their data in a versioned subdirectory

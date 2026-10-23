@@ -12,7 +12,7 @@
     "lint:fix": "bun run --cwd apps/web typegen && oxlint --type-aware --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "knip": "knip",
+    "knip": "knip-bun",
     "react-doctor": "react-doctor --no-telemetry --no-supply-chain --yes",
     "check": "bun run format:check && bun run lint && bun run typecheck && bun run knip && bun run react-doctor && bun run test",
     "db:start": "docker compose up -d --wait",
@@ -21,7 +21,7 @@
     "db:migrate": "bun run --cwd packages/db db:migrate",
     "db:push": "bun run --cwd packages/db db:push",
     "db:studio": "bun run --cwd packages/db db:studio",
-    "prepare": "node scripts/install-hooks.ts"
+    "prepare": "bun scripts/install-hooks.ts"
   },
   "trustedDependencies": ["esbuild"]
 }

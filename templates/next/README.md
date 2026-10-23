@@ -15,8 +15,9 @@ and nothing that only some projects need.
 - **[Resend](https://resend.com)** for verification, password reset, and invitation email
 - **[Pino](https://getpino.io)** for structured logging with credential redaction
 - **[t3-env](https://env.t3.gg)** + **[Zod](https://zod.dev)** for validated configuration
-- **[Vitest](https://vitest.dev)** and **[Playwright](https://playwright.dev)**, on one GitHub
-  Actions workflow
+- **[Bun](https://bun.com)** to install, test (`bun test`), type-check (`bun check`), and run
+  scripts
+- **[Playwright](https://playwright.dev)** in the browser, on one GitHub Actions workflow
 - **[Lefthook](https://lefthook.dev)** + **[commitlint](https://commitlint.js.org)** git hooks,
   **[Knip](https://knip.dev)** for dead code, **[React Doctor](https://react.doctor)** for React
   diagnostics, and **[Renovate](https://docs.renovatebot.com)** for dependency updates
@@ -25,7 +26,8 @@ and nothing that only some projects need.
 
 ```bash
 bun install
-cp .env.example .env      # then edit BETTER_AUTH_SECRET
+cp apps/web/.env.example apps/web/.env       # then edit BETTER_AUTH_SECRET
+cp packages/db/.env.example packages/db/.env
 bun run db:start             # Postgres in a container
 bun run db:migrate           # apply migrations
 bun run dev                  # http://localhost:3000
@@ -33,12 +35,13 @@ bun run dev                  # http://localhost:3000
 
 All you need is a PostgreSQL 13 or newer database reachable at `DATABASE_URL`.
 [compose.yml](compose.yml) is one way to get one — a single service, on the
-image CI uses, with the credentials already in `.env.example`, so a fresh clone
+image CI uses, with the credentials already in the `.env.example` files, so a fresh clone
 runs without edits. A local install or a hosted instance works just as well:
 point `DATABASE_URL` at it and skip `bun run db:start`.
 
-If another project already holds port 5432, set `POSTGRES_PORT` in `.env` and
-change the port in `DATABASE_URL` to match.
+If another project already holds port 5432, start it with
+`POSTGRES_PORT=5433 bun run db:start` and change the port in every
+`DATABASE_URL` to match.
 
 One caveat worth knowing before you deploy: the connection pool in
 [packages/db/src/index.ts](packages/db/src/index.ts) is sized for a
@@ -46,11 +49,12 @@ long-running server. On a serverless platform every warm instance keeps its own
 pool, so you want a pooler in front of Postgres — PgBouncer, or the one Neon
 and Supabase provide — with `DATABASE_URL` pointing at it.
 
-Bun installs the packages; Node runs Next.js and the tooling. Its version is
-pinned once, in `devEngines.runtime` in `package.json`: CI's `setup-node` reads
-it from there, and locally any Node 24 works (`nvm install 24.21.0` for the
-exact one). That is why there is no `.nvmrc`: a second pin drifts without
-telling you.
+Bun installs the packages, runs the tests (`bun test`), the type checks
+(`bun check`), and the scripts. Its version is pinned once, in `packageManager`
+(and `devEngines.runtime`) in `package.json`, and CI's `setup-bun` follows it.
+The scripts keep their plain form (`next dev`, `playwright test`), so a CLI
+written for Node runs on Node where one is installed and on Bun otherwise.
+Knip runs as `knip-bun`.
 
 ## Layout
 
@@ -73,7 +77,7 @@ tooling/
 ```
 
 Internal packages ship TypeScript source and are never built. Next compiles
-them through `transpilePackages`; Vitest and `tsc` read them directly.
+them through `transpilePackages`; `bun test` and `bun check` read them directly.
 
 ## Conventions
 
@@ -102,11 +106,11 @@ them through `transpilePackages`; Vitest and `tsc` read them directly.
 | `bun run build`                   | Production build                                  |
 | `bun run check`                   | The full local gate — everything below plus tests |
 | `bun run lint` / `bun run format` | Oxlint (type-aware) / Oxfmt                       |
-| `bun run typecheck`               | `tsc --noEmit` in every package                   |
+| `bun run typecheck`               | `bun check` in every package                      |
 | `bun run knip`                    | Unused files, exports, and dependencies           |
 | `bun run react-doctor`            | React and accessibility diagnostics               |
-| `bun run test`                    | Vitest — pure logic, no services                  |
-| `bun run test:integration`        | Vitest against a real database                    |
+| `bun run test`                    | `bun test` — pure logic, no services              |
+| `bun run test:integration`        | `bun test` against a real database                |
 | `bun run test:e2e`                | Playwright browser journeys                       |
 | `bun run db:start` / `db:stop`    | Postgres in a container, via `compose.yml`        |
 | `bun run db:generate`             | Generate a migration from `schema.ts`             |
@@ -244,9 +248,12 @@ Type-aware lint, Knip, and React Doctor need the whole program, so they live in
 
 ## Environment
 
-One `.env` at the repository root, for the whole workspace. `next.config.ts`
-and `drizzle.config.ts` load it with Node's built-in `process.loadEnvFile`; in
-production you set real environment variables and no file is read.
+One `.env` per place that runs, each next to its `.env.example`, as Turborepo
+recommends: no file at the root. Next loads `apps/web/.env` for `next dev`,
+`next build`, and `next start`; `drizzle.config.ts` loads `packages/db/.env`
+with Node's built-in `process.loadEnvFile`. `DATABASE_URL` sits in both, and
+only locally: in production you set real environment variables and no file is
+read.
 
 Variables are declared once, in `packages/env/src/schema.ts`, and validated by
 [t3-env](https://env.t3.gg) when the process starts — so a missing secret is a

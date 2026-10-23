@@ -121,9 +121,15 @@ These fail `bun run check`, so there is no version of "just for now":
 
 - Files and directories: `kebab-case`. Types and components: `PascalCase`.
   Functions and variables: `camelCase`.
-- Tests sit beside the code as `*.test.ts`. Anything needing a live service is
-  `*.integration.test.ts` and runs under its own config. Browser journeys live
+- Tests sit beside the code as `*.test.ts` and run with `bun test`
+  (`bun:test`; module mocks are `mock.module`, and `--isolate` keeps them to
+  their file) (`agentcfg`, a package published to npm, keeps `node --test` and `tsc`). Anything needing a live service is `*.integration.test.ts`,
+  which `test` skips and `test:integration` runs. Browser journeys live
   in `apps/starter/e2e/*.spec.ts` and `apps/portfolio/e2e/*.spec.ts`.
+- Bun installs, tests, type-checks (`bun check`), and runs the scripts
+  (`bun <file>`, never `tsx` or `node`). Scripts keep their plain form
+  (`next build`, `playwright test`): a CLI written for Node runs on Node where
+  one is installed, on Bun otherwise. Knip runs as `knip-bun`.
 - Import internal packages by name (`@repo/db`), never by relative path across
   a package boundary. Inside `apps/starter` and `apps/portfolio`, use the `@/` alias.
 - Type-only imports use `import type`.
