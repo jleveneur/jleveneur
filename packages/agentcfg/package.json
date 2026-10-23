@@ -55,6 +55,12 @@
     "@types/node": "24.19.1",
     "typescript": "7.0.2"
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.21.0"
+    }
+  },
   "engines": {
     "node": ">=22.13"
   }
