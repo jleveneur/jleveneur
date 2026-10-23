@@ -1,5 +1,5 @@
-# Beszel's Caddy site, installed as /etc/caddy/sites/beszel.caddy by hand with
-# deploy/beszel/compose.yml. Snippet names start with `beszel-` because every
+# Beszel's Caddy site, installed as /etc/caddy/sites/beszel.caddy by the deploy
+# workflow with deploy/beszel/compose.yml. Snippet names start with `beszel-` because every
 # project's file shares one namespace.
 
 (beszel-access-log) {

@@ -1,7 +1,7 @@
 # Beszel on the VPS: the hub at monitor.jleveneur.com behind the host Caddy
 # (deploy/caddy/beszel.caddy), and the agent that reports this server to it.
-# Installed as /srv/beszel/compose.yml and started there by hand; nothing deploys
-# it automatically, so a change here is applied by hand.
+# The deploy workflow installs it as /srv/beszel/compose.yml and runs
+# `docker compose up -d` there.
 #
 # The agent's key and token come from the hub ("Add system") once its admin
 # account exists, so they live in /srv/beszel/.env (chmod 600), not here.
