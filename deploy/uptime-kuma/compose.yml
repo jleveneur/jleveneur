@@ -1,0 +1,24 @@
+# Uptime Kuma on the VPS, at status.jleveneur.com behind the host Caddy
+# (deploy/caddy/uptime-kuma.caddy). Installed as /srv/uptime-kuma/compose.yml and
+# started there with `docker compose up -d`; nothing deploys it automatically, so
+# a change here is applied by hand.
+#
+# Its own project, isolated from hydromag and the portfolio: own directory, own
+# volume, own network, and a port in its own range.
+name: uptime-kuma
+
+services:
+  uptime-kuma:
+    # `-slim` leaves out the embedded MariaDB and Chromium: monitors here are
+    # HTTP and TLS checks, and the data lives in SQLite.
+    image: louislam/uptime-kuma:2.5.6-slim
+    restart: unless-stopped
+    # Loopback only, in the 3200-3299 range the server's Caddyfile gives Uptime
+    # Kuma; Caddy terminates TLS in front of it. The image has its healthcheck.
+    ports:
+      - "127.0.0.1:3200:3001"
+    volumes:
+      - data:/app/data
+
+volumes:
+  data:

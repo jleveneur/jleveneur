@@ -1,0 +1,19 @@
+# Uptime Kuma's Caddy site, installed as /etc/caddy/sites/uptime-kuma.caddy by
+# hand with deploy/uptime-kuma/compose.yml. Snippet names start with
+# `uptime-kuma-` because every project's file shares one namespace.
+
+(uptime-kuma-access-log) {
+	log {
+		output file /var/log/caddy/uptime-kuma.access.log {
+			roll_size 50MiB
+			roll_keep 10
+		}
+	}
+}
+
+# The dashboard and its websocket. Sign-in is Uptime Kuma's own; jleveneur.com's
+# HSTS already covers the subdomain.
+status.jleveneur.com {
+	import uptime-kuma-access-log
+	reverse_proxy 127.0.0.1:3200
+}
