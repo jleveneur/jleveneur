@@ -9,7 +9,7 @@ name: beszel
 
 services:
   hub:
-    image: henrygd/beszel:0.21.0
+    image: henrygd/beszel:0.21.1
     restart: unless-stopped
     environment:
       APP_URL: https://monitor.jleveneur.com
@@ -30,7 +30,7 @@ services:
   # read-only for the containers' figures. It opens no port: the hub reaches it
   # through the Unix socket the two services share.
   agent:
-    image: henrygd/beszel-agent:0.21.0
+    image: henrygd/beszel-agent:0.21.1
     restart: unless-stopped
     network_mode: host
     environment:

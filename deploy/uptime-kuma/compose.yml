@@ -10,7 +10,7 @@ services:
   uptime-kuma:
     # `-slim` leaves out the embedded MariaDB and Chromium: monitors here are
     # HTTP and TLS checks, and the data lives in SQLite.
-    image: louislam/uptime-kuma:2.5.6-slim
+    image: louislam/uptime-kuma:2.5.7-slim
     restart: unless-stopped
     # Loopback only, in the 3200-3299 range the server's Caddyfile gives Uptime
     # Kuma; Caddy terminates TLS in front of it. The image has its healthcheck.
