@@ -1,0 +1,52 @@
+# Umami on the VPS, at stats.jleveneur.com behind the host Caddy
+# (deploy/caddy/umami.caddy): audience measurement for hydromag.fr and the
+# portfolio, without cookies or third parties. Installed as
+# /srv/umami/compose.yml and started there by hand; nothing deploys it
+# automatically, so a change here is applied by hand.
+#
+# Its own Postgres, apart from hydromag's. The secrets are generated on the
+# server into /srv/umami/.env (chmod 600), never here.
+name: umami
+
+services:
+  umami:
+    image: ghcr.io/umami-software/umami:3.4.0
+    restart: unless-stopped
+    init: true
+    environment:
+      DATABASE_URL: postgresql://umami:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/umami
+      APP_SECRET: ${APP_SECRET:?set APP_SECRET in .env}
+      TWO_FACTOR_ENCRYPTION_KEY: ${TWO_FACTOR_ENCRYPTION_KEY:?set TWO_FACTOR_ENCRYPTION_KEY in .env}
+      DISABLE_TELEMETRY: "1"
+    # Loopback only, in the 3400-3499 range the server's Caddyfile gives Umami;
+    # Caddy terminates TLS in front of it.
+    ports:
+      - "127.0.0.1:3400:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/heartbeat"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    # Postgres 18 keeps its data in a versioned subdirectory, so the volume sits
+    # one level above the old /var/lib/postgresql/data.
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db-data:

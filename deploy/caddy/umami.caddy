@@ -1,0 +1,20 @@
+# Umami's Caddy site, installed as /etc/caddy/sites/umami.caddy by hand with
+# deploy/umami/compose.yml. Snippet names start with `umami-` because every
+# project's file shares one namespace.
+
+(umami-access-log) {
+	log {
+		output file /var/log/caddy/umami.access.log {
+			roll_size 50MiB
+			roll_keep 10
+		}
+	}
+}
+
+# The dashboard, the tracker script the sites load, and the endpoint it sends
+# page views to. Caddy passes the visitor's address in X-Forwarded-For, which
+# Umami reads for the approximate location and does not store.
+stats.jleveneur.com {
+	import umami-access-log
+	reverse_proxy 127.0.0.1:3400
+}

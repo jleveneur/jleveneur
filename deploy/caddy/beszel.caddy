@@ -1,0 +1,18 @@
+# Beszel's Caddy site, installed as /etc/caddy/sites/beszel.caddy by hand with
+# deploy/beszel/compose.yml. Snippet names start with `beszel-` because every
+# project's file shares one namespace.
+
+(beszel-access-log) {
+	log {
+		output file /var/log/caddy/beszel.access.log {
+			roll_size 50MiB
+			roll_keep 10
+		}
+	}
+}
+
+# The hub's dashboard and API. Sign-in is Beszel's own.
+monitor.jleveneur.com {
+	import beszel-access-log
+	reverse_proxy 127.0.0.1:3300
+}
