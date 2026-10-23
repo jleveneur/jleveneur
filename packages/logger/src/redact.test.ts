@@ -1,5 +1,6 @@
+import { describe, expect, it } from "bun:test"
+
 import { pino } from "pino"
-import { describe, expect, it } from "vitest"
 
 /**
  * Redaction is the part of the logger worth testing.

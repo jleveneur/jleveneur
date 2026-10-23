@@ -3,12 +3,12 @@ import { fileURLToPath } from "node:url"
 
 import { defineConfig } from "drizzle-kit"
 
-// The workspace keeps one `.env` at the repository root. Node reads it natively;
-// in CI and production the variables are already set, so the file is absent and
+// This package's own `.env` (see `.env.example`). Node reads it natively; in
+// CI and production the variable is already set, so the file is absent and
 // this is a no-op.
-const rootEnv = fileURLToPath(new URL("../../.env", import.meta.url))
-if (existsSync(rootEnv)) {
-  process.loadEnvFile(rootEnv)
+const localEnv = fileURLToPath(new URL(".env", import.meta.url))
+if (existsSync(localEnv)) {
+  process.loadEnvFile(localEnv)
 }
 
 export default defineConfig({
@@ -32,7 +32,7 @@ export default defineConfig({
 
       if (value === undefined || value === "") {
         throw new Error(
-          "DATABASE_URL is required. Copy .env.example to .env at the repository root."
+          "DATABASE_URL is required. Copy packages/db/.env.example to packages/db/.env."
         )
       }
 

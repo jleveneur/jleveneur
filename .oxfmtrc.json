@@ -33,7 +33,6 @@
   "ignorePatterns": [
     "**/dist/**",
     "**/.next/**",
-    "**/.wrangler/**",
     "**/coverage/**",
     "**/node_modules/**",
     "bun.lock",

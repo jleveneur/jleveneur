@@ -9,7 +9,7 @@
     "./client": "./src/client.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "bun check"
   },
   "dependencies": {
     "@repo/authz": "workspace:*",

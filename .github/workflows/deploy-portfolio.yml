@@ -1,0 +1,149 @@
+name: Deploy portfolio
+
+# Puts `apps/portfolio` on jleveneur.com. It runs once CI has passed on `main`,
+# and by hand with a commit SHA to roll back (or forward) to that commit.
+#
+# The site is a static export served by Caddy on the VPS. Over SSH as
+# `deploy-jleveneur`, which owns /srv/jleveneur and Caddy's
+# /etc/caddy/sites/jleveneur.caddy and may only `sudo systemctl reload caddy`,
+# the job syncs `out/` into a release directory named after the commit, points
+# /srv/jleveneur/current at it, installs the commit's Caddy sites, and checks
+# the public URLs.
+#
+# Configuration: the `production` environment holds DEPLOY_SSH_KEY (the deploy
+# user's private key) and DEPLOY_KNOWN_HOSTS (the server's pinned host key);
+# repository variables give DEPLOY_HOST, optionally DEPLOY_USER, and
+# DEPLOY_ENABLED=true once the server is set up.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Full commit SHA to deploy (defaults to the selected ref)
+        required: false
+
+# Deploys run one after the other, never in parallel, and none is cancelled
+# halfway.
+concurrency:
+  group: deploy-portfolio
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to jleveneur.com
+    if: >-
+      vars.DEPLOY_ENABLED == 'true' &&
+      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://jleveneur.com
+
+    env:
+      SHA: ${{ inputs.sha || github.event.workflow_run.head_sha || github.sha }}
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER || 'deploy-jleveneur' }}
+      TURBO_TELEMETRY_DISABLED: 1
+      DO_NOT_TRACK: 1
+
+    steps:
+      - name: Check the SHA
+        run: |
+          if ! printf '%s' "$SHA" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "::error::'$SHA' is not a full commit SHA"
+            exit 1
+          fi
+
+      # The export and the Caddy sites come from the commit being deployed, so
+      # a rollback rolls both back.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SHA }}
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: package.json
+
+      - run: bun install --frozen-lockfile
+      - run: bun run --cwd apps/portfolio build:export
+
+      # The host key is pinned (DEPLOY_KNOWN_HOSTS, from `ssh-keyscan`), so a
+      # server that is not ours is refused rather than trusted on first use.
+      - name: Set up SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy
+          chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host production
+            HostName $DEPLOY_HOST
+            User $DEPLOY_USER
+            IdentityFile ~/.ssh/deploy
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+          EOF
+
+      # A release directory per commit, then one symlink swap: Caddy never
+      # serves a half-synced site. `mv -T` replaces the link in one rename.
+      # The five most recent releases stay, so a rollback needs no rebuild.
+      - name: Publish the release
+        run: |
+          rsync -a --delete apps/portfolio/out/ "production:/srv/jleveneur/releases/$SHA/"
+          ssh production 'bash -s' <<EOF
+          set -euo pipefail
+          cd /srv/jleveneur
+          ln -sfn "releases/$SHA" current.new
+          mv -T current.new current
+          ls -1t releases | tail -n +6 | while read -r old; do
+            [ "releases/\$old" != "\$(readlink current)" ] && rm -rf "releases/\$old"
+          done
+          EOF
+
+      # The previous sites file is kept until Caddy has accepted the new one.
+      # `systemctl reload` refuses an invalid configuration and keeps the
+      # running one; the old file then goes back, so a restart of Caddy would
+      # not trip over the broken one.
+      - name: Update the Caddy sites
+        run: |
+          scp -q deploy/caddy/jleveneur.caddy production:/srv/jleveneur/jleveneur.caddy.new
+          ssh production 'bash -s' <<'EOF'
+          set -euo pipefail
+          sites=/etc/caddy/sites/jleveneur.caddy
+          cp -p "$sites" "$sites.previous" 2>/dev/null || true
+          cat /srv/jleveneur/jleveneur.caddy.new > "$sites"
+          rm -f /srv/jleveneur/jleveneur.caddy.new
+          if ! sudo systemctl reload caddy; then
+            if [ -f "$sites.previous" ]; then cat "$sites.previous" > "$sites"; fi
+            echo "Caddy refused the new sites file; the previous one is back." >&2
+            exit 1
+          fi
+          EOF
+
+      - name: Check the public URLs
+        run: |
+          check() {
+            local url="$1" expected="$2" code=""
+            for _ in $(seq 1 12); do
+              code="$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 15 "$url" || true)"
+              if [ "$code" = "$expected" ]; then
+                echo "$url -> $code"
+                return 0
+              fi
+              sleep 5
+            done
+            echo "::error::$url answered $code, expected $expected"
+            return 1
+          }
+          check https://jleveneur.com/ 200
+          check https://www.jleveneur.com/ 301

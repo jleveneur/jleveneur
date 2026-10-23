@@ -1,5 +1,6 @@
+import { describe, expect, it } from "bun:test"
+
 import { call, ORPCError } from "@orpc/server"
-import { describe, expect, it } from "vitest"
 
 import type { Session } from "@repo/auth"
 
@@ -32,9 +33,7 @@ async function codeOf(promise: Promise<unknown>): Promise<string | undefined> {
 
 describe("publicProcedure", () => {
   it("runs without a session", async () => {
-    await expect(call(ping, undefined, { context: { session: null, headers } })).resolves.toBe(
-      "pong"
-    )
+    expect(await call(ping, undefined, { context: { session: null, headers } })).toBe("pong")
   })
 })
 
@@ -42,13 +41,13 @@ describe("protectedProcedure", () => {
   it("rejects an anonymous caller with UNAUTHORIZED", async () => {
     const context: Context = { session: null, headers }
 
-    await expect(codeOf(call(whoami, undefined, { context }))).resolves.toBe("UNAUTHORIZED")
+    expect(await codeOf(call(whoami, undefined, { context }))).toBe("UNAUTHORIZED")
   })
 
   it("passes the signed-in user to the handler", async () => {
     const context: Context = { session: sessionWith("org_1"), headers }
 
-    await expect(call(whoami, undefined, { context })).resolves.toBe("user_123")
+    expect(await call(whoami, undefined, { context })).toBe("user_123")
   })
 })
 
@@ -56,18 +55,18 @@ describe("orgProcedure", () => {
   it("rejects a session with no active organization", async () => {
     const context: Context = { session: sessionWith(null), headers }
 
-    await expect(codeOf(call(tenant, undefined, { context }))).resolves.toBe("FORBIDDEN")
+    expect(await codeOf(call(tenant, undefined, { context }))).toBe("FORBIDDEN")
   })
 
   it("still rejects an anonymous caller", async () => {
     const context: Context = { session: null, headers }
 
-    await expect(codeOf(call(tenant, undefined, { context }))).resolves.toBe("UNAUTHORIZED")
+    expect(await codeOf(call(tenant, undefined, { context }))).toBe("UNAUTHORIZED")
   })
 
   it("exposes the active organization to the handler", async () => {
     const context: Context = { session: sessionWith("org_1"), headers }
 
-    await expect(call(tenant, undefined, { context })).resolves.toBe("org_1")
+    expect(await call(tenant, undefined, { context })).toBe("org_1")
   })
 })

@@ -22,11 +22,18 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # `id-token` for the Remote Cache's OIDC exchange.
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # Bun (from `packageManager`) installs the packages; Node (from
-      # `devEngines.runtime`) runs Next.js and the tooling.
+      # Bun (from `packageManager`) installs the packages, runs the tests
+      # (`bun test`), the type checks (`bun check`), and Knip (`knip-bun`).
+      # Node is set up only for `agentcfg`, a package published to npm whose
+      # tests run with `node --test` on TypeScript (Node 22.6 or later).
       #
       # `--frozen-lockfile` because an out-of-date lockfile has to fail CI
       # rather than be silently resolved.
@@ -35,9 +42,21 @@ jobs:
           bun-version-file: package.json
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version-file: package.json
+          # agentcfg's own runtime: the root's `devEngines` names Bun.
+          node-version-file: packages/agentcfg/package.json
 
       - run: bun install --frozen-lockfile
+
+      # Vercel Remote Cache, shared by CI and the team: a task whose inputs and
+      # declared variables have not changed is replayed instead of run. The
+      # action trades this job's GitHub OIDC token for a short-lived Turborepo
+      # token (a Turborepo CLI policy on the Vercel team names this repository),
+      # so no secret is stored. Off until the `TURBO_TEAM` variable is set.
+      - name: Set up the Turborepo Remote Cache
+        if: vars.TURBO_TEAM != ''
+        uses: vercel/setup-turborepo-remote-cache-action@49d7b1b46ba4c9251e1977986bfe18336feabc8f # v1.1.0
+        with:
+          team: ${{ vars.TURBO_TEAM }}
 
       - run: bun run format:check
       - run: bun run lint
@@ -63,14 +82,46 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app
           BETTER_AUTH_SECRET: ci-placeholder-secret-at-least-32-characters
           BETTER_AUTH_URL: http://localhost:3000
-      # Default `bun run build` does not write `out/`.
+      # Default `bun run build` does not write `out/`, which the deploy serves.
       - run: bun run --cwd apps/portfolio build:export
-      - run: bunx wrangler deploy --dry-run
-        working-directory: apps/portfolio
+
+  caddy:
+    name: Caddy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # Keep in step with the Caddy the server runs.
+      CADDY_IMAGE: caddy:2.11.7-alpine
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The server's Caddyfile holds the global options and imports every
+      # project's file from /etc/caddy/sites. This one stands in for it, so a
+      # broken `deploy/caddy` file fails here rather than at deploy time.
+      - name: Validate deploy/caddy
+        run: |
+          printf '{\n\temail ci@example.invalid\n}\n\nimport /etc/caddy/sites/*.caddy\n' > "$RUNNER_TEMP/Caddyfile"
+          docker run --rm \
+            -v "$RUNNER_TEMP/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            -v "$PWD/deploy/caddy:/etc/caddy/sites:ro" \
+            "$CADDY_IMAGE" caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+
+      - name: Check deploy/caddy formatting
+        run: |
+          failed=0
+          for file in deploy/caddy/*.caddy; do
+            if docker run --rm -v "$PWD/deploy/caddy:/sites:ro" "$CADDY_IMAGE" \
+              caddy fmt --diff "/sites/$(basename "$file")" | grep -E '^[+-]'; then
+              echo "::error file=$file::not formatted, run caddy fmt --overwrite"
+              failed=1
+            fi
+          done
+          exit "$failed"
 
   integration:
     name: Integration
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     # The one suite that needs a real database: Better Auth writing through the
     # Drizzle adapter, and permissions read back from the rows it wrote.
@@ -98,9 +149,6 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version-file: package.json
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: package.json
 
       - run: bun install --frozen-lockfile
       - run: bun run db:migrate
@@ -109,6 +157,11 @@ jobs:
   e2e:
     name: Browser
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # `id-token` for the Remote Cache's OIDC exchange.
+    permissions:
+      contents: read
+      id-token: write
 
     # The journeys that only exist in a browser: verification, password reset,
     # and invitation links, each followed the way a person would.
@@ -138,15 +191,57 @@ jobs:
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version-file: package.json
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: package.json
 
       - run: bun install --frozen-lockfile
-      - run: bun run db:migrate
-      # One install: both apps pin the same Playwright version, and two
-      # `--with-deps` runs fight over apt's lock.
-      - run: bun run --cwd apps/starter test:e2e:install
+
+      # Vercel Remote Cache, shared by CI and the team: a task whose inputs and
+      # declared variables have not changed is replayed instead of run. The
+      # action trades this job's GitHub OIDC token for a short-lived Turborepo
+      # token (a Turborepo CLI policy on the Vercel team names this repository),
+      # so no secret is stored. Off until the `TURBO_TEAM` variable is set.
+      - name: Set up the Turborepo Remote Cache
+        if: vars.TURBO_TEAM != ''
+        uses: vercel/setup-turborepo-remote-cache-action@49d7b1b46ba4c9251e1977986bfe18336feabc8f # v1.1.0
+        with:
+          team: ${{ vars.TURBO_TEAM }}
+      # When every suite's pass is already cached, `test:e2e` replays it and
+      # starts no browser and no server, so the database and Chromium are not
+      # needed. The dry run asks the same question with the same environment;
+      # it also lists packages with no `test:e2e` script, always a miss.
+      - name: Check whether the browser tests replay from the cache
+        id: e2e
+        run: |
+          status="$(bunx turbo run test:e2e --dry=json 2>/dev/null | jq -r '[.tasks[] | select(.task == "test:e2e" and .command != "<NONEXISTENT>") | .cache.status] | unique | join(",")')"
+          echo "test:e2e cache: ${status:-unknown}"
+          echo "replay=$([ "$status" = HIT ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - if: steps.e2e.outputs.replay != 'true'
+        run: bun run db:migrate
+
+      # Chromium comes from GitHub's cache, keyed on the Playwright version the
+      # apps pin (one install serves them all), so a run only downloads it from
+      # Playwright's CDN when that version changes. Its system libraries are
+      # not in the cache: apt installs them on every run.
+      - name: Read the Playwright version
+        if: steps.e2e.outputs.replay != 'true'
+        id: playwright
+        run: echo "version=$(jq -r '.devDependencies["@playwright/test"]' apps/starter/package.json)" >> "$GITHUB_OUTPUT"
+      - name: Restore Chromium
+        if: steps.e2e.outputs.replay != 'true'
+        id: browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+      - name: Install Chromium
+        if: steps.e2e.outputs.replay != 'true' && steps.browsers.outputs.cache-hit != 'true'
+        timeout-minutes: 5
+        run: bun run --cwd apps/starter test:e2e:install
+      - name: Install Chromium's system libraries
+        if: steps.e2e.outputs.replay != 'true' && steps.browsers.outputs.cache-hit == 'true'
+        timeout-minutes: 5
+        working-directory: apps/starter
+        run: bunx playwright install-deps chromium
       - run: bun run test:e2e
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -169,11 +264,13 @@ jobs:
   ci:
     name: CI
     if: always()
-    needs: [check, integration, e2e]
+    needs: [check, caddy, integration, e2e]
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Require every job
         run: |
           test "${{ needs.check.result }}" = success
+          test "${{ needs.caddy.result }}" = success
           test "${{ needs.integration.result }}" = success
           test "${{ needs.e2e.result }}" = success

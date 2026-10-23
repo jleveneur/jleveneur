@@ -1,15 +1,4 @@
-import { existsSync } from "node:fs"
-import { fileURLToPath } from "node:url"
-
 import type { NextConfig } from "next"
-
-// The workspace keeps one `.env` at the repository root, and Next only looks
-// inside the app directory. Node reads the file natively; in CI and production
-// the variables are already set, so it is absent and this is a no-op.
-const rootEnv = fileURLToPath(new URL("../../.env", import.meta.url))
-if (existsSync(rootEnv)) {
-  process.loadEnvFile(rootEnv)
-}
 
 /**
  * Response headers applied to every route.
@@ -34,14 +23,14 @@ const SECURITY_HEADERS = [
 ]
 
 // `next start` cannot serve `output: "export"`. `build:export` sets this so
-// `next build` writes `out/` for Wrangler.
+// `next build` writes `out/`, which Caddy serves on the VPS.
 const staticExport = process.env["PORTFOLIO_EXPORT"] === "1"
 
 const nextConfig: NextConfig = {
   ...(staticExport ? { output: "export" as const } : {}),
 
-  // A static export ignores `headers()` here; `public/_headers` is copied into
-  // `out/` and applied by the asset host instead.
+  // A static export ignores `headers()` here; Caddy sends the same headers
+  // (`deploy/caddy/jleveneur.caddy`).
   ...(!staticExport
     ? {
         headers() {

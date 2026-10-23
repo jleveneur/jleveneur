@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "bun:test"
 
 import { parseOutbox } from "./outbox.ts"
 import { escapeHtml, invitationEmail, resetPasswordEmail, verificationEmail } from "./templates.ts"

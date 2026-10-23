@@ -1,12 +1,23 @@
+import { beforeEach, describe, expect, it } from "bun:test"
+
 import { call } from "@orpc/server"
 import { eq, sql } from "drizzle-orm"
-import { beforeEach, describe, expect, it } from "vitest"
 
 import { auth } from "@repo/auth"
 import { db, member, post, user } from "@repo/db"
 
 import { createContext } from "./context.ts"
 import { appRouter } from "./router.ts"
+
+/** The error a promise rejects with; fails when it resolves instead. */
+async function rejectionOf(promise: Promise<unknown>): Promise<unknown> {
+  try {
+    await promise
+  } catch (error) {
+    return error
+  }
+  throw new Error("expected the promise to reject, but it resolved")
+}
 
 /**
  * The seam the unit tests cannot reach.
@@ -79,7 +90,7 @@ describe("sign-up", () => {
       asResponse: true
     })
 
-    await expect(auth.api.getSession({ headers: toRequestHeaders(response) })).resolves.toBeNull()
+    expect(await auth.api.getSession({ headers: toRequestHeaders(response) })).toBeNull()
   })
 
   it("puts the new user in an organization they own", async () => {
@@ -103,7 +114,7 @@ describe("post", () => {
     const listed = await call(appRouter.post.list, undefined, { context })
 
     expect(listed.map((row) => row.title)).toStrictEqual(["first"])
-    expect(created.organizationId).toBe(listed[0]?.organizationId)
+    expect(listed[0]?.organizationId).toBe(created.organizationId)
   })
 
   it("does not leak one organization's rows to another", async () => {
@@ -134,9 +145,10 @@ describe("post", () => {
 
     await db.update(member).set({ role: "member" }).where(eq(member.userId, userId))
 
-    await expect(
+    const refusal = await rejectionOf(
       call(appRouter.post.delete, { id: created.id }, { context: await createContext(headers) })
-    ).rejects.toThrow(/does not allow/)
+    )
+    expect(String(refusal)).toMatch(/does not allow/)
 
     const survivors = await db.select().from(post).where(eq(post.id, created.id))
     expect(survivors).toHaveLength(1)

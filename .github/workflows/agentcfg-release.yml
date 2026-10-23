@@ -13,6 +13,7 @@ jobs:
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     # Must match the environment named in the npm trusted publisher settings.
     environment: npm
     permissions:
@@ -30,12 +31,13 @@ jobs:
       # trusted publishing.
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version-file: package.json
+          # agentcfg's own runtime: the root's `devEngines` names Bun.
+          node-version-file: packages/agentcfg/package.json
       - run: bun install --frozen-lockfile
 
       - name: Check the tag matches package.json
         run: |
-          version="agentcfg@v$(node -p 'require("./packages/agentcfg/package.json").version')"
+          version="agentcfg@v$(jq -r .version packages/agentcfg/package.json)"
           if [ "$version" != "$GITHUB_REF_NAME" ]; then
             echo "Tag $GITHUB_REF_NAME does not match packages/agentcfg/package.json $version" >&2
             exit 1
@@ -54,8 +56,13 @@ jobs:
           npm --version
           node -e 'const [a, b, c] = process.argv[1].split(".").map(Number); process.exit(a > 11 || (a === 11 && (b > 5 || (b === 5 && c >= 1))) ? 0 : 1)' "$(npm --version)"
 
-      - run: npm publish --access public
+      # Packed by Bun, published by npm: npm alone does trusted publishing, and
+      # run inside the workspace it would refuse the root's Bun `devEngines`.
+      - run: bun pm pack --destination "$RUNNER_TEMP"
         working-directory: packages/agentcfg
+      - name: Publish the tarball
+        working-directory: ${{ runner.temp }}
+        run: npm publish ./jleveneur-agentcfg-*.tgz --access public
 
       - name: Create the GitHub release
         env:
