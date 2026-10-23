@@ -1,8 +1,7 @@
 # Umami on the VPS, at stats.jleveneur.com behind the host Caddy
 # (deploy/caddy/umami.caddy): audience measurement for hydromag.fr and the
-# portfolio, without cookies or third parties. Installed as
-# /srv/umami/compose.yml and started there by hand; nothing deploys it
-# automatically, so a change here is applied by hand.
+# portfolio, without cookies or third parties. The deploy workflow installs it
+# as /srv/umami/compose.yml and runs `docker compose up -d` there.
 #
 # Its own Postgres, apart from hydromag's. The secrets are generated on the
 # server into /srv/umami/.env (chmod 600), never here.

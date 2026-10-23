@@ -1,5 +1,5 @@
 # Uptime Kuma's Caddy site, installed as /etc/caddy/sites/uptime-kuma.caddy by
-# hand with deploy/uptime-kuma/compose.yml. Snippet names start with
+# the deploy workflow with deploy/uptime-kuma/compose.yml. Snippet names start with
 # `uptime-kuma-` because every project's file shares one namespace.
 
 (uptime-kuma-access-log) {

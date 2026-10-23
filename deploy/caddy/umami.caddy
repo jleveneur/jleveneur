@@ -1,5 +1,5 @@
-# Umami's Caddy site, installed as /etc/caddy/sites/umami.caddy by hand with
-# deploy/umami/compose.yml. Snippet names start with `umami-` because every
+# Umami's Caddy site, installed as /etc/caddy/sites/umami.caddy by the deploy
+# workflow with deploy/umami/compose.yml. Snippet names start with `umami-` because every
 # project's file shares one namespace.
 
 (umami-access-log) {
