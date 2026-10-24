@@ -1,20 +1,24 @@
 name: Deploy
 
 # Puts `apps/portfolio` on jleveneur.com and runs the services beside it
-# (Uptime Kuma, Beszel, Umami) on the VPS. It runs once CI has passed on `main`,
-# and by hand with a commit SHA to roll back (or forward) to that commit.
+# (Uptime Kuma, Beszel, Umami) on the VPS. It runs once the Images workflow has
+# published the portfolio's image for `main` (which it only does after CI has
+# passed), and by hand with a commit SHA to roll back (or forward) to that
+# commit, whose image stays in GHCR.
 #
-# The portfolio is a static export served by Caddy. Each service is a Compose
-# project in /srv/<service>, with its secrets in a `.env` there that never
-# leaves the server. Over SSH as `deploy`, the one deploy account of the VPS
+# The portfolio is a standalone Next.js server in a container, the Compose
+# project in /srv/jleveneur. Each service is a Compose project in
+# /srv/<service>. Their secrets are in a `.env` there that never leaves the
+# server. Over SSH as `deploy`, the one deploy account of the VPS
 # (deploy/vps/deploy-user.sh): it owns the projects' directories in /srv and
 # their files in /etc/caddy/sites, is in the docker group, and may only
-# `sudo systemctl reload caddy` (and start the Hydromag backup). The job syncs `out/`
-# into a release directory named after the commit, points /srv/jleveneur/current
-# at it, starts each service from the commit's compose file, installs the
-# commit's Caddy sites, and checks the public URLs. A new service is set up
-# once by hand: its /srv directory and `.env`, and its sites file in
-# /etc/caddy/sites, owned by `deploy`; then it joins SERVICES.
+# `sudo systemctl reload caddy` (and start the Hydromag backup). The job pulls
+# the commit's portfolio image with this run's GITHUB_TOKEN (so no long-lived
+# registry credential lives on the server), starts it and each service from
+# the commit's compose files, installs the commit's Caddy sites, and checks
+# the public URLs. A new service is set up once by hand: its /srv directory
+# and `.env`, and its sites file in /etc/caddy/sites, owned by `deploy`; then
+# it joins SERVICES.
 #
 # Configuration: the `production` environment holds DEPLOY_SSH_KEY (the deploy
 # account's private key, the same in jleveneur/hydromag; the docker group makes
@@ -24,7 +28,7 @@ name: Deploy
 # sets them in both repositories.
 on:
   workflow_run:
-    workflows: [CI]
+    workflows: [Images]
     types: [completed]
     branches: [main]
   workflow_dispatch:
@@ -53,6 +57,9 @@ jobs:
     environment:
       name: production
       url: https://jleveneur.com
+    permissions:
+      contents: read
+      packages: read
 
     env:
       SHA: ${{ inputs.sha || github.event.workflow_run.head_sha || github.sha }}
@@ -60,8 +67,6 @@ jobs:
       DEPLOY_USER: ${{ vars.DEPLOY_USER || 'deploy' }}
       # Each has deploy/<service>/compose.yml and deploy/caddy/<service>.caddy.
       SERVICES: uptime-kuma beszel umami
-      TURBO_TELEMETRY_DISABLED: 1
-      DO_NOT_TRACK: 1
 
     steps:
       - name: Check the SHA
@@ -71,18 +76,11 @@ jobs:
             exit 1
           fi
 
-      # The export, the compose files and the Caddy sites come from the commit
-      # being deployed, so a rollback rolls all of them back.
+      # The compose files and the Caddy sites come from the commit being
+      # deployed, so a rollback rolls all of them back with the image.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.SHA }}
-
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
-        with:
-          bun-version-file: package.json
-
-      - run: bun install --frozen-lockfile
-      - run: bun run --cwd apps/portfolio build:export
 
       # The host key is pinned (DEPLOY_KNOWN_HOSTS, from `ssh-keyscan`), so a
       # server that is not ours is refused rather than trusted on first use.
@@ -104,20 +102,26 @@ jobs:
             StrictHostKeyChecking yes
           EOF
 
-      # A release directory per commit, then one symlink swap: Caddy never
-      # serves a half-synced site. `mv -T` replaces the link in one rename.
-      # The five most recent releases stay, so a rollback needs no rebuild.
-      - name: Publish the portfolio
+      # `release.env` records the deployed commit, so a manual
+      # `docker compose --env-file .env --env-file release.env up -d` on the
+      # server starts the same image. `--wait` fails the job if the container
+      # does not come up healthy; the previous one keeps serving until the new
+      # one has started.
+      - name: Pull and start the portfolio
+        env:
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_USER: ${{ github.actor }}
         run: |
-          rsync -a --delete apps/portfolio/out/ "production:/srv/jleveneur/releases/$SHA/"
+          scp -q deploy/portfolio/compose.yml production:/srv/jleveneur/compose.yml
           ssh production 'bash -s' <<EOF
           set -euo pipefail
           cd /srv/jleveneur
-          ln -sfn "releases/$SHA" current.new
-          mv -T current.new current
-          ls -1t releases | tail -n +6 | while read -r old; do
-            [ "releases/\$old" != "\$(readlink current)" ] && rm -rf "releases/\$old"
-          done
+          echo '$REGISTRY_TOKEN' | docker login ghcr.io -u '$REGISTRY_USER' --password-stdin > /dev/null
+          trap 'docker logout ghcr.io > /dev/null' EXIT
+          printf 'PORTFOLIO_TAG=%s\n' '$SHA' > release.env
+          docker compose --env-file .env --env-file release.env pull --quiet
+          docker compose --env-file .env --env-file release.env up -d --remove-orphans --wait --wait-timeout 180
+          docker compose --env-file .env --env-file release.env ps --format 'table {{.Service}}\t{{.Image}}\t{{.Status}}'
           EOF
 
       # Images are version-pinned, so `--pull missing` downloads only what a
@@ -195,6 +199,8 @@ jobs:
             return 1
           }
           check https://jleveneur.com/ 200
+          check https://jleveneur.com/en 200
+          check https://jleveneur.com/contact 200
           check https://www.jleveneur.com/ 301
           check https://status.jleveneur.com/api/entry-page 200
           check https://monitor.jleveneur.com/api/health 200

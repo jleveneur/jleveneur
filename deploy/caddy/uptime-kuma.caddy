@@ -2,6 +2,12 @@
 # the deploy workflow with deploy/uptime-kuma/compose.yml. Snippet names start with
 # `uptime-kuma-` because every project's file shares one namespace.
 
+# The dashboard's assets are compressed; its live updates go over a WebSocket,
+# which `encode` leaves alone once the connection is upgraded.
+(uptime-kuma-encode) {
+	encode zstd gzip
+}
+
 (uptime-kuma-access-log) {
 	log {
 		output file /var/log/caddy/uptime-kuma.access.log {
@@ -15,5 +21,6 @@
 # HSTS already covers the subdomain.
 status.jleveneur.com {
 	import uptime-kuma-access-log
+	import uptime-kuma-encode
 	reverse_proxy 127.0.0.1:3200
 }

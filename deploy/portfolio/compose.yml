@@ -1,0 +1,61 @@
+# The portfolio on the VPS: the standalone Next.js server, run from the image
+# `.github/workflows/images.yml` builds from `apps/portfolio/Dockerfile` and
+# publishes to GHCR.
+#
+# The deploy workflow (`.github/workflows/deploy.yml`) copies this file to
+# /srv/jleveneur next to `.env`, records the deployed commit in `release.env`,
+# and starts it:
+#
+#   docker compose --env-file .env --env-file release.env up -d --remove-orphans
+#
+# `PORTFOLIO_TAG` picks the image: the commit a deploy pins, or `latest` when
+# unset. Rolling back is running the deploy workflow with an older commit. To
+# try a production build locally instead:
+#
+#   docker build -f apps/portfolio/Dockerfile -t ghcr.io/jleveneur/jleveneur-portfolio .
+#   docker compose -f deploy/portfolio/compose.yml up -d
+#
+# It publishes on 127.0.0.1:3500 alone; Caddy, on the host, routes
+# jleveneur.com to it (deploy/caddy/jleveneur.caddy).
+#
+# Variables, from `/srv/jleveneur/.env` (600, owned by `deploy`). To set or
+# rotate the Resend key, as an admin on the server:
+#
+#   sudoedit /srv/jleveneur/.env
+#   sudo chown deploy:deploy /srv/jleveneur/.env && sudo chmod 600 /srv/jleveneur/.env
+#   cd /srv/jleveneur && sudo -u deploy docker compose --env-file .env --env-file release.env up -d
+#
+# The last line recreates the container, which reads its environment only when
+# it is created. Use a "Sending access" key limited to jleveneur.com.
+#
+# What the file holds:
+#   RESEND_API_KEY   required: the contact form's delivery
+#   EMAIL_FROM       the sender, on a domain verified in Resend
+#   CONTACT_TO       where messages go, jleveneur.pro@gmail.com when unset
+#   LOG_LEVEL        optional, `info` when unset
+#   PORTFOLIO_TAG    the image to run, `latest` when unset (release.env)
+
+name: jleveneur
+
+services:
+  portfolio:
+    image: ghcr.io/jleveneur/jleveneur-portfolio:${PORTFOLIO_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      RESEND_API_KEY: ${RESEND_API_KEY:?set RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      CONTACT_TO: ${CONTACT_TO:-}
+      LOG_LEVEL: ${LOG_LEVEL:-}
+    ports:
+      - "127.0.0.1:3500:3000"
+    # Fetches the homepage from inside the container, with the busybox wget
+    # the alpine image carries, which fails on anything but a 2xx. Docker,
+    # Beszel and the deploy's `up --wait` then report whether the server
+    # answers, not only whether its process runs.
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+      start_interval: 2s

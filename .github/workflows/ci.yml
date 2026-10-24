@@ -82,8 +82,6 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app
           BETTER_AUTH_SECRET: ci-placeholder-secret-at-least-32-characters
           BETTER_AUTH_URL: http://localhost:3000
-      # Default `bun run build` does not write `out/`, which the deploy serves.
-      - run: bun run --cwd apps/portfolio build:export
 
   caddy:
     name: Caddy

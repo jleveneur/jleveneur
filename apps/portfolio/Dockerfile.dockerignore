@@ -1,0 +1,23 @@
+# The image installs its own dependencies and builds its own output, so
+# nothing from the host's is sent to the builder. Above all not a local
+# `.env`, in an app or a package: Next loads an app's when present, and they
+# hold secrets. BuildKit reads this file in place of a root `.dockerignore`
+# because it sits beside the Dockerfile, so the starter export carries
+# neither.
+**/node_modules
+**/.next
+**/.turbo
+**/*.tsbuildinfo
+**/coverage
+**/test-results
+**/playwright-report
+**/.playwright
+**/out
+**/dist
+**/.mail
+**/.mail-e2e
+**/.env
+**/.env.*
+!**/.env.example
+.git
+.DS_Store

@@ -1,12 +1,17 @@
+import { fileURLToPath } from "node:url"
+
 import type { NextConfig } from "next"
+
+// The repository root, where tracing starts.
+const workspaceRoot = fileURLToPath(new URL("../../", import.meta.url))
 
 /**
  * Response headers applied to every route.
  *
  * The `Content-Security-Policy` here is deliberately partial. `frame-ancestors`,
  * `base-uri`, and `object-src` are the directives that need no knowledge of the
- * page, so they can ship in a starter. A `script-src` worth having requires a
- * per-request nonce threaded through the app, and one written without that
+ * page, so they can ship as static headers. A `script-src` worth having requires
+ * a per-request nonce threaded through the app, and one written without that
  * either breaks Next's inline bootstrap or is loose enough to be decorative.
  */
 const SECURITY_HEADERS = [
@@ -22,27 +27,29 @@ const SECURITY_HEADERS = [
   }
 ]
 
-// `next start` cannot serve `output: "export"`. `build:export` sets this so
-// `next build` writes `out/`, which Caddy serves on the VPS.
-const staticExport = process.env["PORTFOLIO_EXPORT"] === "1"
-
 const nextConfig: NextConfig = {
-  ...(staticExport ? { output: "export" as const } : {}),
+  // The Docker image (`Dockerfile` beside this file) runs `server.js` from a
+  // self-contained build holding only the files the server traces. Tracing
+  // starts at the repository root, where the workspace's packages are.
+  output: "standalone",
+  outputFileTracingRoot: workspaceRoot,
 
-  // A static export ignores `headers()` here; Caddy sends the same headers
-  // (`deploy/caddy/jleveneur.caddy`).
-  ...(!staticExport
-    ? {
-        headers() {
-          return Promise.resolve([{ source: "/:path*", headers: SECURITY_HEADERS }])
-        }
-      }
-    : {}),
+  // Caddy compresses every response, in zstd where the browser takes it. Next
+  // would gzip first, and Caddy passes an encoded response through untouched.
+  compress: false,
+
+  headers() {
+    return Promise.resolve([{ source: "/:path*", headers: SECURITY_HEADERS }])
+  },
 
   experimental: {
     // TypeScript 7 has no JavaScript compiler API yet, so `next build` shells
     // out to the local `tsc` instead of loading it in-process.
-    useTypeScriptCli: true
+    useTypeScriptCli: true,
+    // Every page lives under `[locale]`, so a URL the proxy does not handle
+    // (a stray file path) has no layout to render it in.
+    // `app/global-not-found.tsx` answers it in the default locale.
+    globalNotFound: true
   }
 }
 

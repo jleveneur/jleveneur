@@ -2,6 +2,12 @@
 # workflow with deploy/beszel/compose.yml. Snippet names start with `beszel-` because every
 # project's file shares one namespace.
 
+# The hub's dashboard and its JSON API are compressed; its realtime stream is
+# flushed as it comes, so compression does not hold events back.
+(beszel-encode) {
+	encode zstd gzip
+}
+
 (beszel-access-log) {
 	log {
 		output file /var/log/caddy/beszel.access.log {
@@ -14,5 +20,6 @@
 # The hub's dashboard and API. Sign-in is Beszel's own.
 monitor.jleveneur.com {
 	import beszel-access-log
+	import beszel-encode
 	reverse_proxy 127.0.0.1:3300
 }
