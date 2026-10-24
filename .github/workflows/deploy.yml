@@ -139,6 +139,15 @@ jobs:
           done
           EOF
 
+      # The nightly backup of Umami, Uptime Kuma and Beszel runs this script
+      # (deploy/backup/backup.sh) from jleveneur-backup.service; its unit and
+      # timer are installed once by deploy/vps/install-backups.sh. The R2 key
+      # it reads, /srv/backup/r2.env, never leaves the server.
+      - name: Update the backup script
+        run: |
+          scp -q deploy/backup/backup.sh production:/srv/backup/jleveneur-backup.sh.new
+          ssh production 'chmod 755 /srv/backup/jleveneur-backup.sh.new && mv /srv/backup/jleveneur-backup.sh.new /srv/backup/jleveneur-backup.sh'
+
       # The previous sites files are kept until Caddy has accepted the new
       # ones. `systemctl reload` refuses an invalid configuration and keeps the
       # running one; the old files then go back, so a restart of Caddy would

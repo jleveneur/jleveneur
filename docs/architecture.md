@@ -187,6 +187,10 @@ values in both, and rotating the key is running it again.
 /srv/uptime-kuma/compose.yml
 /srv/beszel/{compose.yml,.env}      .env: the agent's KEY and TOKEN (600)
 /srv/umami/{compose.yml,.env}       .env: database password, APP_SECRET… (600)
+/srv/backup/
+├── r2.env                          the R2 key every backup shares (600)
+├── backup.env                      optional: this backup's HEARTBEAT_URL (600)
+└── jleveneur-backup.sh             copied by each deploy
 ```
 
 ## The shared services
@@ -204,10 +208,19 @@ never leave it.
 The portfolio's tracker is in its root layout with `data-domains="jleveneur.com"`,
 so `next dev` and the e2e runs load the script without recording visits.
 
+**Backups.** Every night at 03:45 Paris time, `jleveneur-backup.timer` runs
+[deploy/backup/backup.sh](../deploy/backup/backup.sh): a `pg_dump` of Umami,
+online SQLite copies of Uptime Kuma's and Beszel's databases (with the Beszel
+hub's key, which its agents know), each checked, then uploaded to
+`jleveneur-backups` on Cloudflare R2 (EU jurisdiction). Hydromag's database
+goes to the same bucket from its own repository. One key, `/srv/backup/r2.env`
+(written by [deploy/vps/r2-key.sh](../deploy/vps/r2-key.sh)), limited to that
+bucket and to the VPS's addresses; the bucket refuses to overwrite or delete
+any object for 30 days and deletes them after 90. Restoring needs only the
+server: the steps are in the script's header.
+
 **Limits.** The three services run on the server they watch, so a server that
-goes down cannot report itself: that takes a probe from outside. Their volumes
-are not backed up: losing the server loses the analytics history and the
-monitors' configuration, not the sites, which are rebuilt from Git.
+goes down cannot report itself: that takes a probe from outside.
 
 ## Where configuration lives
 
