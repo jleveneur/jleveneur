@@ -12,6 +12,12 @@
 #
 # Caddy replaces any X-Forwarded-For a client sends with the address it saw,
 # so the contact form's rate limit counts the visitor, not a header they chose.
+#
+# The access log holds visitors' IP addresses, and the privacy policy
+# (apps/portfolio/src/content/legal.ts) promises they are kept 90 days at most:
+# every site's file rolls daily whatever the traffic, and a rolled file is
+# deleted after 90 days. Caddy applies a change to these options on restart,
+# not on reload.
 
 (jleveneur-encode) {
 	encode zstd gzip
@@ -21,7 +27,9 @@
 	log {
 		output file /var/log/caddy/jleveneur.access.log {
 			roll_size 50MiB
+			roll_interval 1d
 			roll_keep 10
+			roll_keep_for 90d
 		}
 	}
 }

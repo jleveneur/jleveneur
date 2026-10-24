@@ -10,7 +10,8 @@ const PATHS = [
   ...projects.map((project) => `/projects/${project.slug}`),
   "/experience",
   "/about",
-  "/contact"
+  "/contact",
+  "/legal"
 ]
 
 /** Every page in every language, each listing its translations. */

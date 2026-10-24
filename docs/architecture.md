@@ -179,7 +179,10 @@ jleveneur.com to the portfolio container on 127.0.0.1:3500. The security
 headers (HSTS with `includeSubDomains` and `preload`, a partial CSP,
 `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`) come
 from the app's `next.config.ts`, as do the 404 page and the cache headers of
-`/_next/static/*`. Access logs go to `/var/log/caddy/<project>.access.log`.
+`/_next/static/*`. Access logs go to `/var/log/caddy/<project>.access.log`; they roll daily and are
+deleted after 90 days, as both sites' privacy policies promise. Caddy applies a
+change to the log options on `systemctl restart caddy`, not on the reload a
+deploy runs.
 
 ### Accounts
 

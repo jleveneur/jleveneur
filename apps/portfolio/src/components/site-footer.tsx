@@ -1,13 +1,15 @@
+import Link from "next/link"
 import type { ReactNode } from "react"
 
 import { email, name, socialLinks, sourceUrl } from "@/content/site"
+import { type Locale, localePath } from "@/i18n/config"
 import type { Dictionary } from "@/i18n/dictionaries"
 
 /**
  * The drawing's title block. The revision is the day the page was rendered,
  * which for prerendered pages is the day of the build that shipped it.
  */
-export function SiteFooter({ dict }: { dict: Dictionary }) {
+export function SiteFooter({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   const revision = new Date().toISOString().slice(0, 10)
 
   return (
@@ -49,14 +51,22 @@ export function SiteFooter({ dict }: { dict: Dictionary }) {
           <p>
             © {new Date().getFullYear()} {name}
           </p>
-          <a
-            href={sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline-offset-4 hover:text-ink hover:underline"
-          >
-            {dict.footer.source} ↗
-          </a>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link
+              href={localePath(locale, "/legal")}
+              className="underline-offset-4 hover:text-ink hover:underline"
+            >
+              {dict.footer.legal}
+            </Link>
+            <a
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline-offset-4 hover:text-ink hover:underline"
+            >
+              {dict.footer.source} ↗
+            </a>
+          </div>
         </div>
       </div>
     </footer>
