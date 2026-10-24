@@ -195,7 +195,8 @@ values in both, and rotating the key is running it again.
 ```
 /srv/jleveneur/
 ├── compose.yml                     copied by each deploy
-├── .env                            RESEND_API_KEY, EMAIL_FROM, CONTACT_TO (600)
+├── .env                            RESEND_API_KEY, EMAIL_FROM, CONTACT_TO (600),
+│                                   from deploy/vps/resend-key.sh
 ├── release.env                     PORTFOLIO_TAG: the deployed commit
 └── caddy/previous/                 sites files before the last deploy
 /srv/uptime-kuma/compose.yml

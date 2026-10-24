@@ -18,7 +18,8 @@
 # It publishes on 127.0.0.1:3500 alone; Caddy, on the host, routes
 # jleveneur.com to it (deploy/caddy/jleveneur.caddy).
 #
-# Variables, from `/srv/jleveneur/.env` (600, owned by `deploy`):
+# Variables, from `/srv/jleveneur/.env` (600, owned by `deploy`), whose Resend
+# lines deploy/vps/resend-key.sh writes and checks:
 #   RESEND_API_KEY   required: the contact form's delivery
 #   EMAIL_FROM       the sender, on a domain verified in Resend
 #   CONTACT_TO       where messages go, jleveneur.pro@gmail.com when unset
