@@ -4,9 +4,11 @@
 #
 #   sudo bash resend-key.sh
 #
-# or from a checkout, without copying it to the server first:
+# From a checkout, in a real terminal (sudo and the prompts need one, so the
+# script is copied first rather than piped into ssh):
 #
-#   ssh -t julien@<server> 'sudo bash -s' < deploy/vps/resend-key.sh
+#   scp deploy/vps/resend-key.sh julien@<server>:/tmp/ &&
+#     ssh -t julien@<server> 'sudo bash /tmp/resend-key.sh; rm -f /tmp/resend-key.sh'
 #
 # Asks for the API key (nothing is echoed), the sender (on a domain verified
 # in Resend) and the address messages go to. A "Sending access" key limited to
@@ -26,8 +28,7 @@ dir=/srv/jleveneur
 file="$dir/.env"
 api=https://api.resend.com
 
-# The prompts read the terminal, so they also work when the script itself
-# arrives on standard input (`bash -s`).
+# The prompts read the terminal itself, whatever standard input is.
 read -rsp "Resend API key: " key < /dev/tty
 echo
 read -rp "Sender [contact@jleveneur.com]: " from < /dev/tty
