@@ -12,7 +12,7 @@ map around them. It stays out of the starter export, like `deploy/`.
 | `apps/portfolio`                       | jleveneur.com, a static export served by Caddy  | [deploy.yml](../.github/workflows/deploy.yml)                     |
 | `deploy/uptime-kuma`                   | status.jleveneur.com                            | [deploy.yml](../.github/workflows/deploy.yml)                     |
 | `deploy/beszel`                        | monitor.jleveneur.com                           | [deploy.yml](../.github/workflows/deploy.yml)                     |
-| `deploy/umami`                         | stats.jleveneur.com                             | [deploy.yml](../.github/workflows/deploy.yml)                     |
+| `deploy/umami`                         | stats.jleveneur.com, stats.hydromag.fr          | [deploy.yml](../.github/workflows/deploy.yml)                     |
 | `apps/starter` and the shared packages | new repositories, through `bun run new-project` | checked by [starter.yml](../.github/workflows/starter.yml)        |
 | `packages/agentcfg`                    | npm, `@jleveneur/agentcfg`                      | [agentcfg-release.yml](../.github/workflows/agentcfg-release.yml) |
 
@@ -186,11 +186,11 @@ why each lives only in its repository's `production` environment.
 
 ## The shared services
 
-| Service                                          | Image                                    | Data                                   | Notes                                                                                                        |
-| ------------------------------------------------ | ---------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [Uptime Kuma](../deploy/uptime-kuma/compose.yml) | `louislam/uptime-kuma:*-slim`            | volume `data` (SQLite)                 | Monitors the public URLs and receives the Hydromag backup heartbeat; alerts on Discord                       |
-| [Beszel](../deploy/beszel/compose.yml)           | `henrygd/beszel`, `henrygd/beszel-agent` | volumes `data`, `agent-data`, `socket` | The agent runs on the host network with the Docker socket read-only, and talks to the hub over a unix socket |
-| [Umami](../deploy/umami/compose.yml)             | `ghcr.io/umami-software/umami`           | its own Postgres 18, volume `db-data`  | Cookie-free analytics for hydromag.fr and jleveneur.com; telemetry off                                       |
+| Service                                          | Image                                    | Data                                   | Notes                                                                                                                                                                                      |
+| ------------------------------------------------ | ---------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [Uptime Kuma](../deploy/uptime-kuma/compose.yml) | `louislam/uptime-kuma:*-slim`            | volume `data` (SQLite)                 | Monitors the public URLs and receives the Hydromag backup heartbeat; alerts on Discord                                                                                                     |
+| [Beszel](../deploy/beszel/compose.yml)           | `henrygd/beszel`, `henrygd/beszel-agent` | volumes `data`, `agent-data`, `socket` | The agent runs on the host network with the Docker socket read-only, and talks to the hub over a unix socket                                                                               |
+| [Umami](../deploy/umami/compose.yml)             | `ghcr.io/umami-software/umami`           | its own Postgres 18, volume `db-data`  | Cookie-free analytics for hydromag.fr and jleveneur.com; telemetry off. Hydromag's staff use it at stats.hydromag.fr with a view-only account in the Hydromag team, which owns hydromag.fr |
 
 Sign-in to each dashboard is the service's own; the subdomains add nothing in
 front. Secrets are generated on the server into `/srv/<service>/.env` and
