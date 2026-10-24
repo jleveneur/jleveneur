@@ -189,6 +189,7 @@ jobs:
           check https://status.jleveneur.com/api/entry-page 200
           check https://monitor.jleveneur.com/api/health 200
           check https://stats.jleveneur.com/api/heartbeat 200
+          check https://stats.hydromag.fr/api/heartbeat 200
 
       # Images no container uses and older than two weeks go. Recent ones stay
       # on the server, so rolling back a few commits needs no download.
