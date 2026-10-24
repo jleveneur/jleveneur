@@ -24,7 +24,10 @@ export const projects: Project[] = [
     title: "Dimension",
     kind: { fr: "Plateforme SaaS sur Kubernetes", en: "SaaS platform on Kubernetes" },
     year: "2025",
-    role: { fr: "Développeur full-stack, freelance", en: "Full-stack developer, freelance" },
+    role: {
+      fr: "Développeur full-stack AI-native, freelance",
+      en: "AI-native full-stack developer, freelance"
+    },
     summary: {
       fr: "Une plateforme SaaS pour les marques et agences qui vendent sur TikTok Shop : plusieurs applications Next.js, une API typée et des workers en arrière-plan, déployés sur un cluster Kubernetes.",
       en: "A SaaS platform for brands and agencies selling on TikTok Shop: several Next.js apps, a typed API and background workers, deployed on a Kubernetes cluster."

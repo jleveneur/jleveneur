@@ -21,6 +21,10 @@ export type Degree = Period & {
 }
 
 const fullStack: Localized = { fr: "Développeur full-stack", en: "Full-stack developer" }
+const aiNativeFullStack: Localized = {
+  fr: "Développeur full-stack AI-native",
+  en: "AI-native full-stack developer"
+}
 const freelance: Localized = { fr: "Freelance", en: "Freelance" }
 const workStudy: Localized = { fr: "Alternance", en: "Work-study" }
 const amiens: Localized = { fr: "Amiens", en: "Amiens, France" }
@@ -29,25 +33,25 @@ const amiens: Localized = { fr: "Amiens", en: "Amiens, France" }
 export const positions: Position[] = [
   {
     start: "2025-02",
-    title: fullStack,
+    title: aiNativeFullStack,
     organization: "Dimension Studios",
     contract: freelance,
     location: { fr: "À distance", en: "Remote" },
     summary: {
-      fr: "Développement full-stack d'une plateforme SaaS : applications Next.js, API tRPC, workers BullMQ et déploiement sur Kubernetes. Contributeur principal de Better Bull Board.",
-      en: "Full-stack development of a SaaS platform: Next.js apps, a tRPC API, BullMQ workers and deployment to Kubernetes. Core contributor to Better Bull Board."
+      fr: "Développement full-stack d'une plateforme SaaS avec des agents IA au quotidien : applications Next.js, API tRPC, workers BullMQ et déploiement sur Kubernetes. Contributeur principal de Better Bull Board et de son serveur MCP.",
+      en: "Full-stack development of a SaaS platform with AI agents every day: Next.js apps, a tRPC API, BullMQ workers and deployment to Kubernetes. Core contributor to Better Bull Board and its MCP server."
     },
     stack: ["Next.js", "PostgreSQL", "TypeScript", "BullMQ", "Kubernetes"]
   },
   {
     start: "2024-10",
-    title: fullStack,
+    title: aiNativeFullStack,
     organization: "Freelance",
     contract: freelance,
     location: { fr: "À distance", en: "Remote" },
     summary: {
-      fr: "Conception et développement d'applications web modernes, front-end et back-end, pour des solutions sur mesure adaptées aux besoins de chaque client.",
-      en: "Designing and building modern web applications, front end and back end, as tailored solutions fitted to each client's needs."
+      fr: "Conception et développement d'applications web modernes, front-end et back-end, pour des solutions sur mesure adaptées aux besoins de chaque client, en m'appuyant sur des agents IA encadrés par des types, du lint et des tests.",
+      en: "Designing and building modern web applications, front end and back end, as tailored solutions fitted to each client's needs, with AI agents framed by types, lint and tests."
     },
     stack: ["Next.js", "Tailwind CSS", "TypeScript"]
   },
