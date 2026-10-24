@@ -76,7 +76,7 @@ flowchart LR
   pr[Pull request] --> ci["CI<br/>check · integration · browser · caddy"]
   pr --> starter["Starter<br/>export and check"]
   ci -->|merged on main| ci2[CI on main]
-  ci2 -->|success| deploy["Deploy<br/>SSH as deploy-jleveneur"]
+  ci2 -->|success| deploy["Deploy<br/>SSH as deploy"]
   deploy --> vps["VPS: portfolio release,<br/>services, Caddy sites"]
   tag["tag agentcfg@v*"] --> release["agentcfg release"] --> npm[(npm)]
 ```
@@ -99,7 +99,7 @@ flowchart LR
 
 ### What a deploy does
 
-Over SSH as `deploy-jleveneur`, everything from the commit being deployed:
+Over SSH as `deploy`, everything from the commit being deployed:
 
 1. **Portfolio.** `rsync` of `out/` into `/srv/jleveneur/releases/<sha>/`, then
    one `mv -T` of the `current` symlink, so Caddy never serves a half-synced
@@ -120,7 +120,7 @@ Over SSH as `deploy-jleveneur`, everything from the commit being deployed:
 The workflow cannot create directories in `/srv` or files in
 `/etc/caddy/sites`, so a new service starts with one step as root: create
 `/srv/<service>` and its `.env` if it has secrets, and an empty
-`/etc/caddy/sites/<service>.caddy`, all owned by `deploy-jleveneur`. Then add
+`/etc/caddy/sites/<service>.caddy`, all owned by `deploy`. Then add
 `deploy/<service>/compose.yml` and `deploy/caddy/<service>.caddy`, pick a port
 range (below), add the service to `SERVICES` in the workflow and a URL check,
 and merge.
@@ -163,14 +163,19 @@ Access logs go to `/var/log/caddy/<project>.access.log`.
 
 ### Accounts
 
-| User               | Can                                                                                                                                            |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `julien`           | Administration: SSH key, `sudo` with a password, docker group                                                                                  |
-| `deploy-jleveneur` | Owns `/srv/jleveneur`, `/srv/uptime-kuma`, `/srv/beszel`, `/srv/umami` and their sites files; docker group; only `sudo systemctl reload caddy` |
-| `deploy-hydromag`  | The same for Hydromag                                                                                                                          |
+| User     | Can                                                                                                                                                                                        |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `julien` | Administration: SSH key, `sudo` with a password, docker group                                                                                                                              |
+| `deploy` | Both repositories' deploys: owns every project directory in `/srv` and its sites file; docker group; only `sudo systemctl reload caddy` and `sudo systemctl start hydromag-backup.service` |
 
-The docker group makes a deploy key root-equivalent on the server, which is
-why each lives only in its repository's `production` environment.
+One deploy account and one key for the whole VPS, set up by
+[deploy/vps/deploy-user.sh](../deploy/vps/deploy-user.sh). The docker group
+makes that key root-equivalent on the server anyway, so per-project accounts
+separated nothing. It lives only in the `production` environment of the two
+repositories that deploy here; a personal GitHub account has no secrets shared
+between repositories, so
+[deploy/vps/github-secrets.sh](../deploy/vps/github-secrets.sh) sets the same
+values in both, and rotating the key is running it again.
 
 ### Directories
 

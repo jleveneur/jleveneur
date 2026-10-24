@@ -6,20 +6,22 @@ name: Deploy
 #
 # The portfolio is a static export served by Caddy. Each service is a Compose
 # project in /srv/<service>, with its secrets in a `.env` there that never
-# leaves the server. Over SSH as `deploy-jleveneur`, which owns /srv/jleveneur,
-# the service directories and their files in /etc/caddy/sites, is in the
-# docker group, and may only `sudo systemctl reload caddy`, the job syncs `out/`
+# leaves the server. Over SSH as `deploy`, the one deploy account of the VPS
+# (deploy/vps/deploy-user.sh): it owns the projects' directories in /srv and
+# their files in /etc/caddy/sites, is in the docker group, and may only
+# `sudo systemctl reload caddy` (and start the Hydromag backup). The job syncs `out/`
 # into a release directory named after the commit, points /srv/jleveneur/current
 # at it, starts each service from the commit's compose file, installs the
 # commit's Caddy sites, and checks the public URLs. A new service is set up
 # once by hand: its /srv directory and `.env`, and its sites file in
-# /etc/caddy/sites, owned by deploy-jleveneur; then it joins SERVICES.
+# /etc/caddy/sites, owned by `deploy`; then it joins SERVICES.
 #
 # Configuration: the `production` environment holds DEPLOY_SSH_KEY (the deploy
-# user's private key; the docker group makes it root-equivalent on the server)
-# and DEPLOY_KNOWN_HOSTS (the server's pinned host key); repository variables
-# give DEPLOY_HOST, optionally DEPLOY_USER, and DEPLOY_ENABLED=true once the
-# server is set up.
+# account's private key, the same in jleveneur/hydromag; the docker group makes
+# it root-equivalent on the server) and DEPLOY_KNOWN_HOSTS (the server's pinned
+# host key); repository variables give DEPLOY_HOST, optionally DEPLOY_USER, and
+# DEPLOY_ENABLED=true once the server is set up. deploy/vps/github-secrets.sh
+# sets them in both repositories.
 on:
   workflow_run:
     workflows: [CI]
@@ -55,7 +57,7 @@ jobs:
     env:
       SHA: ${{ inputs.sha || github.event.workflow_run.head_sha || github.sha }}
       DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
-      DEPLOY_USER: ${{ vars.DEPLOY_USER || 'deploy-jleveneur' }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER || 'deploy' }}
       # Each has deploy/<service>/compose.yml and deploy/caddy/<service>.caddy.
       SERVICES: uptime-kuma beszel umami
       TURBO_TELEMETRY_DISABLED: 1
@@ -141,8 +143,7 @@ jobs:
       # ones. `systemctl reload` refuses an invalid configuration and keeps the
       # running one; the old files then go back, so a restart of Caddy would
       # not trip over a broken one. The copies live in /srv/jleveneur, since
-      # deploy-jleveneur owns its files in /etc/caddy/sites but not the
-      # directory.
+      # `deploy` owns its files in /etc/caddy/sites but not the directory.
       - name: Update the Caddy sites
         run: |
           ssh production 'install -d -m 750 /srv/jleveneur/caddy/new /srv/jleveneur/caddy/previous'
