@@ -8,8 +8,9 @@ name: Deploy
 #
 # The portfolio is a standalone Next.js server in a container, the Compose
 # project in /srv/jleveneur. Each service is a Compose project in
-# /srv/<service>. Their secrets are in a `.env` there that never leaves the
-# server. Over SSH as `deploy`, the one deploy account of the VPS
+# /srv/<service>. Their `.env` files, and the backups' in /srv/backup, are
+# written by each deploy from the `production` environment. Over SSH as
+# `deploy`, the one deploy account of the VPS
 # (deploy/vps/deploy-user.sh): it owns the projects' directories in /srv and
 # their files in /etc/caddy/sites, is in the docker group, and may only
 # `sudo systemctl reload caddy` (and start the Hydromag backup). The job pulls
@@ -17,15 +18,17 @@ name: Deploy
 # registry credential lives on the server), starts it and each service from
 # the commit's compose files, installs the commit's Caddy sites, and checks
 # the public URLs. A new service is set up once by hand: its /srv directory
-# and `.env`, and its sites file in /etc/caddy/sites, owned by `deploy`; then
-# it joins SERVICES.
+# and its sites file in /etc/caddy/sites, owned by `deploy`; then it joins
+# SERVICES, and its variables join the "Write the production variables" step.
 #
 # Configuration: the `production` environment holds DEPLOY_SSH_KEY (the deploy
 # account's private key, the same in jleveneur/hydromag; the docker group makes
 # it root-equivalent on the server) and DEPLOY_KNOWN_HOSTS (the server's pinned
-# host key); repository variables give DEPLOY_HOST, optionally DEPLOY_USER, and
-# DEPLOY_ENABLED=true once the server is set up. deploy/vps/github-secrets.sh
-# sets them in both repositories.
+# host key), which deploy/vps/github-secrets.sh sets in both repositories, and
+# the services' own values, prefixed by service, which
+# deploy/vps/github-env.sh sets from a local file. Repository variables give
+# DEPLOY_HOST, optionally DEPLOY_USER, and DEPLOY_ENABLED=true once the server
+# is set up.
 on:
   workflow_run:
     workflows: [Images]
@@ -102,6 +105,90 @@ jobs:
             StrictHostKeyChecking yes
           EOF
 
+      # Each file is written whole from the `production` environment, mode
+      # 600, and the one it replaces stays beside it as `<file>.previous`;
+      # an edit made on the server is overwritten. Every file is built before
+      # any is sent, so a missing required value stops the job with nothing
+      # written. A value is single-quoted when it holds anything beyond plain
+      # URL characters (Beszel's key holds a space), so neither Compose nor
+      # systemd reads into it; one with a single quote or a line break is
+      # refused.
+      #
+      # UMAMI_POSTGRES_PASSWORD is the password Umami's database volume was
+      # created with. Changing the secret does not change it in Postgres:
+      # change it in the database first (ALTER ROLE), then here.
+      - name: Write the production variables
+        env:
+          PORTFOLIO_RESEND_API_KEY: ${{ secrets.PORTFOLIO_RESEND_API_KEY }}
+          PORTFOLIO_EMAIL_FROM: ${{ vars.PORTFOLIO_EMAIL_FROM }}
+          PORTFOLIO_CONTACT_TO: ${{ vars.PORTFOLIO_CONTACT_TO }}
+          PORTFOLIO_LOG_LEVEL: ${{ vars.PORTFOLIO_LOG_LEVEL }}
+          UMAMI_POSTGRES_PASSWORD: ${{ secrets.UMAMI_POSTGRES_PASSWORD }}
+          UMAMI_APP_SECRET: ${{ secrets.UMAMI_APP_SECRET }}
+          UMAMI_TWO_FACTOR_ENCRYPTION_KEY: ${{ secrets.UMAMI_TWO_FACTOR_ENCRYPTION_KEY }}
+          BESZEL_AGENT_KEY: ${{ vars.BESZEL_AGENT_KEY }}
+          BESZEL_AGENT_TOKEN: ${{ secrets.BESZEL_AGENT_TOKEN }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT: ${{ vars.R2_ENDPOINT }}
+          R2_BUCKET: ${{ vars.R2_BUCKET }}
+          BACKUP_HEARTBEAT_URL: ${{ secrets.BACKUP_HEARTBEAT_URL }}
+        run: |
+          files=()
+          # build <server file> <KEY=GITHUB_NAME>…: a trailing ! marks a
+          # required value.
+          build() {
+            local target="$1" pair key name required value file
+            shift
+            file="$(mktemp -p "$RUNNER_TEMP")"
+            printf '# Written by the Deploy workflow of jleveneur/jleveneur from its production\n# environment: change it there (deploy/vps/github-env.sh), not here.\n' > "$file"
+            for pair in "$@"; do
+              key="${pair%%=*}"
+              name="${pair#*=}"
+              required=false
+              if [[ "$name" == *! ]]; then
+                name="${name%!}"
+                required=true
+              fi
+              value="${!name}"
+              if [ -z "$value" ]; then
+                if [ "$required" = true ]; then
+                  echo "::error::$name is not set in the production environment"
+                  exit 1
+                fi
+                continue
+              fi
+              if [[ "$value" == *"'"* || "$value" == *$'\n'* ]]; then
+                echo "::error::$name holds a single quote or a line break"
+                exit 1
+              fi
+              if [[ "$value" =~ ^[A-Za-z0-9._:/@+=,%?\&~-]+$ ]]; then
+                printf '%s=%s\n' "$key" "$value" >> "$file"
+              else
+                printf "%s='%s'\n" "$key" "$value" >> "$file"
+              fi
+            done
+            files+=("$target=$file")
+          }
+          umask 077
+          build /srv/jleveneur/.env RESEND_API_KEY=PORTFOLIO_RESEND_API_KEY! EMAIL_FROM=PORTFOLIO_EMAIL_FROM! \
+            CONTACT_TO=PORTFOLIO_CONTACT_TO LOG_LEVEL=PORTFOLIO_LOG_LEVEL
+          build /srv/umami/.env POSTGRES_PASSWORD=UMAMI_POSTGRES_PASSWORD! APP_SECRET=UMAMI_APP_SECRET! \
+            TWO_FACTOR_ENCRYPTION_KEY=UMAMI_TWO_FACTOR_ENCRYPTION_KEY!
+          build /srv/beszel/.env BESZEL_AGENT_KEY=BESZEL_AGENT_KEY! BESZEL_AGENT_TOKEN=BESZEL_AGENT_TOKEN!
+          build /srv/backup/r2.env R2_ACCESS_KEY_ID=R2_ACCESS_KEY_ID! R2_SECRET_ACCESS_KEY=R2_SECRET_ACCESS_KEY! \
+            R2_ENDPOINT=R2_ENDPOINT! R2_BUCKET=R2_BUCKET!
+          build /srv/backup/backup.env HEARTBEAT_URL=BACKUP_HEARTBEAT_URL
+          for entry in "${files[@]}"; do
+            target="${entry%%=*}"
+            file="${entry#*=}"
+            # The target expands here, on the runner: it is one of the paths above.
+            # shellcheck disable=SC2029
+            ssh production "set -e; umask 077; cat > '$target.new'; if [ -f '$target' ]; then cp -p '$target' '$target.previous'; fi; mv '$target.new' '$target'" < "$file"
+            rm -f "$file"
+            echo "$target written"
+          done
+
       # `release.env` records the deployed commit, so a manual
       # `docker compose --env-file .env --env-file release.env up -d` on the
       # server starts the same image. `--wait` fails the job if the container
@@ -146,7 +233,7 @@ jobs:
       # The nightly backup of Umami, Uptime Kuma and Beszel runs this script
       # (deploy/backup/backup.sh) from jleveneur-backup.service; its unit and
       # timer are installed once by deploy/vps/install-backups.sh. The R2 key
-      # it reads, /srv/backup/r2.env, never leaves the server.
+      # it reads, /srv/backup/r2.env, is written above.
       - name: Update the backup script
         run: |
           scp -q deploy/backup/backup.sh production:/srv/backup/jleveneur-backup.sh.new

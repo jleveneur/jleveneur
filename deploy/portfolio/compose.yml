@@ -3,8 +3,8 @@
 # publishes to GHCR.
 #
 # The deploy workflow (`.github/workflows/deploy.yml`) copies this file to
-# /srv/jleveneur next to `.env`, records the deployed commit in `release.env`,
-# and starts it:
+# /srv/jleveneur, writes `.env` there from the GitHub `production`
+# environment, records the deployed commit in `release.env`, and starts it:
 #
 #   docker compose --env-file .env --env-file release.env up -d --remove-orphans
 #
@@ -18,19 +18,16 @@
 # It publishes on 127.0.0.1:3500 alone; Caddy, on the host, routes
 # jleveneur.com to it (deploy/caddy/jleveneur.caddy).
 #
-# Variables, from `/srv/jleveneur/.env` (600, owned by `deploy`). To set or
-# rotate the Resend key, as an admin on the server:
-#
-#   sudoedit /srv/jleveneur/.env
-#   sudo chown deploy:deploy /srv/jleveneur/.env && sudo chmod 600 /srv/jleveneur/.env
-#   cd /srv/jleveneur && sudo -u deploy docker compose --env-file .env --env-file release.env up -d
-#
-# The last line recreates the container, which reads its environment only when
-# it is created. Use a "Sending access" key limited to jleveneur.com.
+# Variables, from `/srv/jleveneur/.env` (600, owned by `deploy`), which each
+# deploy writes from the GitHub `production` environment, where they carry a
+# PORTFOLIO_ prefix. To set or rotate one, the Resend key included, change the
+# local production file, push it with deploy/vps/github-env.sh, and run the
+# Deploy workflow; the container is recreated with the new values. Use a
+# "Sending access" Resend key limited to jleveneur.com.
 #
 # What the file holds:
-#   RESEND_API_KEY   required: the contact form's delivery
-#   EMAIL_FROM       the sender, on a domain verified in Resend
+#   RESEND_API_KEY   required: the contact form's delivery (a secret)
+#   EMAIL_FROM       required by the deploy: the sender, on a domain verified in Resend
 #   CONTACT_TO       where messages go, jleveneur.pro@gmail.com when unset
 #   LOG_LEVEL        optional, `info` when unset
 #   PORTFOLIO_TAG    the image to run, `latest` when unset (release.env)
