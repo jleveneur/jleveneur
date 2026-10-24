@@ -18,8 +18,17 @@
 # It publishes on 127.0.0.1:3500 alone; Caddy, on the host, routes
 # jleveneur.com to it (deploy/caddy/jleveneur.caddy).
 #
-# Variables, from `/srv/jleveneur/.env` (600, owned by `deploy`), whose Resend
-# lines deploy/vps/resend-key.sh writes and checks:
+# Variables, from `/srv/jleveneur/.env` (600, owned by `deploy`). To set or
+# rotate the Resend key, as an admin on the server:
+#
+#   sudoedit /srv/jleveneur/.env
+#   sudo chown deploy:deploy /srv/jleveneur/.env && sudo chmod 600 /srv/jleveneur/.env
+#   cd /srv/jleveneur && sudo -u deploy docker compose --env-file .env --env-file release.env up -d
+#
+# The last line recreates the container, which reads its environment only when
+# it is created. Use a "Sending access" key limited to jleveneur.com.
+#
+# What the file holds:
 #   RESEND_API_KEY   required: the contact form's delivery
 #   EMAIL_FROM       the sender, on a domain verified in Resend
 #   CONTACT_TO       where messages go, jleveneur.pro@gmail.com when unset

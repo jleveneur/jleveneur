@@ -195,8 +195,7 @@ values in both, and rotating the key is running it again.
 ```
 /srv/jleveneur/
 ├── compose.yml                     copied by each deploy
-├── .env                            RESEND_API_KEY, EMAIL_FROM, CONTACT_TO (600),
-│                                   from deploy/vps/resend-key.sh
+├── .env                            RESEND_API_KEY, EMAIL_FROM, CONTACT_TO (600)
 ├── release.env                     PORTFOLIO_TAG: the deployed commit
 └── caddy/previous/                 sites files before the last deploy
 /srv/uptime-kuma/compose.yml
@@ -249,12 +248,13 @@ goes down cannot report itself: that takes a probe from outside.
 
 ## Operations
 
-| Task              | How                                                               |
-| ----------------- | ----------------------------------------------------------------- |
-| Deploy            | Merge to `main`                                                   |
-| Roll back         | Run the Deploy workflow with an older commit's SHA                |
-| Bump a service    | Change its image tag in `deploy/<service>/compose.yml` and merge  |
-| A service's logs  | `docker compose logs -f` in `/srv/<service>`                      |
-| Portfolio's logs  | `docker compose logs -f` in `/srv/jleveneur`                      |
-| Restart a service | `docker compose up -d` in `/srv/<service>`                        |
-| Release agentcfg  | See [packages/agentcfg/README.md](../packages/agentcfg/README.md) |
+| Task              | How                                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------- |
+| Deploy            | Merge to `main`                                                                                         |
+| Roll back         | Run the Deploy workflow with an older commit's SHA                                                      |
+| Bump a service    | Change its image tag in `deploy/<service>/compose.yml` and merge                                        |
+| A service's logs  | `docker compose logs -f` in `/srv/<service>`                                                            |
+| Portfolio's logs  | `docker compose logs -f` in `/srv/jleveneur`                                                            |
+| Rotate Resend key | `sudoedit /srv/jleveneur/.env`, then `up -d` there (see [compose.yml](../deploy/portfolio/compose.yml)) |
+| Restart a service | `docker compose up -d` in `/srv/<service>`                                                              |
+| Release agentcfg  | See [packages/agentcfg/README.md](../packages/agentcfg/README.md)                                       |
