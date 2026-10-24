@@ -34,10 +34,10 @@ export const positions: Position[] = [
     contract: freelance,
     location: { fr: "À distance", en: "Remote" },
     summary: {
-      fr: "Développement full-stack d'applications web, à distance.",
-      en: "Full-stack development of web applications, remotely."
+      fr: "Développement full-stack d'une plateforme SaaS : applications Next.js, API tRPC, workers BullMQ et déploiement sur Kubernetes. Contributeur principal de Better Bull Board.",
+      en: "Full-stack development of a SaaS platform: Next.js apps, a tRPC API, BullMQ workers and deployment to Kubernetes. Core contributor to Better Bull Board."
     },
-    stack: ["Next.js", "PostgreSQL", "TypeScript"]
+    stack: ["Next.js", "PostgreSQL", "TypeScript", "BullMQ", "Kubernetes"]
   },
   {
     start: "2024-10",

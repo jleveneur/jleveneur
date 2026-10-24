@@ -55,15 +55,15 @@ export const stackGroups: StackGroup[] = [
   },
   {
     title: { fr: "Serveur", en: "Back end" },
-    items: ["Node.js", "Bun", "oRPC", "NestJS", "Better Auth", "Resend"]
+    items: ["Node.js", "Bun", "tRPC", "oRPC", "BullMQ", "NestJS", "Better Auth"]
   },
   {
     title: { fr: "Données", en: "Data" },
-    items: ["PostgreSQL", "Drizzle ORM", "Zod"]
+    items: ["PostgreSQL", "Redis", "Drizzle ORM", "Prisma", "Zod"]
   },
   {
     title: { fr: "Infra", en: "Infrastructure" },
-    items: ["Docker", "Caddy", "GitHub Actions", "Linux"]
+    items: ["Docker", "Kubernetes", "Terraform", "Caddy", "GitHub Actions"]
   },
   {
     title: { fr: "Qualité", en: "Quality" },

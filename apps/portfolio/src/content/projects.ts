@@ -20,6 +20,184 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    slug: "dimension",
+    title: "Dimension",
+    kind: { fr: "Plateforme SaaS sur Kubernetes", en: "SaaS platform on Kubernetes" },
+    year: "2025",
+    role: { fr: "Développeur full-stack, freelance", en: "Full-stack developer, freelance" },
+    summary: {
+      fr: "Une plateforme SaaS pour les marques et agences qui vendent sur TikTok Shop : plusieurs applications Next.js, une API typée et des workers en arrière-plan, déployés sur un cluster Kubernetes.",
+      en: "A SaaS platform for brands and agencies selling on TikTok Shop: several Next.js apps, a typed API and background workers, deployed on a Kubernetes cluster."
+    },
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "tRPC",
+      "PostgreSQL",
+      "Prisma",
+      "BullMQ",
+      "Redis",
+      "Kubernetes",
+      "Terraform",
+      "OpenTelemetry"
+    ],
+    links: [],
+    context: {
+      fr: "Une plateforme qui synchronise en continu des boutiques, des affiliés et des campagnes : beaucoup de traitements en arrière-plan, plusieurs interfaces, et une équipe qui livre plusieurs fois par jour.",
+      en: "A platform that keeps shops, affiliates and campaigns in sync around the clock: a lot of background processing, several interfaces, and a team that ships several times a day."
+    },
+    built: {
+      fr: [
+        "Des fonctionnalités de bout en bout dans les applications Next.js (marques, affiliation, onboarding) et leurs routeurs tRPC.",
+        "Des workers BullMQ pour les synchronisations et les traitements longs.",
+        "La migration du monorepo vers Bun et Oxlint, et son découpage en paquets par couche et par domaine, avec des règles de dépendance vérifiées en CI.",
+        "Des images Docker construites à partir de deux modèles partagés, et déployées sur Kubernetes par GitHub Actions."
+      ],
+      en: [
+        "End-to-end features in the Next.js apps (brands, affiliates, onboarding) and their tRPC routers.",
+        "BullMQ workers for synchronizations and long-running jobs.",
+        "Moved the monorepo to Bun and Oxlint, and split it into packages by layer and domain, with dependency rules checked in CI.",
+        "Docker images built from two shared templates, and deployed to Kubernetes by GitHub Actions."
+      ]
+    },
+    decisions: {
+      fr: [
+        "Un cluster Kubernetes (k3s) décrit en Terraform : nœuds, réseau et composants du cluster sont versionnés comme le code.",
+        "Une seule source de vérité pour le déploiement : chaque service déclare son image, ses manifestes Kustomize et ses tests de fumée, et la CI ne reconstruit que ce qui a changé.",
+        "Des traces OpenTelemetry vers Grafana Tempo, avec les mêmes tableaux de bord en local et en production."
+      ],
+      en: [
+        "A Kubernetes cluster (k3s) described in Terraform: nodes, networking and cluster add-ons are versioned like code.",
+        "One source of truth for deploys: each service declares its image, its Kustomize manifests and its smoke tests, and CI only rebuilds what changed.",
+        "OpenTelemetry traces to Grafana Tempo, with the same dashboards locally and in production."
+      ]
+    },
+    schematic: {
+      width: 480,
+      height: 250,
+      nodes: [
+        {
+          id: "visitor",
+          label: { fr: "Visiteur", en: "Visitor" },
+          x: 4,
+          y: 103,
+          w: 80,
+          h: 44,
+          tone: "dashed"
+        },
+        {
+          id: "ingress",
+          label: "Ingress",
+          note: "Kubernetes",
+          x: 112,
+          y: 103,
+          w: 92,
+          h: 44,
+          tone: "accent"
+        },
+        { id: "apps", label: "Next.js", note: "apps", x: 236, y: 12, w: 112, h: 44 },
+        { id: "api", label: "API", note: "tRPC", x: 236, y: 103, w: 112, h: 44 },
+        { id: "workers", label: "Workers", note: "BullMQ", x: 236, y: 194, w: 112, h: 44 },
+        { id: "db", label: "Postgres", x: 384, y: 40, w: 92, h: 44 },
+        { id: "redis", label: "Redis", x: 384, y: 166, w: 92, h: 44 }
+      ],
+      edges: [
+        { from: "visitor", to: "ingress" },
+        { from: "ingress", to: "apps" },
+        { from: "apps", to: "api" },
+        { from: "api", to: "workers" },
+        { from: "api", to: "db" },
+        { from: "workers", to: "redis" }
+      ]
+    },
+    featured: true
+  },
+  {
+    slug: "better-bull-board",
+    title: "Better Bull Board",
+    kind: { fr: "Dashboard BullMQ open source", en: "Open-source BullMQ dashboard" },
+    year: "2025",
+    role: { fr: "Contributeur principal", en: "Core contributor" },
+    summary: {
+      fr: "Un dashboard BullMQ moderne : flux de jobs en temps réel, logs, métriques, et un serveur MCP pour que les agents de code interrogent les files.",
+      en: "A modern BullMQ dashboard: real-time job streams, logs, metrics, and an MCP server so coding agents can query the queues."
+    },
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "BullMQ",
+      "Redis Streams",
+      "PostgreSQL",
+      "ClickHouse",
+      "Drizzle",
+      "MCP",
+      "Kubernetes"
+    ],
+    links: [
+      { label: "GitHub", href: "https://github.com/dimension-studios-inc/better-bull-board" },
+      { label: "npm", href: "https://www.npmjs.com/package/@better-bull-board/client" }
+    ],
+    context: {
+      fr: "Les dashboards BullMQ classiques montrent l'état instantané des files, pas leur histoire : impossible de savoir pourquoi un job a échoué hier, ou quelle file sature depuis une heure.",
+      en: "Classic BullMQ dashboards show the queues as they are now, not their history: there is no telling why a job failed yesterday, or which queue has been backed up for an hour."
+    },
+    built: {
+      fr: [
+        "Un ingester qui consomme les événements des jobs par des consumer groups Redis Streams, avec une réconciliation périodique contre l'état de BullMQ.",
+        "Une interface Next.js : files, planificateurs, exécutions et logs, avec les métriques dans ClickHouse.",
+        "Un serveur MCP : un agent peut demander quelles files saturent ou pourquoi des jobs échouent, et, avec un accès en écriture, mettre en pause, rejouer ou annuler.",
+        "Un client publié sur npm, `@better-bull-board/client`, versionné par semantic-release."
+      ],
+      en: [
+        "An ingester that consumes job events through Redis Streams consumer groups, with periodic reconciliation against BullMQ's state.",
+        "A Next.js interface: queues, schedulers, runs and logs, with metrics in ClickHouse.",
+        "An MCP server: an agent can ask which queues are backed up or why jobs fail, and, with write access, pause, replay or cancel.",
+        "A client published on npm, `@better-bull-board/client`, versioned by semantic-release."
+      ]
+    },
+    decisions: {
+      fr: [
+        "Du sondage pour les données durables (files, planificateurs), de l'ingestion pour le volume (jobs, logs) : pas besoin d'envelopper chaque file avec le client.",
+        "L'application et l'ingester se déploient séparément sur Kubernetes et passent tous deux à l'échelle horizontalement.",
+        "Une rétention de 30 jours sur les exécutions et les logs."
+      ],
+      en: [
+        "Polling for long-lived data (queues, schedulers), ingestion for volume (jobs, logs): no need to wrap every queue with the client.",
+        "The app and the ingester deploy separately on Kubernetes, and both scale horizontally.",
+        "A 30-day retention on runs and logs."
+      ]
+    },
+    schematic: {
+      width: 480,
+      height: 250,
+      nodes: [
+        {
+          id: "workers",
+          label: "Workers",
+          note: "BullMQ",
+          x: 4,
+          y: 103,
+          w: 92,
+          h: 44,
+          tone: "dashed"
+        },
+        { id: "redis", label: "Redis", note: "Streams", x: 124, y: 103, w: 88, h: 44 },
+        { id: "ingest", label: "Ingest", x: 244, y: 103, w: 100, h: 44, tone: "accent" },
+        { id: "app", label: "App", note: "Next.js · MCP", x: 244, y: 12, w: 100, h: 44 },
+        { id: "db", label: "Postgres", x: 376, y: 40, w: 100, h: 44 },
+        { id: "clickhouse", label: "ClickHouse", x: 376, y: 166, w: 100, h: 44 }
+      ],
+      edges: [
+        { from: "workers", to: "redis" },
+        { from: "redis", to: "ingest" },
+        { from: "ingest", to: "db" },
+        { from: "ingest", to: "clickhouse" },
+        { from: "app", to: "db" }
+      ]
+    },
+    featured: true
+  },
+  {
     slug: "hydromag",
     title: "Hydromag",
     kind: { fr: "Site vitrine et configurateur", en: "Showcase site and configurator" },
@@ -167,7 +345,7 @@ export const projects: Project[] = [
         { from: "cli", to: "gemini" }
       ]
     },
-    featured: true
+    featured: false
   },
   {
     slug: "next-starter",
@@ -239,7 +417,7 @@ export const projects: Project[] = [
         { from: "api", to: "web" }
       ]
     },
-    featured: true
+    featured: false
   },
   {
     slug: "vps",

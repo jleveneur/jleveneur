@@ -33,7 +33,7 @@ export const services: Service[] = [
       fr: "Du commit à la production sans étape manuelle, avec un retour en arrière en une commande.",
       en: "From commit to production with no manual step, and a rollback in one command."
     },
-    tools: ["Docker", "Caddy", "GitHub Actions", "Linux"]
+    tools: ["Docker", "Kubernetes", "Terraform", "GitHub Actions"]
   },
   {
     code: "SPEC-04",
