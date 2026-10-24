@@ -2,13 +2,13 @@ import type { Localized } from "@/i18n/config"
 
 export const intro: Localized<string[]> = {
   fr: [
-    "Je suis développeur full-stack. J'aime prendre un produit de l'idée au serveur : modéliser les données, écrire l'API, construire l'interface, puis la mettre en ligne et la surveiller.",
-    "Je travaille surtout en TypeScript, avec React et Next.js côté interface et Node.js côté serveur. J'accorde autant d'importance à ce qui ne se voit pas : la façon dont un projet se teste, se déploie et se relit six mois plus tard.",
+    "Je suis développeur full-stack, et je travaille au quotidien avec des agents IA. J'aime prendre un produit de l'idée au serveur : modéliser les données, écrire l'API, construire l'interface, puis la mettre en ligne et la surveiller.",
+    "Je travaille surtout en TypeScript, avec React et Next.js côté interface et Node.js côté serveur. Les agents écrivent une bonne part du code ; mon travail, c'est le cadre qui le rend fiable : l'architecture, les règles du dépôt, et la façon dont un projet se teste, se déploie et se relit six mois plus tard.",
     "Ce site en est un exemple : un monorepo vérifié à chaque commit, une application Next.js déployée en conteneur sur un VPS que j'administre, et un formulaire de contact qui passe par Resend."
   ],
   en: [
-    "I am a full-stack developer. I like taking a product from idea to server: modelling the data, writing the API, building the interface, then shipping it and keeping an eye on it.",
-    "I mostly work in TypeScript, with React and Next.js for interfaces and Node.js on the server. I care just as much about what does not show: how a project is tested, deployed, and read again six months later.",
+    "I am a full-stack developer who works with AI agents every day. I like taking a product from idea to server: modelling the data, writing the API, building the interface, then shipping it and keeping an eye on it.",
+    "I mostly work in TypeScript, with React and Next.js for interfaces and Node.js on the server. Agents write a good share of the code; my job is the frame that makes it reliable: the architecture, the repository's rules, and how a project is tested, deployed, and read again six months later.",
     "This site is an example: a monorepo checked on every commit, a Next.js app deployed as a container on a VPS I run, and a contact form that goes through Resend."
   ]
 }
@@ -24,10 +24,13 @@ export const principles: Principle[] = [
     }
   },
   {
-    title: { fr: "Vérifier en exécutant", en: "Verify by running" },
+    title: {
+      fr: "Les agents écrivent, les vérifications tranchent",
+      en: "Agents write, checks decide"
+    },
     body: {
-      fr: "Lire du code donne une hypothèse ; un test donne une preuve. Unitaires, intégration contre une vraie base, parcours dans un vrai navigateur.",
-      en: "Reading code gives a hypothesis; a test gives evidence. Unit tests, integration against a real database, journeys in a real browser."
+      fr: "Lire du code donne une hypothèse ; un test donne une preuve. Un agent bien cadré par des types, du lint, des tests unitaires et des parcours dans un vrai navigateur livre vite sans livrer n'importe quoi.",
+      en: "Reading code gives a hypothesis; a test gives evidence. An agent framed by types, lint, unit tests and journeys in a real browser ships fast without shipping just anything."
     }
   },
   {
@@ -64,6 +67,10 @@ export const stackGroups: StackGroup[] = [
   {
     title: { fr: "Infra", en: "Infrastructure" },
     items: ["Docker", "Kubernetes", "Terraform", "Caddy", "GitHub Actions"]
+  },
+  {
+    title: { fr: "Agents IA", en: "AI agents" },
+    items: ["Claude Code", "Codex", "Cursor", "MCP"]
   },
   {
     title: { fr: "Qualité", en: "Quality" },

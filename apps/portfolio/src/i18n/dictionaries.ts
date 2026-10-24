@@ -3,9 +3,9 @@ import type { Locale } from "@/i18n/config"
 const fr = {
   meta: {
     description:
-      "Julien Leveneur, développeur full-stack : applications web en TypeScript et React, APIs, infrastructure et outillage."
+      "Julien Leveneur, développeur full-stack AI-native : applications web en TypeScript et React, APIs et infrastructure, construites avec des agents IA et vérifiées par des types, du lint et des tests."
   },
-  role: "Développeur full-stack",
+  role: "Développeur full-stack AI-native",
   nav: {
     label: "Navigation principale",
     home: "Accueil",
@@ -23,7 +23,7 @@ const fr = {
   home: {
     sheet: "Élévation principale",
     pitch:
-      "Je conçois et je construis des applications web de bout en bout : l'interface, l'API, la base de données et le serveur qui les fait tourner. Du TypeScript partout, des tests qui s'exécutent, et une infrastructure qu'on peut relire.",
+      "Je conçois et je construis des applications web de bout en bout : l'interface, l'API, la base de données et le serveur qui les fait tourner. Les agents IA sont mes outils du quotidien ; les types, le lint et les tests décident de ce qui part en production.",
     primaryCta: "Écrire un message",
     secondaryCta: "Voir les projets",
     stackFigure: "Coupe de la pile",
@@ -120,9 +120,9 @@ export type ContactErrorCode = keyof Dictionary["contact"]["form"]["errors"]
 const en: Dictionary = {
   meta: {
     description:
-      "Julien Leveneur, full-stack developer: web applications in TypeScript and React, APIs, infrastructure and tooling."
+      "Julien Leveneur, AI-native full-stack developer: web applications in TypeScript and React, APIs and infrastructure, built with AI agents and verified by types, lint and tests."
   },
-  role: "Full-stack developer",
+  role: "AI-native full-stack developer",
   nav: {
     label: "Main navigation",
     home: "Home",
@@ -140,7 +140,7 @@ const en: Dictionary = {
   home: {
     sheet: "Front elevation",
     pitch:
-      "I design and build web applications end to end: the interface, the API, the database and the server they run on. TypeScript throughout, tests that actually run, and infrastructure you can read.",
+      "I design and build web applications end to end: the interface, the API, the database and the server they run on. AI agents are my everyday tools; types, lint and tests decide what ships to production.",
     primaryCta: "Send a message",
     secondaryCta: "See the projects",
     stackFigure: "Stack section",

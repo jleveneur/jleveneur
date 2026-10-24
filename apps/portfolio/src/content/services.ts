@@ -37,11 +37,11 @@ export const services: Service[] = [
   },
   {
     code: "SPEC-04",
-    title: { fr: "Outillage & DX", en: "Tooling & DX" },
+    title: { fr: "Agents IA & DX", en: "AI agents & DX" },
     body: {
-      fr: "Des monorepos où le lint, les types et les tests attrapent les erreurs avant la relecture, et des agents de code bien configurés.",
-      en: "Monorepos where lint, types and tests catch mistakes before review, and well-configured coding agents."
+      fr: "Des agents de code configurés pour le projet, des serveurs MCP sur mesure, et un monorepo dont le lint, les types et les tests attrapent leurs erreurs avant la relecture.",
+      en: "Coding agents configured for the project, custom MCP servers, and a monorepo whose lint, types and tests catch their mistakes before review."
     },
-    tools: ["Turborepo", "Bun", "Oxlint", "Playwright", "MCP"]
+    tools: ["Claude Code", "Codex", "Cursor", "MCP", "Turborepo"]
   }
 ]

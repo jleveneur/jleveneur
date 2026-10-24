@@ -6,7 +6,7 @@ import { name, socialLinks } from "../src/content/site.ts"
 test("the homepage is in French at the root", async ({ page }) => {
   await page.goto("/")
 
-  await expect(page).toHaveTitle(`${name} — Développeur full-stack`)
+  await expect(page).toHaveTitle(`${name} — Développeur full-stack AI-native`)
   await expect(page.locator("html")).toHaveAttribute("lang", "fr")
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Julien\s*Leveneur/i)
   await expect(page.getByRole("heading", { name: "Ce que je fais" })).toBeVisible()

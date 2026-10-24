@@ -31,7 +31,7 @@ export function SiteHeader({ locale, dict }: { locale: Locale; dict: Dictionary 
           </span>
           <span className="leading-tight">
             <span className="block text-sm font-bold tracking-wide uppercase">{name}</span>
-            <span className="block font-mono text-xs text-ink-muted">{dict.role}</span>
+            <span className="hidden font-mono text-xs text-ink-muted sm:block">{dict.role}</span>
           </span>
         </Link>
         <div className="ml-auto hidden md:block">
