@@ -2,9 +2,13 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "build:export": {
-      "outputs": ["out/**"],
-      "env": ["PORTFOLIO_EXPORT"]
+    // The portfolio's own variable, on top of the root's (`RESEND_API_KEY`,
+    // `EMAIL_FROM`, `MAIL_OUTBOX_DIR`, `LOG_LEVEL` are already there).
+    "build": {
+      "env": ["$TURBO_EXTENDS$", "CONTACT_TO"]
+    },
+    "test:e2e": {
+      "env": ["$TURBO_EXTENDS$", "CONTACT_TO"]
     }
   }
 }

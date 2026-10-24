@@ -1,6 +1,7 @@
 {
   "extends": "@repo/tsconfig/next.json",
   "compilerOptions": {
+    "types": ["node", "bun"],
     "paths": {
       "@/*": ["./src/*"]
     }

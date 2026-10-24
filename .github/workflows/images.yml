@@ -1,0 +1,85 @@
+name: Images
+
+# Builds the portfolio's production image, so the server never builds
+# anything itself. It goes to GHCR once CI has passed on `main`: `workflow_run`
+# fires after the CI workflow and only proceeds on success, so a red `main`
+# publishes nothing, and the Deploy workflow runs once this one has. A pull
+# request that touches how the image is built builds it without pushing, to
+# catch a broken Dockerfile before it merges. Run it by hand to rebuild a ref.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  pull_request:
+    paths:
+      - apps/portfolio/Dockerfile
+      - apps/portfolio/Dockerfile.dockerignore
+      - apps/portfolio/next.config.ts
+      - .github/workflows/images.yml
+  workflow_dispatch:
+
+# One build per ref at a time. A newer push to `main` waits rather than cancels,
+# so every merged commit gets its image.
+concurrency:
+  group: images-${{ github.event.workflow_run.head_branch || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build the portfolio image
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      # `workflow_run` runs in the context of the default branch, so the commit
+      # CI tested is the event's head, not `github.sha`.
+      SOURCE_SHA: ${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha || github.sha }}
+      IMAGE: ghcr.io/${{ github.repository_owner }}/jleveneur-portfolio
+      PUBLISH: ${{ github.event_name != 'pull_request' }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        if: env.PUBLISH == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The image is tagged with the commit it was built from, which is what a
+      # deploy pins and a rollback returns to. Only `main` moves `latest`.
+      - name: Tags
+        id: tags
+        run: |
+          tags="${IMAGE}:${SOURCE_SHA}"
+          if [ "${{ github.event_name }}" = "workflow_run" ] || [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            tags="${tags},${IMAGE}:latest"
+          fi
+          echo "tags=${tags}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: apps/portfolio/Dockerfile
+          platforms: linux/amd64
+          push: ${{ env.PUBLISH == 'true' }}
+          tags: ${{ steps.tags.outputs.tags }}
+          # Links the package to this repository, so it inherits its access.
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.SOURCE_SHA }}
+          cache-from: type=gha,scope=portfolio
+          cache-to: type=gha,mode=max,scope=portfolio

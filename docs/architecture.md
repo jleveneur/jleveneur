@@ -7,14 +7,14 @@ map around them. It stays out of the starter export, like `deploy/`.
 
 ## At a glance
 
-| Piece                                  | Where it ends up                                | Shipped by                                                        |
-| -------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------- |
-| `apps/portfolio`                       | jleveneur.com, a static export served by Caddy  | [deploy.yml](../.github/workflows/deploy.yml)                     |
-| `deploy/uptime-kuma`                   | status.jleveneur.com                            | [deploy.yml](../.github/workflows/deploy.yml)                     |
-| `deploy/beszel`                        | monitor.jleveneur.com                           | [deploy.yml](../.github/workflows/deploy.yml)                     |
-| `deploy/umami`                         | stats.jleveneur.com, stats.hydromag.fr          | [deploy.yml](../.github/workflows/deploy.yml)                     |
-| `apps/starter` and the shared packages | new repositories, through `bun run new-project` | checked by [starter.yml](../.github/workflows/starter.yml)        |
-| `packages/agentcfg`                    | npm, `@jleveneur/agentcfg`                      | [agentcfg-release.yml](../.github/workflows/agentcfg-release.yml) |
+| Piece                                  | Where it ends up                                | Shipped by                                                                                   |
+| -------------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `apps/portfolio`                       | jleveneur.com, a standalone Next.js container   | [images.yml](../.github/workflows/images.yml), [deploy.yml](../.github/workflows/deploy.yml) |
+| `deploy/uptime-kuma`                   | status.jleveneur.com                            | [deploy.yml](../.github/workflows/deploy.yml)                                                |
+| `deploy/beszel`                        | monitor.jleveneur.com                           | [deploy.yml](../.github/workflows/deploy.yml)                                                |
+| `deploy/umami`                         | stats.jleveneur.com, stats.hydromag.fr          | [deploy.yml](../.github/workflows/deploy.yml)                                                |
+| `apps/starter` and the shared packages | new repositories, through `bun run new-project` | checked by [starter.yml](../.github/workflows/starter.yml)                                   |
+| `packages/agentcfg`                    | npm, `@jleveneur/agentcfg`                      | [agentcfg-release.yml](../.github/workflows/agentcfg-release.yml)                            |
 
 The VPS also runs Hydromag (hydromag.fr, admin.hydromag.fr), which has its own
 repository, deploy user and `docs/architecture.md`. Uptime Kuma, Beszel and
@@ -26,7 +26,7 @@ flowchart LR
 
   subgraph vps["Hetzner VPS · 128.140.13.251"]
     caddy["Caddy<br/>:80 / :443"]
-    portfolio["/srv/jleveneur/current<br/>static files"]
+    portfolio["portfolio<br/>127.0.0.1:3500"]
     kuma["uptime-kuma<br/>127.0.0.1:3200"]
     subgraph beszel["beszel"]
       hub["hub<br/>127.0.0.1:3300"]
@@ -63,9 +63,13 @@ share it:
   with `templates/next/` replacing the root files that name this repository's
   own projects. [scripts/new-project.ts](../scripts/new-project.ts) leaves out
   the portfolio, `agentcfg`, `deploy/`, the workflows and this page.
-- **The portfolio.** `apps/portfolio`, a single page with no server-side code.
-  `build:export` (`PORTFOLIO_EXPORT=1 next build`) writes it to `out/` as
-  static files. It has no environment and no secret.
+- **The portfolio.** `apps/portfolio`, a bilingual site (French at `/`,
+  English at `/en`) built with `output: "standalone"` and shipped as a Docker
+  image ([its Dockerfile](../apps/portfolio/Dockerfile)), the same way as
+  Hydromag's apps. The pages are prerendered; the server is there for the
+  contact form, a Server Action that sends through Resend. Its environment is
+  its own (`src/lib/env.ts`), not `@repo/env`, and its one secret is
+  `RESEND_API_KEY`.
 - **agentcfg.** A CLI published to npm, which imports no `@repo/*` package and
   builds to `dist/` for Node 22.13 and later.
 
@@ -76,8 +80,10 @@ flowchart LR
   pr[Pull request] --> ci["CI<br/>check · integration · browser · caddy"]
   pr --> starter["Starter<br/>export and check"]
   ci -->|merged on main| ci2[CI on main]
-  ci2 -->|success| deploy["Deploy<br/>SSH as deploy"]
-  deploy --> vps["VPS: portfolio release,<br/>services, Caddy sites"]
+  ci2 -->|success| images["Images<br/>portfolio image"]
+  images --> ghcr[(GHCR)]
+  images -->|success| deploy["Deploy<br/>SSH as deploy"]
+  deploy --> vps["VPS: portfolio container,<br/>services, Caddy sites"]
   tag["tag agentcfg@v*"] --> release["agentcfg release"] --> npm[(npm)]
 ```
 
@@ -94,16 +100,23 @@ flowchart LR
   [agentcfg-release.yml](../.github/workflows/agentcfg-release.yml), which
   publishes to npm through trusted publishing (OIDC, with provenance) and
   creates the GitHub release. No npm token is stored.
-- **Deploy** ([deploy.yml](../.github/workflows/deploy.yml)) runs once CI has
-  passed on `main`, and by hand with a commit SHA to roll back or forward.
+- **Images** ([images.yml](../.github/workflows/images.yml)) builds the
+  portfolio's image once CI has passed on `main` and pushes it to GHCR as
+  `ghcr.io/jleveneur/jleveneur-portfolio:<sha>` (and `latest`). A pull request
+  that touches the Dockerfile builds it without pushing.
+- **Deploy** ([deploy.yml](../.github/workflows/deploy.yml)) runs once Images
+  has published, and by hand with a commit SHA to roll back or forward.
 
 ### What a deploy does
 
 Over SSH as `deploy`, everything from the commit being deployed:
 
-1. **Portfolio.** `rsync` of `out/` into `/srv/jleveneur/releases/<sha>/`, then
-   one `mv -T` of the `current` symlink, so Caddy never serves a half-synced
-   site. The five latest releases stay, so a rollback needs no rebuild.
+1. **Portfolio.** [deploy/portfolio/compose.yml](../deploy/portfolio/compose.yml)
+   goes to `/srv/jleveneur/`, `release.env` pins `PORTFOLIO_TAG` to the
+   commit, and the image is pulled with the run's `GITHUB_TOKEN` (no registry
+   credential stays on the server). `up --wait` fails the job unless the new
+   container answers its healthcheck. Images stay in GHCR, so a rollback
+   needs no rebuild, back to the first commit that had one.
 2. **Services.** For each of `uptime-kuma`, `beszel` and `umami`, the commit's
    `deploy/<service>/compose.yml` goes to `/srv/<service>/`, then
    `docker compose up -d --pull missing --remove-orphans --wait`. Images are
@@ -112,8 +125,8 @@ Over SSH as `deploy`, everything from the commit being deployed:
 3. **Caddy.** The four sites files go into `/etc/caddy/sites/` with a single
    `systemctl reload caddy`. The previous ones wait in
    `/srv/jleveneur/caddy/previous/` and go back if Caddy refuses the new ones.
-4. **Checks.** jleveneur.com (200), www (301), and the health endpoints of the
-   three services must answer. Then images unused for two weeks are pruned.
+4. **Checks.** jleveneur.com, `/en` and `/contact` (200), www (301), and the
+   health endpoints of the three services must answer. Then images unused for two weeks are pruned.
 
 ### Adding a service
 
@@ -149,17 +162,17 @@ names carry the project's prefix because every file shares one namespace.
 | Project     | Ports     | Sites file          | Defined in |
 | ----------- | --------- | ------------------- | ---------- |
 | hydromag    | 3000–3099 | `hydromag.caddy`    | hydromag   |
-| jleveneur   | static    | `jleveneur.caddy`   | this repo  |
+| jleveneur   | 3500–3599 | `jleveneur.caddy`   | this repo  |
 | uptime-kuma | 3200–3299 | `uptime-kuma.caddy` | this repo  |
 | beszel      | 3300–3399 | `beszel.caddy`      | this repo  |
 | umami       | 3400–3499 | `umami.caddy`       | this repo  |
 
-[jleveneur.caddy](../deploy/caddy/jleveneur.caddy) sends the security
+[jleveneur.caddy](../deploy/caddy/jleveneur.caddy) compresses and proxies
+jleveneur.com to the portfolio container on 127.0.0.1:3500. The security
 headers (HSTS with `includeSubDomains` and `preload`, a partial CSP,
-`X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`), serves
-the export with `try_files {path} {path}.html {path}/index.html`, answers
-unknown paths with `404.html`, and caches `/_next/static/*` as immutable.
-Access logs go to `/var/log/caddy/<project>.access.log`.
+`X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`) come
+from the app's `next.config.ts`, as do the 404 page and the cache headers of
+`/_next/static/*`. Access logs go to `/var/log/caddy/<project>.access.log`.
 
 ### Accounts
 
@@ -181,8 +194,9 @@ values in both, and rotating the key is running it again.
 
 ```
 /srv/jleveneur/
-├── current -> releases/<sha>       what Caddy serves
-├── releases/<sha>/                 the five latest exports
+├── compose.yml                     copied by each deploy
+├── .env                            RESEND_API_KEY, EMAIL_FROM, CONTACT_TO (600)
+├── release.env                     PORTFOLIO_TAG: the deployed commit
 └── caddy/previous/                 sites files before the last deploy
 /srv/uptime-kuma/compose.yml
 /srv/beszel/{compose.yml,.env}      .env: the agent's KEY and TOKEN (600)
@@ -240,5 +254,6 @@ goes down cannot report itself: that takes a probe from outside.
 | Roll back         | Run the Deploy workflow with an older commit's SHA                |
 | Bump a service    | Change its image tag in `deploy/<service>/compose.yml` and merge  |
 | A service's logs  | `docker compose logs -f` in `/srv/<service>`                      |
+| Portfolio's logs  | `docker compose logs -f` in `/srv/jleveneur`                      |
 | Restart a service | `docker compose up -d` in `/srv/<service>`                        |
 | Release agentcfg  | See [packages/agentcfg/README.md](../packages/agentcfg/README.md) |
