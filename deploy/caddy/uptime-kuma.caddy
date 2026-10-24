@@ -12,7 +12,9 @@
 	log {
 		output file /var/log/caddy/uptime-kuma.access.log {
 			roll_size 50MiB
+			roll_interval 1d
 			roll_keep 10
+			roll_keep_for 90d
 		}
 	}
 }

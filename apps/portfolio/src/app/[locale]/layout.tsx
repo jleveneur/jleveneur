@@ -49,7 +49,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
         <main id="content" className="flex-1">
           {children}
         </main>
-        <SiteFooter dict={dict} />
+        <SiteFooter locale={locale} dict={dict} />
         <Script
           src={UMAMI_SCRIPT_URL}
           data-website-id={UMAMI_WEBSITE_ID}

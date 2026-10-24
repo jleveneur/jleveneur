@@ -4,7 +4,7 @@ import { ContactForm } from "@/components/contact-form"
 import { SectionHeading, Sheet } from "@/components/drawing"
 import { SchematicFigure } from "@/components/schematic"
 import { email, socialLinks } from "@/content/site"
-import { isLocale, type Locale } from "@/i18n/config"
+import { isLocale, type Locale, localePath } from "@/i18n/config"
 import { getDictionary } from "@/i18n/dictionaries"
 import { pageMetadata } from "@/lib/metadata"
 import type { Schematic } from "@/lib/schematic"
@@ -63,7 +63,10 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
 
       <div className="mt-12 grid gap-10 lg:grid-cols-[1.6fr_1fr]">
         <Sheet label="FORM-01">
-          <ContactForm dict={dict.contact.form} />
+          <ContactForm
+            dict={dict.contact.form}
+            privacyHref={`${localePath(locale, "/legal")}#privacy`}
+          />
         </Sheet>
 
         <aside className="grid content-start gap-10">

@@ -82,6 +82,8 @@ const fr = {
       message: "Message",
       messagePlaceholder: "Quelques lignes sur votre projet ou votre question…",
       honeypot: "Ne pas remplir ce champ",
+      privacyNote: "Vos données servent uniquement à vous répondre.",
+      privacyLink: "Confidentialité",
       submit: "Envoyer le message",
       submitting: "Envoi…",
       sentTitle: "Message transmis",
@@ -109,7 +111,13 @@ const fr = {
     drawnBy: "Dessiné par",
     scale: "Échelle",
     revision: "Révision",
-    source: "Code source"
+    source: "Code source",
+    legal: "Mentions légales et confidentialité"
+  },
+  legal: {
+    title: "Informations légales",
+    intro: "Qui édite ce site, où il est hébergé, et ce qu'il advient de vos données.",
+    updated: "Dernière mise à jour :"
   }
 }
 
@@ -198,6 +206,8 @@ const en: Dictionary = {
       message: "Message",
       messagePlaceholder: "A few lines about your project or your question…",
       honeypot: "Leave this field empty",
+      privacyNote: "Your details are used only to answer you.",
+      privacyLink: "Privacy",
       submit: "Send the message",
       submitting: "Sending…",
       sentTitle: "Message sent",
@@ -224,7 +234,13 @@ const en: Dictionary = {
     drawnBy: "Drawn by",
     scale: "Scale",
     revision: "Revision",
-    source: "Source code"
+    source: "Source code",
+    legal: "Legal notice and privacy"
+  },
+  legal: {
+    title: "Legal information",
+    intro: "Who publishes this site, where it is hosted, and what happens to your data.",
+    updated: "Last updated:"
   }
 }
 

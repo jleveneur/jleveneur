@@ -69,3 +69,18 @@ test("an unknown page answers 404 in its language", async ({ page }) => {
   expect(english?.status()).toBe(404)
   await expect(page.getByRole("heading", { name: "Sheet not found" })).toBeVisible()
 })
+
+test("the legal page is linked from the footer and the contact form", async ({ page }) => {
+  await page.goto("/")
+  await page.getByRole("link", { name: "Mentions légales et confidentialité" }).click()
+
+  await expect(page).toHaveURL("/legal")
+  await expect(page.getByRole("heading", { level: 1, name: "Informations légales" })).toBeVisible()
+  await expect(page.getByText(/SIRET 934 200 643 00021/)).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Confidentialité" })).toBeVisible()
+
+  await page.goto("/en/contact")
+  await page.getByRole("link", { name: "Privacy", exact: true }).click()
+  await expect(page).toHaveURL("/en/legal#privacy")
+  await expect(page.getByRole("heading", { name: "Data controller" })).toBeVisible()
+})

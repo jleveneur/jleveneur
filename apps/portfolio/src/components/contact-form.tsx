@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useActionState, useState } from "react"
 
 import { sendContactMessage } from "@/app/[locale]/contact/actions"
@@ -9,12 +10,21 @@ import { type ContactField, type ContactFormState, initialContactState } from "@
 type FormDict = Dictionary["contact"]["form"]
 
 /** Remounts the form after a message is sent, so a second one starts clean. */
-export function ContactForm({ dict }: { dict: FormDict }) {
+export function ContactForm({ dict, privacyHref }: { dict: FormDict; privacyHref: string }) {
   const [round, setRound] = useState(0)
-  return <ContactFormRound key={round} dict={dict} onReset={() => setRound(round + 1)} />
+  return (
+    <ContactFormRound
+      key={round}
+      dict={dict}
+      privacyHref={privacyHref}
+      onReset={() => setRound(round + 1)}
+    />
+  )
 }
 
-function ContactFormRound({ dict, onReset }: { dict: FormDict; onReset: () => void }) {
+type RoundProps = { dict: FormDict; privacyHref: string; onReset: () => void }
+
+function ContactFormRound({ dict, privacyHref, onReset }: RoundProps) {
   const [state, formAction, pending] = useActionState(sendContactMessage, initialContactState)
 
   if (state.status === "sent") {
@@ -98,7 +108,7 @@ function ContactFormRound({ dict, onReset }: { dict: FormDict; onReset: () => vo
         </p>
       )}
 
-      <div>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
         <button
           type="submit"
           disabled={pending}
@@ -107,6 +117,12 @@ function ContactFormRound({ dict, onReset }: { dict: FormDict; onReset: () => vo
           {pending ? dict.submitting : dict.submit}
           <span aria-hidden="true">→</span>
         </button>
+        <p className="text-sm text-ink-muted">
+          {dict.privacyNote}{" "}
+          <Link href={privacyHref} className="underline underline-offset-4 hover:text-signal">
+            {dict.privacyLink}
+          </Link>
+        </p>
       </div>
     </form>
   )
