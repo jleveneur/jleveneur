@@ -1,0 +1,14 @@
+# Every night at 03:45, Paris time, a quarter of an hour after Hydromag's.
+# `Persistent` runs a backup the server missed (it was off or rebooting) as
+# soon as it is back.
+
+[Unit]
+Description=Back up Umami, Uptime Kuma and Beszel every night
+
+[Timer]
+OnCalendar=*-*-* 03:45:00 Europe/Paris
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

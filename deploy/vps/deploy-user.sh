@@ -3,12 +3,13 @@
 # the VPS, and hands it everything they deploy.
 #
 #   sudo bash deploy-user.sh /path/to/deploy-key.pub
+#   sudo bash deploy-user.sh        (keeps the key, refreshes the rest)
 #
 # - `deploy` joins the docker group (root-equivalent, which is why its private
 #   key lives only in the repositories' `production` environments);
 # - its SSH key is `restrict`ed: commands, no forwarding, no agent, no pty;
-# - sudo grants it two commands and nothing else: reloading Caddy, and starting
-#   the Hydromag backup by hand;
+# - sudo grants it three commands and nothing else: reloading Caddy, and
+#   starting either backup by hand;
 # - it owns the project directories in /srv and their sites files in
 #   /etc/caddy/sites (not the directories), and the Hydromag backup runs as it.
 #
@@ -23,21 +24,20 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 key_file="${1:-}"
-if [ ! -r "$key_file" ]; then
-  echo "Usage: sudo bash deploy-user.sh /path/to/deploy-key.pub" >&2
-  exit 1
+key=""
+if [ -n "$key_file" ]; then
+  key="$(head -n 1 "$key_file")"
+  case "$key" in
+    ssh-ed25519\ *) ;;
+    *)
+      echo "Expected an ssh-ed25519 public key in $key_file." >&2
+      exit 1
+      ;;
+  esac
 fi
-key="$(head -n 1 "$key_file")"
-case "$key" in
-  ssh-ed25519\ *) ;;
-  *)
-    echo "Expected an ssh-ed25519 public key in $key_file." >&2
-    exit 1
-    ;;
-esac
 
 user=deploy
-projects=(hydromag jleveneur uptime-kuma beszel umami)
+projects=(hydromag jleveneur uptime-kuma beszel umami backup)
 
 if ! id "$user" > /dev/null 2>&1; then
   useradd --create-home --shell /bin/bash "$user"
@@ -46,12 +46,17 @@ usermod -aG docker "$user"
 
 home="$(getent passwd "$user" | cut -d: -f6)"
 install -d -m 700 -o "$user" -g "$user" "$home/.ssh"
-printf 'restrict %s\n' "$key" > "$home/.ssh/authorized_keys"
-chown "$user:$user" "$home/.ssh/authorized_keys"
-chmod 600 "$home/.ssh/authorized_keys"
+if [ -n "$key" ]; then
+  printf 'restrict %s\n' "$key" > "$home/.ssh/authorized_keys"
+  chown "$user:$user" "$home/.ssh/authorized_keys"
+  chmod 600 "$home/.ssh/authorized_keys"
+elif [ ! -s "$home/.ssh/authorized_keys" ]; then
+  echo "$user has no key yet: pass its public key file." >&2
+  exit 1
+fi
 
 sudoers=/etc/sudoers.d/deploy
-printf '%s ALL=(root) NOPASSWD: /usr/bin/systemctl reload caddy, /usr/bin/systemctl start hydromag-backup.service\n' \
+printf '%s ALL=(root) NOPASSWD: /usr/bin/systemctl reload caddy, /usr/bin/systemctl start hydromag-backup.service, /usr/bin/systemctl start jleveneur-backup.service\n' \
   "$user" > "$sudoers.new"
 chmod 440 "$sudoers.new"
 visudo -cf "$sudoers.new" > /dev/null
