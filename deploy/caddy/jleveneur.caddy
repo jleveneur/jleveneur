@@ -6,11 +6,16 @@
 # The site is the standalone Next.js server of `apps/portfolio`, which
 # deploy/portfolio/compose.yml publishes on 127.0.0.1:3500 alone. Security
 # headers come from the app (`apps/portfolio/next.config.ts`), so they are not
-# repeated here. Compression is Caddy's: Next compresses pages but not every
-# response, and one it already compressed passes through untouched.
+# repeated here. Compression is Caddy's alone (`compress: false` in
+# next.config.ts): zstd for the browsers that take it, gzip for the others,
+# where Next would only gzip and Caddy would pass that through as it is.
 #
 # Caddy replaces any X-Forwarded-For a client sends with the address it saw,
 # so the contact form's rate limit counts the visitor, not a header they chose.
+
+(jleveneur-encode) {
+	encode zstd gzip
+}
 
 (jleveneur-access-log) {
 	log {
@@ -23,7 +28,7 @@
 
 jleveneur.com {
 	import jleveneur-access-log
-	encode zstd gzip
+	import jleveneur-encode
 	reverse_proxy 127.0.0.1:3500
 }
 

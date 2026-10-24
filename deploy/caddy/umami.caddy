@@ -2,6 +2,12 @@
 # workflow with deploy/umami/compose.yml. Snippet names start with `umami-` because every
 # project's file shares one namespace.
 
+# Its tracker, script.js, loads on every page view of both sites, and its
+# dashboard API answers in JSON: both shrink several times compressed.
+(umami-encode) {
+	encode zstd gzip
+}
+
 (umami-access-log) {
 	log {
 		output file /var/log/caddy/umami.access.log {
@@ -21,5 +27,6 @@
 # one whose DNS is not in place yet does not hold the other back.
 stats.jleveneur.com, stats.hydromag.fr {
 	import umami-access-log
+	import umami-encode
 	reverse_proxy 127.0.0.1:3400
 }

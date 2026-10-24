@@ -34,6 +34,10 @@ const nextConfig: NextConfig = {
   output: "standalone",
   outputFileTracingRoot: workspaceRoot,
 
+  // Caddy compresses every response, in zstd where the browser takes it. Next
+  // would gzip first, and Caddy passes an encoded response through untouched.
+  compress: false,
+
   headers() {
     return Promise.resolve([{ source: "/:path*", headers: SECURITY_HEADERS }])
   },
