@@ -87,7 +87,11 @@ case "$code" in
     ;;
 esac
 
-install -d -m 750 -o "$user" -g "$user" "$dir"
+# Created only when missing: the directory's mode is not this script's to
+# change (Caddy has to traverse it to serve the static releases).
+if [ ! -d "$dir" ]; then
+  install -d -m 755 -o "$user" -g "$user" "$dir"
+fi
 umask 077
 {
   echo "# The portfolio's environment (deploy/portfolio/compose.yml). The Resend"
