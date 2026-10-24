@@ -21,5 +21,18 @@
 # one whose DNS is not in place yet does not hold the other back.
 stats.jleveneur.com, stats.hydromag.fr {
 	import umami-access-log
+
+	# Hydromag's site belongs to the Hydromag team, and Umami opens on the
+	# signed-in user's own space, empty for their account: it only opens on a
+	# team once one of its pages has been visited in that browser. So
+	# stats.hydromag.fr sends its entry points to the team's board, which
+	# records the team for the next sign-in. Owning the site would show it
+	# without this, but an owner can delete it whatever their role.
+	@hydromag_entry {
+		host stats.hydromag.fr
+		path / /websites
+	}
+	redir @hydromag_entry /teams/4ed17486-4d1a-47a4-aee2-d1337b86eb72/boards/bc58d452-f6f8-4dec-9ec3-3f20d22d295d 302
+
 	reverse_proxy 127.0.0.1:3400
 }
