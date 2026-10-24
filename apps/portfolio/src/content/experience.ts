@@ -21,10 +21,7 @@ export type Degree = Period & {
 }
 
 const fullStack: Localized = { fr: "Développeur full-stack", en: "Full-stack developer" }
-const aiNativeFullStack: Localized = {
-  fr: "Développeur full-stack AI-native",
-  en: "AI-native full-stack developer"
-}
+const fullStackAi: Localized = { fr: "Ingénieur full-stack & IA", en: "Full-stack & AI engineer" }
 const freelance: Localized = { fr: "Freelance", en: "Freelance" }
 const workStudy: Localized = { fr: "Alternance", en: "Work-study" }
 const amiens: Localized = { fr: "Amiens", en: "Amiens, France" }
@@ -33,7 +30,7 @@ const amiens: Localized = { fr: "Amiens", en: "Amiens, France" }
 export const positions: Position[] = [
   {
     start: "2025-02",
-    title: aiNativeFullStack,
+    title: fullStackAi,
     organization: "Dimension Studios",
     contract: freelance,
     location: { fr: "À distance", en: "Remote" },
@@ -45,7 +42,7 @@ export const positions: Position[] = [
   },
   {
     start: "2024-10",
-    title: aiNativeFullStack,
+    title: fullStackAi,
     organization: "Freelance",
     contract: freelance,
     location: { fr: "À distance", en: "Remote" },

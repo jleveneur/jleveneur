@@ -2,12 +2,12 @@ import type { Localized } from "@/i18n/config"
 
 export const intro: Localized<string[]> = {
   fr: [
-    "Je suis développeur full-stack, et je travaille au quotidien avec des agents IA. J'aime prendre un produit de l'idée au serveur : modéliser les données, écrire l'API, construire l'interface, puis la mettre en ligne et la surveiller.",
+    "Je suis ingénieur full-stack & IA : je travaille au quotidien avec des agents IA, et je construis aussi des briques IA, comme des serveurs MCP. J'aime prendre un produit de l'idée au serveur : modéliser les données, écrire l'API, construire l'interface, puis la mettre en ligne et la surveiller.",
     "Je travaille surtout en TypeScript, avec React et Next.js côté interface et Node.js côté serveur. Les agents écrivent une bonne part du code ; mon travail, c'est le cadre qui le rend fiable : l'architecture, les règles du dépôt, et la façon dont un projet se teste, se déploie et se relit six mois plus tard.",
     "Ce site en est un exemple : un monorepo vérifié à chaque commit, une application Next.js déployée en conteneur sur un VPS que j'administre, et un formulaire de contact qui passe par Resend."
   ],
   en: [
-    "I am a full-stack developer who works with AI agents every day. I like taking a product from idea to server: modelling the data, writing the API, building the interface, then shipping it and keeping an eye on it.",
+    "I am a full-stack & AI engineer: I work with AI agents every day, and I also build AI pieces, such as MCP servers. I like taking a product from idea to server: modelling the data, writing the API, building the interface, then shipping it and keeping an eye on it.",
     "I mostly work in TypeScript, with React and Next.js for interfaces and Node.js on the server. Agents write a good share of the code; my job is the frame that makes it reliable: the architecture, the repository's rules, and how a project is tested, deployed, and read again six months later.",
     "This site is an example: a monorepo checked on every commit, a Next.js app deployed as a container on a VPS I run, and a contact form that goes through Resend."
   ]

@@ -3,9 +3,9 @@ import type { Locale } from "@/i18n/config"
 const fr = {
   meta: {
     description:
-      "Julien Leveneur, développeur full-stack AI-native : applications web en TypeScript et React, APIs et infrastructure, construites avec des agents IA et vérifiées par des types, du lint et des tests."
+      "Julien Leveneur, ingénieur full-stack & IA : applications web en TypeScript et React, APIs, infrastructure et briques IA, construites avec des agents et vérifiées par des types, du lint et des tests."
   },
-  role: "Développeur full-stack AI-native",
+  role: "Ingénieur full-stack & IA",
   nav: {
     label: "Navigation principale",
     home: "Accueil",
@@ -120,9 +120,9 @@ export type ContactErrorCode = keyof Dictionary["contact"]["form"]["errors"]
 const en: Dictionary = {
   meta: {
     description:
-      "Julien Leveneur, AI-native full-stack developer: web applications in TypeScript and React, APIs and infrastructure, built with AI agents and verified by types, lint and tests."
+      "Julien Leveneur, full-stack & AI engineer: web applications in TypeScript and React, APIs, infrastructure and AI building blocks, built with agents and verified by types, lint and tests."
   },
-  role: "AI-native full-stack developer",
+  role: "Full-stack & AI engineer",
   nav: {
     label: "Main navigation",
     home: "Home",
