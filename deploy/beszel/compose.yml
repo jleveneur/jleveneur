@@ -4,7 +4,9 @@
 # `docker compose up -d` there.
 #
 # The agent's key and token come from the hub ("Add system") once its admin
-# account exists, so they live in /srv/beszel/.env (chmod 600), not here.
+# account exists. They are BESZEL_AGENT_KEY and BESZEL_AGENT_TOKEN in the
+# GitHub `production` environment, which each deploy writes to
+# /srv/beszel/.env (600), not here.
 name: beszel
 
 services:

@@ -111,32 +111,39 @@ flowchart LR
 
 Over SSH as `deploy`, everything from the commit being deployed:
 
-1. **Portfolio.** [deploy/portfolio/compose.yml](../deploy/portfolio/compose.yml)
+1. **Variables.** The `production` environment's values are written to
+   `/srv/jleveneur/.env`, `/srv/umami/.env`, `/srv/beszel/.env`,
+   `/srv/backup/r2.env` and `/srv/backup/backup.env` (600), each replaced file
+   kept as `<file>.previous`. All are built before any is sent: a missing
+   required value stops the job with nothing written.
+2. **Portfolio.** [deploy/portfolio/compose.yml](../deploy/portfolio/compose.yml)
    goes to `/srv/jleveneur/`, `release.env` pins `PORTFOLIO_TAG` to the
    commit, and the image is pulled with the run's `GITHUB_TOKEN` (no registry
    credential stays on the server). `up --wait` fails the job unless the new
    container answers its healthcheck. Images stay in GHCR, so a rollback
    needs no rebuild, back to the first commit that had one.
-2. **Services.** For each of `uptime-kuma`, `beszel` and `umami`, the commit's
+3. **Services.** For each of `uptime-kuma`, `beszel` and `umami`, the commit's
    `deploy/<service>/compose.yml` goes to `/srv/<service>/`, then
    `docker compose up -d --pull missing --remove-orphans --wait`. Images are
    pinned to a version, so a service whose file did not change keeps running
    untouched, and a Renovate bump reaches the server once merged.
-3. **Caddy.** The four sites files go into `/etc/caddy/sites/` with a single
+4. **Caddy.** The four sites files go into `/etc/caddy/sites/` with a single
    `systemctl reload caddy`. The previous ones wait in
    `/srv/jleveneur/caddy/previous/` and go back if Caddy refuses the new ones.
-4. **Checks.** jleveneur.com, `/en` and `/contact` (200), www (301), and the
+5. **Checks.** jleveneur.com, `/en` and `/contact` (200), www (301), and the
    health endpoints of the three services must answer. Then images unused for two weeks are pruned.
 
 ### Adding a service
 
 The workflow cannot create directories in `/srv` or files in
 `/etc/caddy/sites`, so a new service starts with one step as root: create
-`/srv/<service>` and its `.env` if it has secrets, and an empty
-`/etc/caddy/sites/<service>.caddy`, all owned by `deploy`. Then add
-`deploy/<service>/compose.yml` and `deploy/caddy/<service>.caddy`, pick a port
-range (below), add the service to `SERVICES` in the workflow and a URL check,
-and merge.
+`/srv/<service>` and an empty `/etc/caddy/sites/<service>.caddy`, both
+owned by `deploy`. Then add `deploy/<service>/compose.yml` and
+`deploy/caddy/<service>.caddy`, pick a port range (below), add the service to
+`SERVICES` in the workflow and a URL check; if it has secrets, add them,
+prefixed by the service, to the workflow's "Write the production variables"
+step and to [deploy/vps/github-env.sh](../deploy/vps/github-env.sh), and push
+them before merging.
 
 ## The server
 
@@ -195,15 +202,15 @@ values in both, and rotating the key is running it again.
 ```
 /srv/jleveneur/
 ├── compose.yml                     copied by each deploy
-├── .env                            RESEND_API_KEY, EMAIL_FROM, CONTACT_TO (600)
+├── .env                            RESEND_API_KEY, EMAIL_FROM, CONTACT_TO (600, deploy-written)
 ├── release.env                     PORTFOLIO_TAG: the deployed commit
 └── caddy/previous/                 sites files before the last deploy
 /srv/uptime-kuma/compose.yml
-/srv/beszel/{compose.yml,.env}      .env: the agent's KEY and TOKEN (600)
-/srv/umami/{compose.yml,.env}       .env: database password, APP_SECRET… (600)
+/srv/beszel/{compose.yml,.env}      .env: the agent's KEY and TOKEN (600, deploy-written)
+/srv/umami/{compose.yml,.env}       .env: database password, APP_SECRET… (600, deploy-written)
 /srv/backup/
-├── r2.env                          the R2 key every backup shares (600)
-├── backup.env                      optional: this backup's HEARTBEAT_URL (600)
+├── r2.env                          the R2 key every backup shares (600, deploy-written)
+├── backup.env                      optional: this backup's HEARTBEAT_URL (600, deploy-written)
 └── jleveneur-backup.sh             copied by each deploy
 ```
 
@@ -216,8 +223,9 @@ values in both, and rotating the key is running it again.
 | [Umami](../deploy/umami/compose.yml)             | `ghcr.io/umami-software/umami`           | its own Postgres 18, volume `db-data`  | Cookie-free analytics for hydromag.fr and jleveneur.com; telemetry off. Hydromag's staff use it at stats.hydromag.fr with a view-only account in the Hydromag team, which owns hydromag.fr |
 
 Sign-in to each dashboard is the service's own; the subdomains add nothing in
-front. Secrets are generated on the server into `/srv/<service>/.env` and
-never leave it.
+front. Their secrets are in the GitHub `production` environment, prefixed by
+service (`UMAMI_APP_SECRET`, `BESZEL_AGENT_TOKEN`…), and each deploy writes
+them to `/srv/<service>/.env`.
 
 The portfolio's tracker is in its root layout with `data-domains="jleveneur.com"`,
 so `next dev` and the e2e runs load the script without recording visits.
@@ -228,7 +236,8 @@ online SQLite copies of Uptime Kuma's and Beszel's databases (with the Beszel
 hub's key, which its agents know), each checked, then uploaded to
 `jleveneur-backups` on Cloudflare R2 (EU jurisdiction). Hydromag's database
 goes to the same bucket from its own repository. One key, `/srv/backup/r2.env`
-(written by [deploy/vps/r2-key.sh](../deploy/vps/r2-key.sh)), limited to that
+(written by each deploy from the `R2_*` values of the `production`
+environment), limited to that
 bucket and to the VPS's addresses; the bucket refuses to overwrite or delete
 any object for 30 days and deletes them after 90. Restoring needs only the
 server: the steps are in the script's header.
@@ -238,23 +247,25 @@ goes down cannot report itself: that takes a probe from outside.
 
 ## Where configuration lives
 
-| What                                   | Where                                                          |
-| -------------------------------------- | -------------------------------------------------------------- |
-| `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` | GitHub, `production` environment secrets                       |
-| `DEPLOY_ENABLED`, `DEPLOY_HOST`        | GitHub repository variables                                    |
-| Service secrets                        | `/srv/<service>/.env` on the server                            |
-| npm publishing                         | trusted publishing on npmjs.com, no token                      |
-| Dependency updates                     | [renovate.json](../renovate.json), three-day release-age delay |
+| What                                   | Where                                                              |
+| -------------------------------------- | ------------------------------------------------------------------ |
+| `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` | GitHub, `production` environment secrets                           |
+| `DEPLOY_ENABLED`, `DEPLOY_HOST`        | GitHub repository variables                                        |
+| Portfolio, service and backup secrets  | GitHub, `production` environment secrets, prefixed by service      |
+| Their other values                     | GitHub, `production` environment variables                         |
+| The copy of both to keep               | a local env file outside Git, pushed by `deploy/vps/github-env.sh` |
+| npm publishing                         | trusted publishing on npmjs.com, no token                          |
+| Dependency updates                     | [renovate.json](../renovate.json), three-day release-age delay     |
 
 ## Operations
 
-| Task              | How                                                                                                     |
-| ----------------- | ------------------------------------------------------------------------------------------------------- |
-| Deploy            | Merge to `main`                                                                                         |
-| Roll back         | Run the Deploy workflow with an older commit's SHA                                                      |
-| Bump a service    | Change its image tag in `deploy/<service>/compose.yml` and merge                                        |
-| A service's logs  | `docker compose logs -f` in `/srv/<service>`                                                            |
-| Portfolio's logs  | `docker compose logs -f` in `/srv/jleveneur`                                                            |
-| Rotate Resend key | `sudoedit /srv/jleveneur/.env`, then `up -d` there (see [compose.yml](../deploy/portfolio/compose.yml)) |
-| Restart a service | `docker compose up -d` in `/srv/<service>`                                                              |
-| Release agentcfg  | See [packages/agentcfg/README.md](../packages/agentcfg/README.md)                                       |
+| Task              | How                                                                                      |
+| ----------------- | ---------------------------------------------------------------------------------------- |
+| Deploy            | Merge to `main`                                                                          |
+| Roll back         | Run the Deploy workflow with an older commit's SHA                                       |
+| Bump a service    | Change its image tag in `deploy/<service>/compose.yml` and merge                         |
+| A service's logs  | `docker compose logs -f` in `/srv/<service>`                                             |
+| Portfolio's logs  | `docker compose logs -f` in `/srv/jleveneur`                                             |
+| Change a value    | Edit the local env file, `bash deploy/vps/github-env.sh <file>`, run the Deploy workflow |
+| Restart a service | `docker compose up -d` in `/srv/<service>`                                               |
+| Release agentcfg  | See [packages/agentcfg/README.md](../packages/agentcfg/README.md)                        |

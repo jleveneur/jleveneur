@@ -3,8 +3,10 @@
 # portfolio, without cookies or third parties. The deploy workflow installs it
 # as /srv/umami/compose.yml and runs `docker compose up -d` there.
 #
-# Its own Postgres, apart from hydromag's. The secrets are generated on the
-# server into /srv/umami/.env (chmod 600), never here.
+# Its own Postgres, apart from hydromag's. The secrets are in GitHub, as
+# UMAMI_POSTGRES_PASSWORD, UMAMI_APP_SECRET and UMAMI_TWO_FACTOR_ENCRYPTION_KEY
+# in the `production` environment; each deploy writes them to /srv/umami/.env
+# (600), never here.
 name: umami
 
 services:

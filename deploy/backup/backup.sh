@@ -25,9 +25,10 @@
 # Hydromag's database backups, uploaded from that repository.
 #
 # Environment:
-#   from /srv/backup/r2.env (deploy, 600), written by deploy/vps/r2-key.sh:
+#   from /srv/backup/r2.env (deploy, 600), written by the Deploy workflow:
 #     R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT, R2_BUCKET
-#   from /srv/backup/backup.env (deploy, 600), optional:
+#   from /srv/backup/backup.env (deploy, 600), written by the Deploy
+#   workflow from BACKUP_HEARTBEAT_URL, optional:
 #     HEARTBEAT_URL  the Uptime Kuma push monitor
 #
 # Restoring, on the server as `deploy`. List and fetch with:
