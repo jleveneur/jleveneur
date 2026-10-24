@@ -14,7 +14,12 @@
 # The dashboard, the tracker script the sites load, and the endpoint it sends
 # page views to. Caddy passes the visitor's address in X-Forwarded-For, which
 # Umami reads for the approximate location and does not store.
-stats.jleveneur.com {
+#
+# stats.hydromag.fr is the same instance under Hydromag's name: their staff
+# sign in there with a view-only account in the Hydromag team, which sees
+# hydromag.fr and nothing else. Each host gets its own certificate, so the
+# one whose DNS is not in place yet does not hold the other back.
+stats.jleveneur.com, stats.hydromag.fr {
 	import umami-access-log
 	reverse_proxy 127.0.0.1:3400
 }
