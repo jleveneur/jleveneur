@@ -50,6 +50,8 @@ packages/ui        shadcn/ui components
 tooling/*          Lint, Tailwind, and tsconfig configuration
 scripts/           Repository setup scripts, run from package.json
 templates/next      Starter versions of the root files that name this repo's own projects
+deploy/            The VPS: the portfolio's Caddy site, Uptime Kuma, Beszel, Umami
+docs/              architecture.md, how all of it is shipped and run
 ```
 
 Editor agents get more here: `.cursor/rules/` carries per-area conventions that

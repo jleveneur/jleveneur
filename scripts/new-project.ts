@@ -17,11 +17,13 @@ const ROOT = resolve(import.meta.dirname, "..")
 const OVERLAY = resolve(ROOT, "templates/next")
 const OVERRIDES = "package.overrides.json"
 
-// This repository's own projects, its workflows (the overlay brings the
-// starter's CI), and the export itself.
+// This repository's own projects, the VPS they run on, its workflows (the
+// overlay brings the starter's CI), and the export itself.
 const EXCLUDED = [
   "apps/portfolio/",
   "packages/agentcfg/",
+  "deploy/",
+  "docs/architecture.md",
   "templates/",
   ".github/workflows/",
   "scripts/new-project.ts"
