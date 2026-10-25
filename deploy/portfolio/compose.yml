@@ -9,7 +9,7 @@
 #   docker compose --env-file .env --env-file release.env up -d --remove-orphans
 #
 # `PORTFOLIO_TAG` picks the image: the commit a deploy pins, or `latest` when
-# unset. Rolling back is running the deploy workflow with an older commit. To
+# unset. Rolling back is running the deploy workflow with an older release. To
 # try a production build locally instead:
 #
 #   docker build -f apps/portfolio/Dockerfile -t ghcr.io/jleveneur/jleveneur-portfolio .

@@ -36,6 +36,7 @@
     "**/coverage/**",
     "**/node_modules/**",
     "bun.lock",
+    "/CHANGELOG.md",
     "**/*.generated.*",
     "**/openapi.json"
   ]

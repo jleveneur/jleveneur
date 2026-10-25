@@ -80,10 +80,12 @@ flowchart LR
   pr[Pull request] --> ci["CI<br/>check · integration · browser · caddy"]
   pr --> starter["Starter<br/>export and check"]
   ci -->|merged on main| ci2[CI on main]
-  ci2 -->|success| images["Images<br/>portfolio image"]
+  ci2 -->|success| sitepr["Release<br/>release pull request"]
+  sitepr -->|merged: site@v*| deploy["Deploy"]
+  deploy -->|calls| images["Images<br/>portfolio image"]
   images --> ghcr[(GHCR)]
-  images -->|success| deploy["Deploy<br/>SSH as deploy"]
-  deploy --> vps["VPS: portfolio container,<br/>services, Caddy sites"]
+  images -->|success| ssh["SSH as deploy"]
+  ssh --> vps["VPS: portfolio container,<br/>services, Caddy sites"]
   tag["tag agentcfg@v*"] --> release["agentcfg release"] --> npm[(npm)]
 ```
 
@@ -100,12 +102,25 @@ flowchart LR
   [agentcfg-release.yml](../.github/workflows/agentcfg-release.yml), which
   publishes to npm through trusted publishing (OIDC, with provenance) and
   creates the GitHub release. No npm token is stored.
+- **Release** ([release.yml](../.github/workflows/release.yml)) runs once CI
+  has passed on `main`. release-please keeps the site's release pull request
+  open with the next version, worked out from the Conventional Commits since
+  the last release, and its [CHANGELOG.md](../CHANGELOG.md) entry. Merging it
+  publishes the GitHub release `site@v<version>`; merging anything else
+  deploys nothing. Commits that only touch agentcfg, the starter or the
+  template stay out ([release-please-config.json](../release-please-config.json)).
+  It acts as a GitHub App, so that CI runs on its pull request and its release
+  starts a deploy; the workflow's header says what the App needs.
+- **Deploy** ([deploy.yml](../.github/workflows/deploy.yml)) runs when a site
+  release is published, and by hand to redeploy or to roll back or forward
+  (`gh workflow run deploy.yml -f ref=site@v1.2.0`, or a full SHA). It refuses
+  a commit that is not on `main` or has not passed CI there, then calls Images.
 - **Images** ([images.yml](../.github/workflows/images.yml)) builds the
-  portfolio's image once CI has passed on `main` and pushes it to GHCR as
-  `ghcr.io/jleveneur/jleveneur-portfolio:<sha>` (and `latest`). A pull request
-  that touches the Dockerfile builds it without pushing.
-- **Deploy** ([deploy.yml](../.github/workflows/deploy.yml)) runs once Images
-  has published, and by hand with a commit SHA to roll back or forward.
+  portfolio's image for the commit being deployed and pushes it to GHCR as
+  `ghcr.io/jleveneur/jleveneur-portfolio:<sha>`, then moves `latest` to it. A
+  commit whose image is already there is not built again, unless the deploy
+  asks for `rebuild`. A pull request that touches the Dockerfile builds it
+  without pushing.
 
 ### What a deploy does
 
@@ -118,15 +133,16 @@ Over SSH as `deploy`, everything from the commit being deployed:
    required value stops the job with nothing written.
 2. **Portfolio.** [deploy/portfolio/compose.yml](../deploy/portfolio/compose.yml)
    goes to `/srv/jleveneur/`, `release.env` pins `PORTFOLIO_TAG` to the
-   commit, and the image is pulled with the run's `GITHUB_TOKEN` (no registry
+   commit (and records the release as `PORTFOLIO_RELEASE`), and the image is pulled with the run's `GITHUB_TOKEN` (no registry
    credential stays on the server). `up --wait` fails the job unless the new
-   container answers its healthcheck. Images stay in GHCR, so a rollback
-   needs no rebuild, back to the first commit that had one.
+   container answers its healthcheck. Images stay in GHCR, so a rollback to
+   a commit deployed before needs no rebuild.
 3. **Services.** For each of `uptime-kuma`, `beszel` and `umami`, the commit's
    `deploy/<service>/compose.yml` goes to `/srv/<service>/`, then
    `docker compose up -d --pull missing --remove-orphans --wait`. Images are
    pinned to a version, so a service whose file did not change keeps running
-   untouched, and a Renovate bump reaches the server once merged.
+   untouched. Renovate titles a bump of an image under `deploy/` `fix(deps)`,
+   so it makes a release, and reaches the server with it.
 4. **Caddy.** The four sites files go into `/etc/caddy/sites/` with a single
    `systemctl reload caddy`. The previous ones wait in
    `/srv/jleveneur/caddy/previous/` and go back if Caddy refuses the new ones.
@@ -206,7 +222,7 @@ values in both, and rotating the key is running it again.
 /srv/jleveneur/
 ├── compose.yml                     copied by each deploy
 ├── .env                            RESEND_API_KEY, EMAIL_FROM, CONTACT_TO (600, deploy-written)
-├── release.env                     PORTFOLIO_TAG: the deployed commit
+├── release.env                     PORTFOLIO_TAG and PORTFOLIO_RELEASE: the deployed commit and release
 └── caddy/previous/                 sites files before the last deploy
 /srv/uptime-kuma/compose.yml
 /srv/beszel/{compose.yml,.env}      .env: the agent's KEY and TOKEN (600, deploy-written)
@@ -254,6 +270,8 @@ goes down cannot report itself: that takes a probe from outside.
 | -------------------------------------- | ------------------------------------------------------------------ |
 | `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` | GitHub, `production` environment secrets                           |
 | `DEPLOY_ENABLED`, `DEPLOY_HOST`        | GitHub repository variables                                        |
+| `RELEASE_APP_CLIENT_ID`                | GitHub repository variable: release-please's GitHub App            |
+| `RELEASE_APP_PRIVATE_KEY`              | GitHub repository secret: the App's private key                    |
 | Portfolio, service and backup secrets  | GitHub, `production` environment secrets, prefixed by service      |
 | Their other values                     | GitHub, `production` environment variables                         |
 | The copy of both to keep               | a local env file outside Git, pushed by `deploy/vps/github-env.sh` |
@@ -264,9 +282,9 @@ goes down cannot report itself: that takes a probe from outside.
 
 | Task              | How                                                                                      |
 | ----------------- | ---------------------------------------------------------------------------------------- |
-| Deploy            | Merge to `main`                                                                          |
-| Roll back         | Run the Deploy workflow with an older commit's SHA                                       |
-| Bump a service    | Change its image tag in `deploy/<service>/compose.yml` and merge                         |
+| Deploy            | Merge the release pull request                                                           |
+| Roll back         | `gh workflow run deploy.yml -f ref=<older release or commit>`                            |
+| Bump a service    | Change its image tag in `deploy/<service>/compose.yml`, merge, then release              |
 | A service's logs  | `docker compose logs -f` in `/srv/<service>`                                             |
 | Portfolio's logs  | `docker compose logs -f` in `/srv/jleveneur`                                             |
 | Change a value    | Edit the local env file, `bash deploy/vps/github-env.sh <file>`, run the Deploy workflow |

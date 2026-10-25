@@ -7,7 +7,7 @@
 #
 #   bash deploy/vps/github-env.sh ~/.config/jleveneur/production.env
 #
-# Then merge or run the Deploy workflow: nothing reaches the server before.
+# Then run the Deploy workflow: nothing reaches the server before.
 # GitHub never shows a secret again, so the file stays the copy to keep,
 # outside Git. It is parsed, not sourced: `NAME=value` lines, the value
 # optionally in matching quotes. An empty value deletes the name in GitHub;
