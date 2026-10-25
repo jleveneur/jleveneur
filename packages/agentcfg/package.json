@@ -43,7 +43,7 @@
   },
   "scripts": {
     "build": "node --eval \"fs.rmSync('dist', { recursive: true, force: true })\" && tsc -p tsconfig.build.json",
-    "typecheck": "tsc -p tsconfig.json",
+    "typecheck": "bun check",
     "test": "node --test test/agentcfg.test.ts test/scan.test.ts test/skills.test.ts test/status.test.ts",
     "test:live": "node --test test/live.test.ts",
     "prepack": "bun run build"
