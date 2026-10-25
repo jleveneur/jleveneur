@@ -198,3 +198,12 @@ no Dockerfile — the application is not containerised.
 
 [Conventional Commits](https://www.conventionalcommits.org):
 `feat(scope): summary`, `fix(db): ...`, `chore(deps): ...`.
+
+The type decides the site's release: release-please turns the squashed pull
+request titles into the next version and CHANGELOG.md. `feat` bumps the
+minor, `fix` and `perf` the patch, `!` the major; `refactor`, `build` and
+`revert` are released too. `docs`, `test`, `ci` and `chore` stay out of the
+changelog and make no release on their own, so do not use them for a change
+production needs. Commits touching only `packages`, `apps/starter` or
+`templates` are not part of it. Never edit the root CHANGELOG.md,
+`version.txt` or `.release-please-manifest.json` by hand.

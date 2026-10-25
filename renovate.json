@@ -49,6 +49,12 @@
 
   "packageRules": [
     {
+      // The images the VPS runs. `chore(deps)` would make no release, so a
+      // bump would wait on the server until something else is released.
+      "matchFileNames": ["deploy/**", "apps/portfolio/Dockerfile"],
+      "semanticCommitType": "fix"
+    },
+    {
       // engines is a floor, not a selection. The global "pin" strategy would
       // rewrite ">=24.0.0" to the newest published Node, contradicting
       // devEngines.runtime, which CI reads to install Node.

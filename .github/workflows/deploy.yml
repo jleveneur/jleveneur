@@ -1,10 +1,18 @@
 name: Deploy
 
 # Puts `apps/portfolio` on jleveneur.com and runs the services beside it
-# (Uptime Kuma, Beszel, Umami) on the VPS. It runs once the Images workflow has
-# published the portfolio's image for `main` (which it only does after CI has
-# passed), and by hand with a commit SHA to roll back (or forward) to that
-# commit, whose image stays in GHCR.
+# (Uptime Kuma, Beszel, Umami) on the VPS. Merging to `main` deploys nothing:
+# the Release workflow keeps a release pull request open, and merging it
+# publishes a GitHub release `site@v<version>`, which runs this workflow. Run
+# it by hand to redeploy (after changing a value), or to roll back (or
+# forward) to another release or any commit of `main`:
+#
+#   gh workflow run deploy.yml                       # the latest release
+#   gh workflow run deploy.yml -f ref=site@v1.2.0    # a release, or a full SHA
+#
+# The commit must be on `main` and have passed CI there. The Images workflow
+# then builds the portfolio's image and pushes it to GHCR, unless it is
+# already there from an earlier deploy; `rebuild` builds it again.
 #
 # The portfolio is a standalone Next.js server in a container, the Compose
 # project in /srv/jleveneur. Each service is a Compose project in
@@ -30,15 +38,17 @@ name: Deploy
 # DEPLOY_HOST, optionally DEPLOY_USER, and DEPLOY_ENABLED=true once the server
 # is set up.
 on:
-  workflow_run:
-    workflows: [Images]
-    types: [completed]
-    branches: [main]
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
-      sha:
-        description: Full commit SHA to deploy (defaults to the selected ref)
+      ref:
+        description: Release tag or full commit SHA to deploy (defaults to the latest site release)
         required: false
+      rebuild:
+        description: Build the image again even if GHCR already has it
+        type: boolean
+        default: false
 
 # Deploys run one after the other, never in parallel, and none is cancelled
 # halfway.
@@ -50,11 +60,77 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
-    name: Deploy to the VPS
+  commit:
+    name: Check the commit
+    # Site releases are `site@v<version>`, as release-please-config.json sets;
+    # agentcfg's releases (`agentcfg@v<version>`) are not deployed.
     if: >-
       vars.DEPLOY_ENABLED == 'true' &&
-      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+      (github.event_name != 'release' || startsWith(github.event.release.tag_name, 'site@v'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+    outputs:
+      ref: ${{ steps.check.outputs.ref }}
+      sha: ${{ steps.check.outputs.sha }}
+    env:
+      REF: ${{ inputs.ref || github.event.release.tag_name }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+
+    steps:
+      # Only what `main` holds goes to production, and only once the CI
+      # workflow's `CI` job, which requires every other, has passed on that
+      # very commit.
+      - name: Check the commit
+        id: check
+        run: |
+          if [ -z "$REF" ]; then
+            REF="$(gh api "repos/$GH_REPO/releases" --jq '[.[] | select(.draft | not) | select(.tag_name | startswith("site@v"))][0].tag_name // empty')"
+            if [ -z "$REF" ]; then
+              echo "::error::There is no site release to deploy"
+              exit 1
+            fi
+          fi
+          # It ends up in release.env on the server, so it stays plain.
+          if ! printf '%s' "$REF" | grep -Eq '^[A-Za-z0-9._@/-]+$'; then
+            echo "::error::'$REF' is not a tag or a commit SHA"
+            exit 1
+          fi
+          if ! sha="$(gh api "repos/$GH_REPO/commits/${REF//@/%40}" --jq .sha)"; then
+            echo "::error::'$REF' is neither a tag nor a commit of this repository"
+            exit 1
+          fi
+          status="$(gh api "repos/$GH_REPO/compare/$sha...main" --jq .status)"
+          if [ "$status" != ahead ] && [ "$status" != identical ]; then
+            echo "::error::$REF ($sha) is not on main"
+            exit 1
+          fi
+          ci="$(gh api "repos/$GH_REPO/commits/$sha/check-runs?check_name=CI&filter=latest" --jq '.check_runs[0].conclusion // "missing"')"
+          if [ "$ci" != success ]; then
+            echo "::error::CI on $REF ($sha) is $ci, not success"
+            exit 1
+          fi
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Deploying \`$REF\` ($sha)" >> "$GITHUB_STEP_SUMMARY"
+
+  images:
+    name: Images
+    needs: commit
+    uses: ./.github/workflows/images.yml
+    with:
+      sha: ${{ needs.commit.outputs.sha }}
+      rebuild: ${{ inputs.rebuild || false }}
+    permissions:
+      contents: read
+      packages: write
+
+  deploy:
+    name: Deploy to the VPS
+    needs: [commit, images]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
@@ -65,20 +141,14 @@ jobs:
       packages: read
 
     env:
-      SHA: ${{ inputs.sha || github.event.workflow_run.head_sha || github.sha }}
+      SHA: ${{ needs.commit.outputs.sha }}
+      RELEASE: ${{ needs.commit.outputs.ref }}
       DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
       DEPLOY_USER: ${{ vars.DEPLOY_USER || 'deploy' }}
       # Each has deploy/<service>/compose.yml and deploy/caddy/<service>.caddy.
       SERVICES: uptime-kuma beszel umami
 
     steps:
-      - name: Check the SHA
-        run: |
-          if ! printf '%s' "$SHA" | grep -Eq '^[0-9a-f]{40}$'; then
-            echo "::error::'$SHA' is not a full commit SHA"
-            exit 1
-          fi
-
       # The compose files and the Caddy sites come from the commit being
       # deployed, so a rollback rolls all of them back with the image.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -189,7 +259,7 @@ jobs:
             echo "$target written"
           done
 
-      # `release.env` records the deployed commit, so a manual
+      # `release.env` records the deployed commit and release, so a manual
       # `docker compose --env-file .env --env-file release.env up -d` on the
       # server starts the same image. `--wait` fails the job if the container
       # does not come up healthy; the previous one keeps serving until the new
@@ -205,7 +275,7 @@ jobs:
           cd /srv/jleveneur
           echo '$REGISTRY_TOKEN' | docker login ghcr.io -u '$REGISTRY_USER' --password-stdin > /dev/null
           trap 'docker logout ghcr.io > /dev/null' EXIT
-          printf 'PORTFOLIO_TAG=%s\n' '$SHA' > release.env
+          printf 'PORTFOLIO_TAG=%s\nPORTFOLIO_RELEASE=%s\n' '$SHA' '$RELEASE' > release.env
           docker compose --env-file .env --env-file release.env pull --quiet
           docker compose --env-file .env --env-file release.env up -d --remove-orphans --wait --wait-timeout 180
           docker compose --env-file .env --env-file release.env ps --format 'table {{.Service}}\t{{.Image}}\t{{.Status}}'
