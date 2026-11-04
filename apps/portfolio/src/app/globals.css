@@ -1,13 +1,15 @@
 @import "tailwindcss";
 
 /*
- * The blueprint: white lines on cyanotype blue, with an amber pen for the
- * markup. One palette, light or dark system setting alike — the drawing is
- * the identity, so it does not invert.
+ * The comic page: black ink on white paper, halftone screens for the tones,
+ * and one spot colour, the arena blue, for what you can act on. One palette,
+ * light or dark system setting alike — the page is printed, so it does not
+ * invert.
  */
 @theme inline {
   --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-bangers), var(--font-archivo), ui-sans-serif, sans-serif;
 
   --color-paper: var(--paper);
   --color-paper-deep: var(--paper-deep);
@@ -19,59 +21,79 @@
   --color-signal: var(--signal);
   --color-signal-ink: var(--signal-ink);
   --color-danger: var(--danger);
+
+  /* A panel's hard drop shadow, offset like a misregistered print. */
+  --shadow-panel: 5px 5px 0 var(--ink);
+  --shadow-panel-lg: 9px 9px 0 var(--ink);
+  --text-shadow-pop: 0.06em 0.06em 0 var(--signal);
 }
 
 :root {
-  --paper: oklch(0.31 0.1 257);
-  --paper-deep: oklch(0.26 0.09 258);
-  --paper-raised: oklch(0.35 0.1 256);
-  --ink: oklch(0.97 0.015 230);
-  --ink-muted: oklch(0.84 0.045 235);
-  --line: oklch(0.97 0.015 230 / 0.55);
-  --line-faint: oklch(0.97 0.015 230 / 0.2);
-  --grid: oklch(0.97 0.015 230 / 0.06);
-  --grid-major: oklch(0.97 0.015 230 / 0.11);
-  --signal: oklch(0.83 0.15 75);
-  --signal-ink: oklch(0.24 0.08 258);
-  --danger: oklch(0.8 0.13 25);
-  color-scheme: dark;
+  --paper: oklch(0.985 0.006 95);
+  --paper-deep: oklch(0.94 0.008 95);
+  --paper-raised: oklch(1 0 0);
+  --ink: oklch(0.17 0 0);
+  --ink-muted: oklch(0.4 0 0);
+  --line: oklch(0.17 0 0);
+  --line-faint: oklch(0.17 0 0 / 0.25);
+  --signal: oklch(0.55 0.21 262);
+  --signal-ink: oklch(0.985 0.006 95);
+  --danger: oklch(0.55 0.2 27);
+  color-scheme: light;
 }
 
-/* Corner brackets, as on a drawing sheet's border. */
-@utility corner-marks {
-  --mark: 0.875rem;
-  background-image:
-    linear-gradient(var(--ink), var(--ink)), linear-gradient(var(--ink), var(--ink)),
-    linear-gradient(var(--ink), var(--ink)), linear-gradient(var(--ink), var(--ink)),
-    linear-gradient(var(--ink), var(--ink)), linear-gradient(var(--ink), var(--ink)),
-    linear-gradient(var(--ink), var(--ink)), linear-gradient(var(--ink), var(--ink));
-  background-size:
-    var(--mark) 1px,
-    1px var(--mark),
-    var(--mark) 1px,
-    1px var(--mark),
-    var(--mark) 1px,
-    1px var(--mark),
-    var(--mark) 1px,
-    1px var(--mark);
-  background-position:
-    top left,
-    top left,
-    top right,
-    top right,
-    bottom left,
-    bottom left,
-    bottom right,
-    bottom right;
-  background-repeat: no-repeat;
+/* A halftone screen of ink dots. Pair it with `opacity-*` for the tone. */
+@utility halftone {
+  background-image: radial-gradient(circle, var(--ink) 30%, transparent 33%);
+  background-size: 7px 7px;
 }
 
-/* A section cut's hatching. */
-@utility hatch {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    var(--line-faint) 0 1px,
-    transparent 1px 0.5rem
+/* Fades a screen out from its top-left corner, like a light source. */
+@utility fade-out {
+  mask-image: linear-gradient(135deg, black 10%, transparent 75%);
+}
+
+/* Speed lines radiating from the centre, clear in the middle. */
+@utility speed-lines {
+  background-image: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    var(--ink) 0deg 1.5deg,
+    transparent 1.5deg 8deg
+  );
+  mask-image: radial-gradient(circle closest-side, transparent 30%, black 55%, transparent 100%);
+}
+
+/* The jagged outline of a sound effect's balloon. */
+@utility burst {
+  clip-path: polygon(
+    50% 1.1%,
+    57.7% 16.3%,
+    72.1% 4.1%,
+    71.4% 23.2%,
+    89.3% 18.7%,
+    82% 34.6%,
+    96.2% 39.5%,
+    86% 50%,
+    96% 60.5%,
+    82.2% 65.5%,
+    87.1% 79.6%,
+    71.4% 76.9%,
+    71.5% 94.6%,
+    58.3% 86.4%,
+    50% 97.7%,
+    42.2% 84%,
+    28% 95.7%,
+    26.4% 79.5%,
+    10.5% 81.5%,
+    17.9% 65.4%,
+    -1.5% 61.8%,
+    15.8% 50%,
+    -0.8% 38.4%,
+    18.3% 34.7%,
+    12.6% 20.2%,
+    28.5% 23%,
+    28.8% 6%,
+    41.7% 13.7%
   );
 }
 
@@ -88,20 +110,8 @@
     }
   }
 
-  /* The drafting grid: a fine 24px pitch and a heavier line every fifth. */
   body {
     @apply bg-paper text-ink font-sans antialiased;
-    background-image:
-      linear-gradient(var(--grid-major) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-    background-size:
-      120px 120px,
-      120px 120px,
-      24px 24px,
-      24px 24px;
-    background-position: -1px -1px;
   }
 
   ::selection {
@@ -109,6 +119,6 @@
   }
 
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-signal;
+    @apply outline-3 outline-offset-2 outline-signal;
   }
 }

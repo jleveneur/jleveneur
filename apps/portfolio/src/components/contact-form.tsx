@@ -33,7 +33,7 @@ function ContactFormRound({ dict, privacyHref, onReset }: RoundProps) {
         <p className="font-mono text-xs tracking-widest text-signal uppercase">
           ✓ {dict.reference} {state.reference}
         </p>
-        <h2 className="font-stretch-75% text-4xl leading-none font-extrabold uppercase">
+        <h2 className="font-display text-5xl leading-none tracking-wide uppercase">
           {dict.sentTitle}
         </h2>
         <p className="text-lg text-ink-muted">{dict.sentBody}</p>
@@ -41,7 +41,7 @@ function ContactFormRound({ dict, privacyHref, onReset }: RoundProps) {
           <button
             type="button"
             onClick={onReset}
-            className="mt-2 border border-ink px-5 py-3 text-sm font-bold tracking-wide uppercase transition-colors hover:bg-ink hover:text-paper"
+            className="mt-2 border-3 border-ink bg-paper-raised px-5 py-2.5 font-display text-xl tracking-wider uppercase shadow-panel transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-ink hover:text-paper hover:shadow-panel-lg"
           >
             {dict.another}
           </button>
@@ -103,7 +103,10 @@ function ContactFormRound({ dict, privacyHref, onReset }: RoundProps) {
       </div>
 
       {formError === undefined ? null : (
-        <p role="alert" className="border border-danger px-4 py-3 text-danger">
+        <p
+          role="alert"
+          className="border-3 border-danger bg-paper-raised px-4 py-3 font-semibold text-danger"
+        >
           {dict.errors[formError]}
         </p>
       )}
@@ -112,7 +115,7 @@ function ContactFormRound({ dict, privacyHref, onReset }: RoundProps) {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex items-center gap-3 bg-signal px-6 py-3.5 text-sm font-bold tracking-wide text-signal-ink uppercase transition-colors hover:bg-ink disabled:cursor-wait disabled:opacity-70"
+          className="inline-flex items-center gap-3 border-3 border-ink bg-signal px-6 py-3 font-display text-xl tracking-wider text-signal-ink uppercase shadow-panel transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-panel-lg active:translate-x-1 active:translate-y-1 active:shadow-none disabled:cursor-wait disabled:opacity-70"
         >
           {pending ? dict.submitting : dict.submit}
           <span aria-hidden="true">→</span>
@@ -179,18 +182,18 @@ function Field({
         <textarea
           {...shared}
           rows={7}
-          className="w-full resize-y border border-line bg-paper-deep/60 px-4 py-3 text-lg placeholder:text-ink-muted/60 focus:border-signal focus:outline-none aria-invalid:border-danger"
+          className="w-full resize-y border-3 border-ink bg-paper-raised px-4 py-3 text-lg transition-shadow placeholder:text-ink-muted/60 focus:shadow-panel focus:outline-none aria-invalid:border-danger"
         />
       ) : (
         <input
           {...shared}
           type={type}
           autoComplete={autoComplete}
-          className="w-full border border-line bg-paper-deep/60 px-4 py-3 text-lg placeholder:text-ink-muted/60 focus:border-signal focus:outline-none aria-invalid:border-danger"
+          className="w-full border-3 border-ink bg-paper-raised px-4 py-3 text-lg transition-shadow placeholder:text-ink-muted/60 focus:shadow-panel focus:outline-none aria-invalid:border-danger"
         />
       )}
       {error === undefined ? null : (
-        <p id={errorId} className="text-sm text-danger">
+        <p id={errorId} className="text-sm font-semibold text-danger">
           {dict.errors[error]}
         </p>
       )}

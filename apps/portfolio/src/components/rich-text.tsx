@@ -6,7 +6,7 @@ export function RichText({ text }: { text: string }) {
         index % 2 === 1 ? (
           <code
             key={`${String(index)}:${part}`}
-            className="bg-paper-deep px-1 py-0.5 font-mono text-sm text-ink"
+            className="border border-ink bg-paper-deep px-1 py-0.5 font-mono text-sm text-ink"
           >
             {part}
           </code>

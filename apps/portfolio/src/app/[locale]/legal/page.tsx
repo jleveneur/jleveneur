@@ -42,10 +42,10 @@ export default async function LegalPage({ params }: PageProps<"/[locale]/legal">
             code={`§${String(index + 1)}`}
             title={part.title}
           />
-          <div className="mt-10 grid gap-x-12 gap-y-10 sm:pl-14 lg:grid-cols-2">
+          <div className="mt-10 grid gap-x-12 gap-y-10 sm:pl-18 lg:grid-cols-2">
             {part.blocks.map((block) => (
               <section key={block.heading}>
-                <h3 className="border-b border-line pb-3 font-stretch-75% text-2xl font-extrabold uppercase">
+                <h3 className="border-b-2 border-ink pb-3 font-display text-3xl tracking-wide uppercase">
                   {block.heading}
                 </h3>
                 <div className="mt-4 grid gap-4 text-ink-muted">
@@ -59,7 +59,7 @@ export default async function LegalPage({ params }: PageProps<"/[locale]/legal">
         </section>
       ))}
 
-      <p className="mt-20 font-mono text-xs tracking-widest text-ink-muted uppercase sm:pl-14">
+      <p className="mt-20 font-mono text-xs tracking-widest text-ink-muted uppercase sm:pl-18">
         {dict.legal.updated} <time dateTime={legalUpdated}>{updated}</time>
       </p>
     </div>

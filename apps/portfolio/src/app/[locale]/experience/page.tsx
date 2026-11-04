@@ -81,7 +81,7 @@ export default async function ExperiencePage({ params }: PageProps<"/[locale]/ex
 
 function Timeline({ children }: { children: ReactNode }) {
   return (
-    <ol className="relative mt-12 grid gap-12 border-l border-line pl-8 sm:ml-5 sm:pl-12">
+    <ol className="relative mt-12 grid gap-12 border-l-3 border-ink pl-8 sm:ml-5 sm:pl-12">
       {children}
     </ol>
   )
@@ -100,10 +100,10 @@ function Entry({ period, title, subtitle, summary, stack }: EntryProps) {
     <li className="relative">
       <span
         aria-hidden="true"
-        className="absolute top-1.5 -left-9.5 size-3 border border-ink bg-paper sm:-left-13.5"
+        className="absolute top-0.5 -left-10.5 size-4 rounded-full border-3 border-ink bg-signal sm:-left-14.5"
       />
-      <p className="font-mono text-sm text-signal">{period}</p>
-      <h3 className="mt-2 font-stretch-75% text-3xl leading-none font-extrabold uppercase sm:text-4xl">
+      <p className="font-mono text-sm font-semibold text-signal">{period}</p>
+      <h3 className="mt-2 font-display text-4xl leading-none tracking-wide uppercase sm:text-5xl">
         {title}
       </h3>
       <p className="mt-2 font-mono text-sm tracking-wide text-ink-muted uppercase">{subtitle}</p>

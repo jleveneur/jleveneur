@@ -23,11 +23,11 @@ export function NavLinks({ items, label }: { items: NavItem[]; label: string }) 
                 aria-current={current ? "page" : undefined}
                 className={
                   current
-                    ? "flex flex-col items-center gap-0.5 px-1 py-2 text-signal md:flex-row md:gap-2 md:px-3"
+                    ? "flex flex-col items-center gap-0.5 bg-ink px-1 py-2 text-paper md:flex-row md:gap-2 md:px-3"
                     : "flex flex-col items-center gap-0.5 px-1 py-2 text-ink transition-colors hover:text-signal md:flex-row md:gap-2 md:px-3"
                 }
               >
-                <span aria-hidden="true" className="font-mono text-xs text-ink-muted">
+                <span aria-hidden="true" className="font-mono text-xs opacity-60">
                   {item.code}
                 </span>
                 <span className="text-xs font-semibold tracking-wide whitespace-nowrap uppercase sm:text-sm">
@@ -53,7 +53,7 @@ export function LocaleSwitch({ label, names }: LocaleSwitchProps) {
 
   return (
     <nav aria-label={label}>
-      <ul className="flex border border-line">
+      <ul className="flex border-2 border-ink">
         {locales.map((locale) => (
           <li key={locale}>
             <Link
