@@ -15,20 +15,23 @@ type ProjectCardProps = {
 /** The whole card is the link, through the title's stretched hit area. */
 export function ProjectCard({ project, figure, locale, figureLabel }: ProjectCardProps) {
   return (
-    <article className="group relative flex flex-col border border-line-faint bg-paper-deep/40 transition-colors hover:border-ink">
-      <div className="border-b border-line-faint p-5 sm:p-6">
-        <SchematicFigure
-          locale={locale}
-          schematic={project.schematic}
-          label={`${figureLabel} — ${project.title}`}
-        />
+    <article className="group relative flex flex-col border-3 border-ink bg-paper-raised shadow-panel transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-panel-lg">
+      <div className="relative overflow-hidden border-b-3 border-ink p-5 sm:p-6">
+        <span aria-hidden="true" className="absolute inset-0 halftone fade-out opacity-20" />
+        <div className="relative">
+          <SchematicFigure
+            locale={locale}
+            schematic={project.schematic}
+            label={`${figureLabel} — ${project.title}`}
+          />
+        </div>
       </div>
       <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <div className="flex items-center justify-between font-mono text-xs text-ink-muted">
-          <span>FIG. {String(figure).padStart(2, "0")}</span>
+        <div className="flex items-center justify-between font-mono text-xs font-semibold text-ink-muted">
+          <span>Nº {String(figure).padStart(2, "0")}</span>
           <span>{project.year}</span>
         </div>
-        <h3 className="mt-3 font-stretch-75% text-3xl leading-none font-extrabold uppercase">
+        <h3 className="mt-3 font-display text-4xl leading-none tracking-wide uppercase">
           <Link
             href={localePath(locale, `/projects/${project.slug}`)}
             className="after:absolute after:inset-0 group-hover:text-signal"

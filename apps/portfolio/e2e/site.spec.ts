@@ -63,11 +63,11 @@ test("every project has its sheet, reachable from the list", async ({ page }) =>
 test("an unknown page answers 404 in its language", async ({ page }) => {
   const french = await page.goto("/nope")
   expect(french?.status()).toBe(404)
-  await expect(page.getByRole("heading", { name: "Feuille introuvable" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Planche introuvable" })).toBeVisible()
 
   const english = await page.goto("/en/projects/nope")
   expect(english?.status()).toBe(404)
-  await expect(page.getByRole("heading", { name: "Sheet not found" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Missing page" })).toBeVisible()
 })
 
 test("the legal page is linked from the footer and the contact form", async ({ page }) => {

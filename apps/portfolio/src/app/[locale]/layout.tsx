@@ -46,7 +46,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
     <html lang={locale} className={fontVariables}>
       <body className="flex min-h-dvh flex-col">
         <SiteHeader locale={locale} dict={dict} />
-        <main id="content" className="flex-1">
+        <main id="content" className="flex-1 overflow-x-clip">
           {children}
         </main>
         <SiteFooter locale={locale} dict={dict} />

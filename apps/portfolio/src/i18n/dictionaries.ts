@@ -21,17 +21,18 @@ const fr = {
   },
   skipLink: "Aller au contenu",
   home: {
-    sheet: "Élévation principale",
+    sheet: "Planche d'ouverture",
+    sound: "Salut !",
     pitch:
       "Je conçois et je construis des applications web de bout en bout : l'interface, l'API, la base de données et le serveur qui les fait tourner. Les agents IA sont mes outils du quotidien ; les types, le lint et les tests décident de ce qui part en production.",
     primaryCta: "Écrire un message",
     secondaryCta: "Voir les projets",
-    stackFigure: "Coupe de la pile",
+    stackFigure: "La pile, en coupe",
     servicesTitle: "Ce que je fais",
     servicesIntro:
       "Quatre spécialités, une même exigence : que ce soit typé, testé, et déployable.",
     projectsTitle: "Projets sélectionnés",
-    projectsIntro: "Des produits en production et des outils publiés, chacun avec son plan.",
+    projectsIntro: "Des produits en production et des outils publiés, chacun avec son schéma.",
     allProjects: "Tous les projets",
     experienceTitle: "Parcours",
     experienceIntro: "Les postes récents. Le détail et la formation sont sur la page dédiée.",
@@ -102,15 +103,15 @@ const fr = {
     }
   },
   notFound: {
-    title: "Feuille introuvable",
-    body: "Cette page n'existe pas, ou plus. Le plan d'ensemble est par ici.",
+    title: "Planche introuvable",
+    body: "Cette page n'existe pas, ou plus. Le début de l'histoire est par ici.",
     home: "Retour à l'accueil"
   },
   footer: {
-    project: "Projet",
-    drawnBy: "Dessiné par",
-    scale: "Échelle",
-    revision: "Révision",
+    series: "Série",
+    credits: "Scénario & dessin",
+    issue: "Numéro",
+    printed: "Imprimé le",
     source: "Code source",
     legal: "Mentions légales et confidentialité"
   },
@@ -146,12 +147,13 @@ const en: Dictionary = {
   },
   skipLink: "Skip to content",
   home: {
-    sheet: "Front elevation",
+    sheet: "Opening page",
+    sound: "Hi!",
     pitch:
       "I design and build web applications end to end: the interface, the API, the database and the server they run on. AI agents are my everyday tools; types, lint and tests decide what ships to production.",
     primaryCta: "Send a message",
     secondaryCta: "See the projects",
-    stackFigure: "Stack section",
+    stackFigure: "The stack, cut open",
     servicesTitle: "What I do",
     servicesIntro: "Four specialties, one standard: typed, tested, and deployable.",
     projectsTitle: "Selected projects",
@@ -225,15 +227,15 @@ const en: Dictionary = {
     }
   },
   notFound: {
-    title: "Sheet not found",
-    body: "This page does not exist, or no longer does. The general plan is this way.",
+    title: "Missing page",
+    body: "This page does not exist, or no longer does. The story starts this way.",
     home: "Back to the homepage"
   },
   footer: {
-    project: "Project",
-    drawnBy: "Drawn by",
-    scale: "Scale",
-    revision: "Revision",
+    series: "Series",
+    credits: "Story & art",
+    issue: "Issue",
+    printed: "Printed",
     source: "Source code",
     legal: "Legal notice and privacy"
   },

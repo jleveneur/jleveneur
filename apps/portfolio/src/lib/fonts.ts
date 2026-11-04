@@ -1,14 +1,20 @@
-import { Archivo } from "next/font/google"
+import { Archivo, Bangers } from "next/font/google"
 import localFont from "next/font/local"
 
 /**
- * Archivo carries a width axis: headings use its condensed cut, which reads
- * like the lettering on a technical drawing, and body text the normal one.
- * Next downloads it at build time and serves it from this origin.
+ * Bangers is comic-book lettering, for headings and sound effects; it has a
+ * single weight, so nothing that uses it asks for bold. Archivo sets the body
+ * text. Next downloads both at build time and serves them from this origin.
  */
+const bangers = Bangers({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-bangers",
+  display: "swap"
+})
+
 const archivo = Archivo({
   subsets: ["latin"],
-  axes: ["wdth"],
   variable: "--font-archivo",
   display: "swap"
 })
@@ -18,4 +24,4 @@ const geistMono = localFont({
   variable: "--font-geist-mono"
 })
 
-export const fontVariables = `${archivo.variable} ${geistMono.variable}`
+export const fontVariables = `${bangers.variable} ${archivo.variable} ${geistMono.variable}`

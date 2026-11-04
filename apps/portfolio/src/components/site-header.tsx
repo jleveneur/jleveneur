@@ -14,7 +14,7 @@ export function SiteHeader({ locale, dict }: { locale: Locale; dict: Dictionary 
   ]
 
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur-sm">
+    <header className="sticky top-0 z-20 border-b-3 border-ink bg-paper">
       <a
         href="#content"
         className="sr-only bg-signal px-3 py-2 text-signal-ink focus:not-sr-only focus:absolute focus:top-2 focus:left-2"
@@ -25,12 +25,14 @@ export function SiteHeader({ locale, dict }: { locale: Locale; dict: Dictionary 
         <Link href={localePath(locale, "/")} className="group flex items-center gap-3">
           <span
             aria-hidden="true"
-            className="grid size-9 place-items-center border border-ink font-mono text-sm font-bold transition-colors group-hover:border-signal group-hover:text-signal"
+            className="grid size-10 -rotate-6 place-items-center border-3 border-ink bg-ink font-display text-xl tracking-wide text-paper transition group-hover:rotate-0 group-hover:bg-signal"
           >
             JL
           </span>
           <span className="leading-tight">
-            <span className="block text-sm font-bold tracking-wide uppercase">{name}</span>
+            <span className="block font-display text-xl leading-none tracking-wider uppercase">
+              {name}
+            </span>
             <span className="block font-mono text-xs text-ink-muted">{dict.role}</span>
           </span>
         </Link>
@@ -44,7 +46,7 @@ export function SiteHeader({ locale, dict }: { locale: Locale; dict: Dictionary 
           />
         </div>
       </div>
-      <div className="border-t border-line-faint md:hidden">
+      <div className="border-t-2 border-ink md:hidden">
         <NavLinks items={items} label={dict.nav.label} />
       </div>
     </header>

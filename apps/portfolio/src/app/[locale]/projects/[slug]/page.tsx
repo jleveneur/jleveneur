@@ -3,7 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import type { ReactNode } from "react"
 
-import { DimensionLine, Sheet, Tag } from "@/components/drawing"
+import { Caption, Panel, Tag } from "@/components/drawing"
 import { RichText } from "@/components/rich-text"
 import { SchematicFigure } from "@/components/schematic"
 import { findProject, projects } from "@/content/projects"
@@ -39,7 +39,7 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
   const dict = getDictionary(locale)
   const index = projects.indexOf(project)
   const next = projects[(index + 1) % projects.length] ?? project
-  const figure = `FIG. ${String(index + 1).padStart(2, "0")}`
+  const figure = `Nº ${String(index + 1).padStart(2, "0")}`
 
   return (
     <article className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-16">
@@ -54,17 +54,17 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
         <p className="font-mono text-xs tracking-widest text-ink-muted uppercase">
           {figure} — {project.kind[locale]}
         </p>
-        <h1 className="font-stretch-75% text-6xl leading-none font-extrabold tracking-tight uppercase sm:text-8xl">
+        <h1 className="font-display text-7xl leading-none tracking-wide uppercase text-shadow-pop sm:text-9xl">
           {project.title}
         </h1>
-        <div className="max-w-md">
-          <DimensionLine label={project.year} />
+        <div>
+          <Caption label={project.year} />
         </div>
         <p className="max-w-3xl text-xl text-ink-muted">{project.summary[locale]}</p>
       </header>
 
       <div className="mt-12">
-        <Sheet label={`${figure} — ${dict.projects.figure}`}>
+        <Panel label={`${figure} — ${dict.projects.figure}`}>
           <div className="mx-auto max-w-3xl">
             <SchematicFigure
               locale={locale}
@@ -72,14 +72,14 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
               label={`${dict.projects.figure} — ${project.title}`}
             />
           </div>
-        </Sheet>
+        </Panel>
       </div>
 
       <dl
         className={
           project.links.length === 0
-            ? "mt-12 grid gap-px border border-ink bg-line-faint sm:grid-cols-3"
-            : "mt-12 grid gap-px border border-ink bg-line-faint sm:grid-cols-2 lg:grid-cols-4"
+            ? "mt-12 grid gap-1 border-3 border-ink bg-ink shadow-panel sm:grid-cols-3"
+            : "mt-12 grid gap-1 border-3 border-ink bg-ink shadow-panel sm:grid-cols-2 lg:grid-cols-4"
         }
       >
         <Spec label={dict.projects.year}>{project.year}</Spec>
@@ -124,13 +124,13 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
 
       <Link
         href={localePath(locale, `/projects/${next.slug}`)}
-        className="group mt-20 flex items-end justify-between gap-6 border-t border-line pt-8"
+        className="group mt-20 flex items-end justify-between gap-6 border-t-3 border-ink pt-8"
       >
         <span>
           <span className="block font-mono text-xs tracking-widest text-ink-muted uppercase">
             {dict.projects.next}
           </span>
-          <span className="mt-2 block font-stretch-75% text-4xl font-extrabold uppercase group-hover:text-signal sm:text-5xl">
+          <span className="mt-2 block font-display text-5xl tracking-wide uppercase group-hover:text-signal sm:text-6xl">
             {next.title}
           </span>
         </span>
@@ -144,7 +144,7 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/proje
 
 function Spec({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="bg-paper p-5">
+    <div className="bg-paper-raised p-5">
       <dt className="font-mono text-xs tracking-widest text-ink-muted uppercase">{label}</dt>
       <dd className="mt-2 font-semibold">{children}</dd>
     </div>
@@ -154,8 +154,8 @@ function Spec({ label, children }: { label: string; children: ReactNode }) {
 function Block({ code, title, children }: { code: string; title: string; children: ReactNode }) {
   return (
     <section>
-      <h2 className="flex items-center gap-3 border-b border-line pb-3 font-stretch-75% text-2xl font-extrabold uppercase">
-        <span className="font-mono text-xs font-normal text-ink-muted">{code}</span>
+      <h2 className="flex items-center gap-3 border-b-3 border-ink pb-3 font-display text-3xl tracking-wide uppercase">
+        <span className="font-mono text-xs text-ink-muted">{code}</span>
         {title}
       </h2>
       <div className="mt-5">{children}</div>
@@ -168,7 +168,10 @@ function List({ items }: { items: string[] }) {
     <ul className="grid gap-4">
       {items.map((item) => (
         <li key={item} className="flex gap-3 text-ink-muted">
-          <span aria-hidden="true" className="mt-2.5 size-1.5 shrink-0 bg-signal" />
+          <span
+            aria-hidden="true"
+            className="mt-2 size-2.5 shrink-0 rounded-full border-2 border-ink bg-signal"
+          />
           <span>
             <RichText text={item} />
           </span>

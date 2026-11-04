@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 import { ContactForm } from "@/components/contact-form"
-import { SectionHeading, Sheet } from "@/components/drawing"
+import { SectionHeading, Panel } from "@/components/drawing"
 import { SchematicFigure } from "@/components/schematic"
 import { email, socialLinks } from "@/content/site"
 import { isLocale, type Locale, localePath } from "@/i18n/config"
@@ -62,26 +62,26 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
       />
 
       <div className="mt-12 grid gap-10 lg:grid-cols-[1.6fr_1fr]">
-        <Sheet label="FORM-01">
+        <Panel label="Nº 01">
           <ContactForm
             dict={dict.contact.form}
             privacyHref={`${localePath(locale, "/legal")}#privacy`}
           />
-        </Sheet>
+        </Panel>
 
         <aside className="grid content-start gap-10">
           <div className="grid gap-4">
             <p className="font-mono text-xs tracking-widest text-ink-muted uppercase">
-              FIG. — {dict.contact.title}
+              Nº 02 — {dict.contact.title}
             </p>
             <SchematicFigure locale={locale} schematic={ROUTE[locale]} label={dict.contact.title} />
           </div>
 
           <div>
-            <h2 className="border-b border-line pb-3 font-stretch-75% text-2xl font-extrabold uppercase">
+            <h2 className="border-b-2 border-ink pb-3 font-display text-3xl tracking-wide uppercase">
               {dict.contact.otherChannels}
             </h2>
-            <ul className="divide-y divide-line-faint">
+            <ul className="divide-y-2 divide-ink">
               <li>
                 <a
                   href={`mailto:${email}`}
